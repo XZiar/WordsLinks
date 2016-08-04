@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:ext="clr-namespace:WordsLinks.Widget;assembly=Main"
+             x:Class="WordsLinks.View.WritePage">
+  <StackLayout Spacing="8" Padding="8">
+    <StackLayout Orientation="Horizontal" Margin="8,0" HorizontalOptions="FillAndExpand" VerticalOptions="Start">
+      <Frame HasShadow="False" Padding="8" HorizontalOptions="FillAndExpand" >
+        <ext:EntryEx x:Name="word" FontSize="Large" Placeholder="待查单词" TextChanged="OnTextChanged" Border="None"
+               Margin="4,8" HorizontalOptions="FillAndExpand" VerticalOptions="Center"/>
+      </Frame>
+    </StackLayout>
+    <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="1*" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="1*" />
+      </Grid.ColumnDefinitions>
+
+      <Label FontSize="Large" Text="在线翻译"
+             Margin="0,4" Grid.Row="0" Grid.Column="0" HorizontalOptions="Center"/>
+      <Label FontSize="Large" Text="确认翻译"
+             Margin="0,4" Grid.Row="0" Grid.Column="2" HorizontalOptions="Center"/>
+      <ListView x:Name="webtrans" 
+                Grid.Row="1" Grid.Column="0" HorizontalOptions="FillAndExpand"/>
+      <BoxView Color="Gray" WidthRequest="1" Margin="4" Grid.Column="1" Grid.RowSpan="2" VerticalOptions="FillAndExpand"/>
+      <ScrollView Grid.Row="1" Grid.Column="2" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+        <Label x:Name="tmp2" TextColor="Fuchsia" Text="normal text"/>
+      </ScrollView>
+    </Grid>
+
+    <Button x:Name="add" Text="添加" FontSize="Large" TextColor="White" BackgroundColor="Gray" Clicked="OnAddClicked"
+            IsEnabled="false" Margin="24,0" HorizontalOptions="FillAndExpand" VerticalOptions="End"/>
+  </StackLayout>
+
+</ContentPage>
