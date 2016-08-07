@@ -7,7 +7,11 @@
   <TabbedPage.Children>
     <local:WritePage Title="添加" Icon="write.png" />
     <local:MemorizePage Title="记忆" Icon="memorize.png" />
-    <local:SettingPage Title="设置" Icon="setting.png" />
+    <NavigationPage Title="设置" Icon="setting.png">
+      <x:Arguments>
+        <local:SettingPage />
+      </x:Arguments>
+    </NavigationPage>
   </TabbedPage.Children>
   
 </TabbedPage>

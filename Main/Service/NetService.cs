@@ -38,6 +38,7 @@ namespace WordsLinks
 
 		private static List<Tuple<string, Uri, HttpClient>> servers = new List<Tuple<string, Uri, HttpClient>>();
 		public static HttpClient client { get; private set; }
+        private static int curChoiceIdx;
 
 		static NetService()
 		{
@@ -82,12 +83,13 @@ namespace WordsLinks
 
 		public static void init() { }
 
-		public static string[] GetChoices() => servers.Select(s => s.Item1).ToArray();
+        public static Tuple<int, string[]> GetChoices() 
+            => new Tuple<int, string[]>(curChoiceIdx, servers.Select(s => s.Item1).ToArray());
 
 		public static void Choose(int idx)
 		{
-			if(idx < servers.Count)
-				client = servers[0].Item3;
+            if (idx < servers.Count)
+                client = servers[curChoiceIdx = idx].Item3;
 		}
 	}
 }

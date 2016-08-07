@@ -28,9 +28,9 @@
       <ListView x:Name="webtrans" 
                 Grid.Row="1" Grid.Column="0" HorizontalOptions="FillAndExpand"/>
       <BoxView Color="Gray" WidthRequest="1" Margin="4" Grid.Column="1" Grid.RowSpan="2" VerticalOptions="FillAndExpand"/>
-      <ScrollView Grid.Row="1" Grid.Column="2" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
-        <Label x:Name="tmp2" TextColor="Fuchsia" Text="normal text"/>
-      </ScrollView>
+      <ListView x:Name="fintrans"
+                Grid.Row="1" Grid.Column="2" HorizontalOptions="FillAndExpand">
+      </ListView>
     </Grid>
 
     <Button x:Name="add" Text="添加" FontSize="Large" TextColor="White" BackgroundColor="Gray" Clicked="OnAddClicked"

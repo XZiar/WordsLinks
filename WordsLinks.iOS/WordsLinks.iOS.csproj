@@ -62,7 +62,7 @@
     <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
     <MtouchFloat32>False</MtouchFloat32>
     <DeviceSpecificBuild>True</DeviceSpecificBuild>
-    <CodesignProvision>f69db3a7-887c-4982-846e-aabbbeb8c899</CodesignProvision>
+    <CodesignProvision>52956c2e-68bd-4f40-b85b-08e5cc0b7f73</CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>

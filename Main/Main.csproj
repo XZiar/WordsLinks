@@ -37,25 +37,29 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="DBPoco.cs" />
-    <Compile Include="DBService.cs" />
-    <Compile Include="MainPage.xaml.cs">
+    <Compile Include="Service\DBService.cs" />
+    <Compile Include="Util\ImageResourceExtension.cs" />
+    <Compile Include="ViewModel\BaseViewModel.cs" />
+    <Compile Include="ViewModel\SelectViewModel.cs" />
+    <Compile Include="View\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MemorizePage.xaml.cs">
+    <Compile Include="View\MemorizePage.xaml.cs">
       <DependentUpon>MemorizePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="NetService.cs" />
+    <Compile Include="Service\NetService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SettingPage.xaml.cs">
+    <Compile Include="View\SettingPage.xaml.cs">
       <DependentUpon>SettingPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SpecificUtils.cs" />
-    <Compile Include="TranslateService.cs" />
+    <Compile Include="Util\SpecificUtils.cs" />
+    <Compile Include="Service\TranslateService.cs" />
     <Compile Include="Widget\EntryEx.cs" />
     <Compile Include="Widget\FrameEx.cs" />
-    <Compile Include="WritePage.xaml.cs">
+    <Compile Include="View\WritePage.xaml.cs">
       <DependentUpon>WritePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Widget\SelectCell.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="network.json" />
@@ -100,23 +104,27 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="MainPage.xaml">
+    <EmbeddedResource Include="View\MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
-    <EmbeddedResource Include="MemorizePage.xaml">
+    <EmbeddedResource Include="View\MemorizePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
-    <EmbeddedResource Include="SettingPage.xaml">
+    <EmbeddedResource Include="View\SettingPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
-    <EmbeddedResource Include="WritePage.xaml">
+    <EmbeddedResource Include="View\WritePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="yes.png" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
