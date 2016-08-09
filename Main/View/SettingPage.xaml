@@ -7,6 +7,8 @@
     <TableRoot>
       <TableSection x:Name="netSect" Title="网络设置">
       </TableSection>
+      <TableSection x:Name="wordsSect" Title="单词本">
+      </TableSection>
     </TableRoot>
   </TableView>
 </ContentPage >

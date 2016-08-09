@@ -1,15 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:ext="clr-namespace:WordsLinks.Widget;assembly=Main"
+             xmlns:wid="clr-namespace:WordsLinks.Widget;assembly=Main"
+             xmlns:tool="clr-namespace:WordsLinks.Util;assembly=Main"
              x:Class="WordsLinks.View.WritePage">
-  <StackLayout Spacing="8" Padding="8">
-    <StackLayout Orientation="Horizontal" Margin="8,0" HorizontalOptions="FillAndExpand" VerticalOptions="Start">
-      <Frame HasShadow="False" Padding="8" HorizontalOptions="FillAndExpand" >
-        <ext:EntryEx x:Name="word" FontSize="Large" Placeholder="待查单词" TextChanged="OnTextChanged" Border="None"
+  <StackLayout Spacing="8" Padding="8" Orientation="Vertical">
+
+    <wid:FrameEx HasShadow="True" ShadowWidth="2" Padding="4" Border="Rect"
+                 Margin="8,0" HorizontalOptions="FillAndExpand" VerticalOptions="Start">
+      <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" >
+        <wid:EntryEx x:Name="word" FontSize="Large" Placeholder="待查单词" Border="None" Completed="OnClickSearch"
                Margin="4,8" HorizontalOptions="FillAndExpand" VerticalOptions="Center"/>
-      </Frame>
-    </StackLayout>
+        <Image x:Name="search" Source="{tool:ImageResource Main.search.png}" WidthRequest="24" HeightRequest="24"
+               Margin="4" HorizontalOptions="End" VerticalOptions="Center">
+          <Image.GestureRecognizers>
+            <TapGestureRecognizer Tapped="OnClickSearch" NumberOfTapsRequired="1" />
+          </Image.GestureRecognizers>
+        </Image>
+      </StackLayout>
+    </wid:FrameEx>
+
     <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto" />
@@ -25,7 +35,7 @@
              Margin="0,4" Grid.Row="0" Grid.Column="0" HorizontalOptions="Center"/>
       <Label FontSize="Large" Text="确认翻译"
              Margin="0,4" Grid.Row="0" Grid.Column="2" HorizontalOptions="Center"/>
-      <ListView x:Name="webtrans" 
+      <ListView x:Name="webtrans"
                 Grid.Row="1" Grid.Column="0" HorizontalOptions="FillAndExpand"/>
       <BoxView Color="Gray" WidthRequest="1" Margin="4" Grid.Column="1" Grid.RowSpan="2" VerticalOptions="FillAndExpand"/>
       <ListView x:Name="fintrans"
@@ -33,7 +43,7 @@
       </ListView>
     </Grid>
 
-    <Button x:Name="add" Text="添加" FontSize="Large" TextColor="White" BackgroundColor="Gray" Clicked="OnAddClicked"
+    <Button x:Name="add" Text="添加" FontSize="Large" TextColor="White" BackgroundColor="Green" Clicked="OnAddClicked"
             IsEnabled="false" Margin="24,0" HorizontalOptions="FillAndExpand" VerticalOptions="End"/>
   </StackLayout>
 

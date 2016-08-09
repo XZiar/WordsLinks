@@ -31,31 +31,21 @@ namespace WordsLinks.View
         {
             if (e.msg == Selecting)
                 Debug.WriteLine($"click {e.obj} at {e.idx} with {e.isSelect}");
+            else if(e.msg == DataChanged)
+            {
+                add.IsEnabled = finTGroup.SelectedItems.Length > 0;
+            }
         }
 
-        public void OnTextChanged(object sender, EventArgs args)
-		{
-			Entry inputor = sender as Entry;
-			if (inputor.Text == "")
-			{
-				add.BackgroundColor = Color.Gray;
-				add.IsEnabled = false;
-			}
-			else
-			{
-				add.BackgroundColor = Color.Green;
-				add.IsEnabled = true;
-			}
-		}
+        private void OnClickSearch(object sender, EventArgs args)
+        {
+            if (word.Text != "")
+                TranslateService.Eng2Chi(word.Text, strs => webTGroup.Set(strs));
+        }
 
-		public void OnAddClicked(object sender, EventArgs args)
+        private void OnAddClicked(object sender, EventArgs args)
 		{
-            Debug.WriteLine("BorderType is " + word.Border);
-			TranslateService.Eng2Chi(word.Text, strs => 
-			{
-                //webtrans.ItemsSource = strs;
-                webTGroup.Set(strs);
-			});
+			
 		}
 	}
 }

@@ -143,6 +143,7 @@
     <MtouchFloat32>False</MtouchFloat32>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CustomRenderer_iOS.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="SpecificUtils_iOS.cs" />

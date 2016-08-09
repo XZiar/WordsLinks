@@ -10,20 +10,23 @@ using static System.StringComparison;
 
 namespace WordsLinks.Services
 {
-	static class TranslateService
-	{
-		public delegate void OnResult(string[] data);
-		static TranslateService()
-		{
-		}
+    static class TranslateService
+    {
+        public delegate void OnResult(string[] data);
+        static char[] spliter = new char[] { '；', ';', '，', ',' };
+        static string baseAPI = "https://fanyi.youdao.com/openapi.do?keyfrom={0}&key={1}&type=data&doctype=json&version=1.1&q=";
+        static string APIurl;
+        static TranslateService()
+        {
+            APIurl = string.Format(baseAPI, "WordsLinks", "57959088");
+        }
 
-		public static async void Eng2Chi(string eng, OnResult onRes)
+        public static async void Eng2Chi(string eng, OnResult onRes)
 		{
 			JObject result;
 			try
 			{
-				var ret = await NetService.client.GetStringAsync(
-					"https://fanyi.youdao.com/openapi.do?keyfrom=WordsLinks&key=57959088&type=data&doctype=json&version=1.1&q=" + eng);
+                var ret = await NetService.client.GetStringAsync(APIurl + eng);
 				result = JsonConvert.DeserializeObject<JObject>(ret);
 			}
 			catch (WebException e)
@@ -32,6 +35,11 @@ namespace WordsLinks.Services
 				onRes(new string[] { $"failed: {e.Status}\n{e.Response}" });
 				return;
 			}
+            catch (Exception e)
+            {
+                Debug.WriteLine($"failed: {e.Message}\n{e.StackTrace}");
+                return;
+            }
 			HashSet<string> trans = new HashSet<string>();
 			foreach(var tr in result["translation"])
 				trans.Add(tr.ToString());
@@ -40,7 +48,7 @@ namespace WordsLinks.Services
 				var basics = result["basic"]["explains"];
 				foreach (var basic in basics)
 				{
-					string[] explains = Regex.Replace(basic.ToString(), "[a-zA-Z.]", "").Split(new char[] { '；', ';' });
+                    string[] explains = Regex.Replace(basic.ToString(), "[a-zA-Z.]", "").Split(spliter);
 					foreach (string txt in explains)
 					{
 						string str = txt.Trim();
@@ -63,7 +71,6 @@ namespace WordsLinks.Services
 		{
 			if (chi == null)
 				return;
-
 		}
 	}
 }

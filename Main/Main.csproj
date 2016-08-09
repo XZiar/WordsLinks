@@ -54,8 +54,7 @@
     </Compile>
     <Compile Include="Util\SpecificUtils.cs" />
     <Compile Include="Service\TranslateService.cs" />
-    <Compile Include="Widget\EntryEx.cs" />
-    <Compile Include="Widget\FrameEx.cs" />
+    <Compile Include="Widget\WidgetEx.cs" />
     <Compile Include="View\WritePage.xaml.cs">
       <DependentUpon>WritePage.xaml</DependentUpon>
     </Compile>
@@ -124,7 +123,9 @@
   <ItemGroup>
     <EmbeddedResource Include="yes.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="search.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

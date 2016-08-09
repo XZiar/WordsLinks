@@ -4,6 +4,7 @@ using Xamarin.Forms.Xaml;
 
 namespace WordsLinks.Util
 {
+    [ContentProperty("Source")]
     class ImageResourceExtension : IMarkupExtension
     {
         public string Source { get; set; }
