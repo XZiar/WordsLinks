@@ -18,7 +18,7 @@ namespace WordsLinks.Widget
             Height = 60;
             CellText = new Label()
             {
-                FontAttributes = FontAttributes.Bold,
+                //FontAttributes = FontAttributes.Bold,
                 VerticalOptions = LayoutOptions.CenterAndExpand,
             };
             CellText.SetBinding(Label.TextProperty, "Text");
@@ -36,8 +36,8 @@ namespace WordsLinks.Widget
             var layout = new StackLayout()
             {
                 Orientation = StackOrientation.Horizontal,
-                Spacing = 10,
-                Padding = new Thickness(8, 4),
+                Spacing = 8,
+                Padding = new Thickness(16, 4, 8, 4),
             };
             layout.Children.Add(CellText);
             layout.Children.Add(CheckImage);

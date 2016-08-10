@@ -9,8 +9,8 @@ namespace WordsLinks
 		public App()
 		{
 			// The root page of your application
-			DBService.init();
-			NetService.init();
+			DBService.Init();
+			NetService.Init();
             MainPage = new MainPage();
         }
 

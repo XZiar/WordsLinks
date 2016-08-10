@@ -78,10 +78,12 @@ namespace WordsLinks
 				Debug.WriteLine("Server: " + server.Item1);
 				servers.Add(server);
 			}
-			Choose(0);
 		}
 
-		public static void init() { }
+		public static void Init()
+        {
+            Choose(0);
+        }
 
         public static Tuple<int, string[]> GetChoices() 
             => new Tuple<int, string[]>(curChoiceIdx, servers.Select(s => s.Item1).ToArray());

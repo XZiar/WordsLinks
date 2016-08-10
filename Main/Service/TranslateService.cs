@@ -37,7 +37,7 @@ namespace WordsLinks.Services
 			}
             catch (Exception e)
             {
-                Debug.WriteLine($"failed: {e.Message}\n{e.StackTrace}");
+                Debug.WriteLine($"exception: {e.GetType()}\nfailed: {e.Message}\n{e.StackTrace}");
                 return;
             }
 			HashSet<string> trans = new HashSet<string>();

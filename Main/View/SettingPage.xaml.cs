@@ -1,4 +1,6 @@
-﻿using WordsLinks.ViewModel;
+﻿using System;
+using WordsLinks.Services;
+using WordsLinks.ViewModel;
 using Xamarin.Forms;
 
 namespace WordsLinks.View
@@ -19,11 +21,28 @@ namespace WordsLinks.View
                     NetService.Choose(e.idx);
             };
         }
+
         protected override void OnAppearing()
         {
             base.OnAppearing();
             var dat = NetService.GetChoices();
             netChoiceGroup.Choose(dat.Item1);
+        }
+
+        private void OnDBCellTapped(object sender, EventArgs args)
+        {
+            if(sender == exportCell)
+            {
+
+            }
+            else if (sender == importCell)
+            {
+
+            }
+            else if (sender == clearCell)
+            {
+                DBService.Clear();
+            }
         }
     }
 }

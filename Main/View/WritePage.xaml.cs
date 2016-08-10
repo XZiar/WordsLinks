@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using WordsLinks.Services;
 using WordsLinks.ViewModel;
 using Xamarin.Forms;
 using static WordsLinks.ViewModel.SelectCellGroup.SelectEventArgs.Message;
+
 
 namespace WordsLinks.View
 {
@@ -21,20 +23,28 @@ namespace WordsLinks.View
             finTGroup.Select += OnSelectFinTrans;
         }
 
+        private void RefreshDB()
+        {
+            if (DBService.isChanged)
+                finTGroup.Set(DBService.Meanings);
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            RefreshDB();
+        }
+
         private void OnSelectWebTrans(object sender, SelectCellGroup.SelectEventArgs e)
         {
             if(e.msg == Selected)
-                finTGroup.Set((sender as SelectCellGroup).SelectedItems);
+                add.IsEnabled = webTGroup.SelectedItems.Length > 0 || finTGroup.SelectedItems.Length > 0;
         }
 
         private void OnSelectFinTrans(object sender, SelectCellGroup.SelectEventArgs e)
         {
-            if (e.msg == Selecting)
-                Debug.WriteLine($"click {e.obj} at {e.idx} with {e.isSelect}");
-            else if(e.msg == DataChanged)
-            {
-                add.IsEnabled = finTGroup.SelectedItems.Length > 0;
-            }
+            if (e.msg == Selected)
+                add.IsEnabled = webTGroup.SelectedItems.Length > 0 || finTGroup.SelectedItems.Length > 0;
         }
 
         private void OnClickSearch(object sender, EventArgs args)
@@ -45,7 +55,13 @@ namespace WordsLinks.View
 
         private void OnAddClicked(object sender, EventArgs args)
 		{
-			
-		}
+            var chi = new HashSet<string>();
+            foreach (var s in webTGroup.SelectedItems)
+                chi.Add(s);
+            foreach (var s in finTGroup.SelectedItems)
+                chi.Add(s);
+            DBService.AddWord(word.Text, chi);
+            RefreshDB();
+        }
 	}
 }
