@@ -43,7 +43,7 @@
       </ListView>
     </Grid>
 
-    <Button x:Name="add" Text="添加" FontSize="Large" TextColor="White" BackgroundColor="#3FFF00" Clicked="OnAddClicked"
+    <Button x:Name="add" Text="添加" FontSize="Large" TextColor="White" BackgroundColor="#20C000" Clicked="OnAddClicked"
             IsEnabled="false" Margin="24,0" HorizontalOptions="FillAndExpand" VerticalOptions="End"/>
   </StackLayout>
 

@@ -40,7 +40,7 @@ namespace WordsLinks.Service
             lastRand = r;
             WordElement[] waitList;
             bool isWord = r < DBService.WordsCount;
-            Debug.WriteLine($"the rand {r}/{sum}, isWord={isWord}");
+
             //get basic data
             if (isWord)
             {
@@ -54,7 +54,7 @@ namespace WordsLinks.Service
                 q.quest = mean.Meaning;
                 waitList = DBService.GetWordsByMId(mean.Id);
             }
-            Debug.WriteLine($"receive {waitList} length: {waitList.Length}");
+
             //insert answers
             var anss = new List<Tuple<string, bool>>();
             r = rand.Next(waitList.Length);

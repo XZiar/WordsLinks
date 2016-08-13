@@ -56,13 +56,8 @@ namespace WordsLinks.Service
             means = db.Table<DBMeaning>().ToDictionary(w => w.Meaning, w => w.Id);
             e2c = new MultiValueDictionary<int, int>();
             c2e = new MultiValueDictionary<int, int>();
-            foreach (var item in words)
-                Debug.WriteLine($"{item.Key} : {item.Value}");
-            foreach (var item in means)
-                Debug.WriteLine($"{item.Key} : {item.Value}");
             foreach (var t in db.Table<DBTranslation>())
             {
-                Debug.WriteLine($"e2c link: {t.Wid} -> {t.Wid}");
                 e2c.Add(t.Wid, t.Mid);
                 c2e.Add(t.Mid, t.Wid);
             }
@@ -101,7 +96,6 @@ namespace WordsLinks.Service
             IReadOnlyCollection<int> ids;
             if (!e2c.TryGetValue(wid, out ids))
                 return null;
-            Debug.WriteLine("Get Means : " + ids.Count);
             if (ids.Count == 0)
                 return new DBMeaning[0];
             return (from m in means
@@ -123,7 +117,6 @@ namespace WordsLinks.Service
             IReadOnlyCollection<int> ids;
             if (!c2e.TryGetValue(mid, out ids))
                 return null;
-            Debug.WriteLine("Get words : " + ids.Count);
             if (ids.Count == 0)
                 return new DBWord[0];
             return (from m in words
@@ -149,7 +142,6 @@ namespace WordsLinks.Service
                     db.Insert(mean);
                     means[str] = mid = mean.Id;
                 }
-                Debug.WriteLine($"now try add link {wid} -> {mid}");
                 if (!e2c.Contains(wid, mid))
                 {
                     try

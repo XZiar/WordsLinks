@@ -1,22 +1,21 @@
 ﻿[
-	{
-		"name": "fiddler",
-		"scheme": "http",
-	    "host": "120.27.106.188",
-	    "port": 8088,
-	    "base": "Enhancer",
-	    "proxy":
-		{
-			"type": "HTTP",
-		    "host": "192.168.137.1",
-		    "port": 8808
-		}
-	},
-	{
+  {
 		"name": "pure",
 		"scheme": "http",
 	    "host": "120.27.106.188",
 	    "port": 8088,
 	    "base": "Enhancer"
-	}
+	},
+  {
+    "name": "fiddler",
+    "scheme": "http",
+    "host": "120.27.106.188",
+    "port": 8088,
+    "base": "Enhancer",
+    "proxy": {
+      "type": "HTTP",
+      "host": "192.168.137.1",
+      "port": 8808
+    }
+  }
 ]

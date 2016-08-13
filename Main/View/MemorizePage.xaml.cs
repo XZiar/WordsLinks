@@ -39,8 +39,13 @@ namespace WordsLinks.View
             {
                 int idx = Array.IndexOf(answers, sender);
                 bool? isRight = curQuiz?.Test(idx);
-                Debug.WriteLine($"right?={isRight}");
-                answers[idx].OutlineColor = isRight.HasValue ? (isRight.Value ? Color.Green : Color.Red) : Color.Blue;
+                if(isRight.HasValue)
+                {
+                    answers[idx].OutlineColor = isRight.Value ? Color.Green : Color.Red;
+                    answers[idx].BackgroundColor = isRight.Value ? Color.FromHex("E0FFE0") : Color.FromHex("FFE0E0");
+                }
+                else
+                    answers[idx].OutlineColor = Color.Blue;
             }
         }
 
@@ -53,12 +58,14 @@ namespace WordsLinks.View
             catch (Exception e)
             {
                 OnException(e, "get quiz");
+                return;
             }
             (quest.Content as Label).Text = curQuiz.quest;
             int a = 0;
             foreach (var f in answers)
             {
-                f.OutlineColor = Color.Black;
+                f.OutlineColor = Color.Silver;
+                f.BackgroundColor = Color.White;
                 (f.Content as Label).Text = curQuiz.answers[a++].Item1;
             }
         }
@@ -73,7 +80,7 @@ namespace WordsLinks.View
             mode = newMode;
             if (mode)//tranMode
             {
-                modeRect.BackgroundColor = Color.FromHex("3FFF00");
+                modeRect.BackgroundColor = Color.FromHex("20C000");
                 chgMode.Text = "翻译模式";
             }
             else
