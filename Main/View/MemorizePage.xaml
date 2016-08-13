@@ -1,6 +1,52 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:wid="clr-namespace:WordsLinks.Widget;assembly=Main"
              x:Class="WordsLinks.View.MemorizePage">
-  <Label Text="MemorizePage" VerticalOptions="Center" HorizontalOptions="Center" />
+  <StackLayout Padding="8" Orientation="Vertical" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" >
+    <wid:FrameEx x:Name="modeRect" ShadowWidth="1" Padding="8,4" Border="Rect" ShadowPos="Around"
+                 Margin="4" HorizontalOptions="Center" VerticalOptions="Center">
+      <Label x:Name="chgMode" FontSize="Large" Text="翻译模式" TextColor="White">
+        <Label.GestureRecognizers>
+          <TapGestureRecognizer Tapped="OnClickMode" NumberOfTapsRequired="1" />
+        </Label.GestureRecognizers>
+      </Label>
+    </wid:FrameEx>
+
+    <BoxView Color="Gray" HeightRequest="1" Margin="4,8" HorizontalOptions="FillAndExpand"/>
+
+    <StackLayout x:Name="quizLayout" Orientation="Vertical" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" >
+      <wid:FrameEx ShadowWidth="3" Padding="16" Border="Round" ShadowPos="Around"
+                   Margin="64,16" HorizontalOptions="FillAndExpand">
+        <Label x:Name="word" FontSize="Large" Text="word" FontAttributes="Bold"
+               HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
+      </wid:FrameEx>
+
+      <wid:FrameEx ShadowWidth="1" Padding="12" Border="Round" ShadowPos="Around"
+                   Margin="32,8" HorizontalOptions="FillAndExpand">
+        <Label FontSize="Medium" Text="ans1"
+               HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
+      </wid:FrameEx>
+      <wid:FrameEx ShadowWidth="1" Padding="12" Border="Round" ShadowPos="Around"
+                   Margin="32,8" HorizontalOptions="FillAndExpand">
+        <Label FontSize="Medium" Text="ans2"
+               HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
+      </wid:FrameEx>
+      <wid:FrameEx ShadowWidth="1" Padding="12" Border="Round" ShadowPos="Around"
+                   Margin="32,8" HorizontalOptions="FillAndExpand">
+        <Label FontSize="Medium" Text="ans3"
+               HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
+      </wid:FrameEx>
+      <wid:FrameEx ShadowWidth="1" Padding="12" Border="Round" ShadowPos="Around"
+                   Margin="32,8" HorizontalOptions="FillAndExpand">
+        <Label FontSize="Medium" Text="ans4"
+               HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
+      </wid:FrameEx>
+      <wid:FrameEx ShadowWidth="1" Padding="12" Border="Round" ShadowPos="Around"
+                   Margin="32,8" HorizontalOptions="FillAndExpand">
+        <Label FontSize="Medium" Text="ans5"
+               HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
+      </wid:FrameEx>
+    </StackLayout>
+  </StackLayout>
 </ContentPage>

@@ -6,9 +6,10 @@ using WordsList.iOS.Renderer;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.iOS;
 using static WordsLinks.Widget.BorderType;
+using System.ComponentModel;
 
-[assembly: ExportRenderer (typeof(EntryEx), typeof(EntryExRenderer))]
-[assembly: ExportRenderer (typeof(FrameEx), typeof(FrameExRenderer))]
+[assembly: ExportRenderer(typeof(EntryEx), typeof(EntryExRenderer))]
+[assembly: ExportRenderer(typeof(FrameEx), typeof(FrameExRenderer))]
 namespace WordsList.iOS.Renderer
 {
     public class EntryExRenderer : EntryRenderer
@@ -19,7 +20,7 @@ namespace WordsList.iOS.Renderer
             if (Control != null)
             {
                 var obj = Element as EntryEx;
-                switch(obj.Border)
+                switch (obj.Border)
                 {
                 case None:
                     Control.BorderStyle = UITextBorderStyle.None;
@@ -37,23 +38,41 @@ namespace WordsList.iOS.Renderer
         protected override void OnElementChanged(ElementChangedEventArgs<Frame> e)
         {
             base.OnElementChanged(e);
-            if (Layer != null)
-            {
-                FrameEx obj = Element as FrameEx;
-                Layer.BorderWidth = Layer.ShadowRadius = obj.ShadowWidth;
-                Layer.ShadowOffset = new CGSize(obj.ShadowWidth, obj.ShadowWidth);
-                Layer.ShadowOpacity = 0.8f;
 
-                switch (obj.Border)
-                {
-                case None:
-                    Layer.ShadowOpacity = 0;
-                    break;
-                case Rect:
-                    Layer.CornerRadius = 0;
-                    break;
-                }
+            FrameEx obj = Element as FrameEx;
+            Layer.ShadowRadius = obj.ShadowWidth;
+            Layer.BorderWidth = 1;
+            Layer.ShadowOpacity = 0.8f;
+            switch (obj.Border)
+            {
+            case Rect:
+                Layer.CornerRadius = 0;
+                break;
+            case None:
+                Layer.BorderWidth = 0;
+                break;
+            }
+            if (obj.ShadowPos == ShadowPosition.LowerRight)
+                Layer.ShadowOffset = new CGSize(obj.ShadowWidth, obj.ShadowWidth);
+
+        }
+
+        protected override void OnElementPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            //Debug.WriteLine($"prop changed:{e.PropertyName} by {sender}");
+            switch (e.PropertyName)
+            {
+            case nameof(BackgroundColor):
+                Layer.BackgroundColor = Element.BackgroundColor.ToCGColor();
+                break;
+            case nameof(Element.OutlineColor):
+                Layer.BorderColor = Element.OutlineColor.ToCGColor();
+                break;
+            default:
+                base.OnElementPropertyChanged(sender, e);
+                break;
             }
         }
+
     }
 }

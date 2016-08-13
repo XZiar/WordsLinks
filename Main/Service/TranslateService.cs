@@ -8,7 +8,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using static System.StringComparison;
 
-namespace WordsLinks.Services
+namespace WordsLinks.Service
 {
     static class TranslateService
     {

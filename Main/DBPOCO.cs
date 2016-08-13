@@ -1,30 +1,33 @@
-﻿using SQLite;
+﻿using System;
+using SQLite;
 
 namespace WordsLinks.Model
 {
+    public interface WordElement
+    {
+        string GetStr();
+        int GetId();
+    }
+
 	[Table("Words")]
-	public class DBWord
+	public class DBWord : WordElement
 	{
 		[PrimaryKey, AutoIncrement, Column("_id")]
 		public int Id { get; set; }
 		[Unique, MaxLength(16)]
 		public string Letters { get; set; }
-        public override int GetHashCode()
-        {
-            return Letters.GetHashCode();
-        }
-        public override bool Equals(object obj)
-        {
-            return (obj is string) ? (Letters == obj as string) : base.Equals(obj);
-        }
+        public string GetStr() => Letters;
+        public int GetId() => Id;
     }
 	[Table("Meanings")]
-	public class DBMeaning
-	{
+	public class DBMeaning : WordElement
+    {
 		[PrimaryKey, AutoIncrement, Column("_id")]
 		public int Id { get; set; }
 		[Unique, MaxLength(16)]
 		public string Meaning { get; set; }
+        public string GetStr() => Meaning;
+        public int GetId() => Id;
     }
 	[Table("Translations")]
 	public class DBTranslation

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using WordsLinks.Services;
+using WordsLinks.Service;
 using WordsLinks.ViewModel;
 using Xamarin.Forms;
 using static WordsLinks.ViewModel.SelectCellGroup.SelectEventArgs.Message;

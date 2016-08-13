@@ -38,6 +38,9 @@
     <Compile Include="App.cs" />
     <Compile Include="DBPoco.cs" />
     <Compile Include="Service\DBService.cs" />
+    <Compile Include="Service\QuizService.cs" />
+    <Compile Include="Util\BasicFuncExtension.cs" />
+    <Compile Include="Util\BasicUtils.cs" />
     <Compile Include="Util\ImageResourceExtension.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
     <Compile Include="ViewModel\SelectViewModel.cs" />

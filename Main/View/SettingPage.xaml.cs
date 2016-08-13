@@ -1,5 +1,5 @@
 ﻿using System;
-using WordsLinks.Services;
+using WordsLinks.Service;
 using WordsLinks.ViewModel;
 using Xamarin.Forms;
 

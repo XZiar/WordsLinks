@@ -1,6 +1,9 @@
-﻿using WordsLinks.Services;
+﻿using System;
+using System.Diagnostics;
+using WordsLinks.Service;
 using WordsLinks.View;
 using Xamarin.Forms;
+using static WordsLinks.Util.BasicUtils;
 
 namespace WordsLinks
 {
@@ -8,10 +11,16 @@ namespace WordsLinks
 	{
 		public App()
 		{
-			// The root page of your application
-			DBService.Init();
-			NetService.Init();
-            MainPage = new MainPage();
+            try
+            {
+                DBService.Init();
+                NetService.Init();
+                MainPage = new MainPage();
+            }
+            catch (Exception e)
+            {
+                OnException(e, "init app");
+            }
         }
 
 		protected override void OnStart()
