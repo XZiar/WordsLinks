@@ -1,11 +1,15 @@
-﻿using SQLite;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using WordsLinks.Model;
 using WordsLinks.Util;
 using Xamarin.Forms;
+using static System.Text.Encoding;
 using static WordsLinks.Util.BasicUtils;
 
 namespace WordsLinks.Service
@@ -69,6 +73,64 @@ namespace WordsLinks.Service
             db.DropTable<DBMeaning>();
             db.DropTable<DBTranslation>();
             Init();
+        }
+
+        public static void Export()
+        {
+            var tmp = new
+            {
+                words = words,
+                means = means,
+                links = db.Table<DBTranslation>().ToList(),
+            };
+            string total = JsonConvert.SerializeObject(tmp);
+            Debug.WriteLine(total);
+
+            byte[] txtdat = Unicode.GetBytes(total);
+            int len = txtdat.Length;
+            StringBuilder str = new StringBuilder("raw-last:");
+            for (int a = 0, b = len; a < 32; a++)
+                str.Append($"{txtdat[--b]},");
+            Debug.WriteLine(str);
+
+            int ceilen = (int)Math.Ceiling(Math.Sqrt((len + 4) / 3.0));//3byte=>4byte
+            int newsize = ceilen * ceilen * 4;
+            byte[] ret = new byte[newsize];
+            Debug.WriteLine($"len:{len},ceil:{ceilen},newsize:{newsize}");
+            ret[0] = (byte)(len & 0xFF);
+            ret[1] = (byte)((len & 0xFF00) >> 8);
+            ret[2] = (byte)((len & 0xFF0000) >> 16);
+            ret[3] = 0xFF;
+
+            Byte3To4(len, txtdat, 0, ret, 4);
+            Debug.WriteLine("finish copy");
+            
+            str = new StringBuilder("first:");
+            for (int a = 0; a < 32; a++)
+                str.Append($"{ret[a]},");
+            Debug.WriteLine(str);
+            TestService.SaveTester(ret, ceilen, ceilen);
+        }
+
+        public static void Import(byte[] data)
+        {
+            int len = data[0] + (data[1] << 8) + (data[2] << 16);
+            Debug.WriteLine($"len:{len},size:{data.Length}");
+
+            byte[] dat = new byte[len];
+            Byte4To3(len, data, 4, dat, 0);
+            Debug.WriteLine("finish copy");
+
+            StringBuilder str = new StringBuilder("raw-last:");
+            for (int a = 0, b = len; a < 32; a++)
+                str.Append($"{dat[--b]},");
+            Debug.WriteLine(str);
+
+            var total = Unicode.GetString(dat, 0, dat.Length);
+            Debug.WriteLine(total);
+            var obj = JsonConvert.DeserializeObject<JObject>(total);
+            //words = JsonConvert.DeserializeObject<Dictionary<string, int>>(obj["words"].ToString());
+            //means = JsonConvert.DeserializeObject<Dictionary<string, int>>(obj["means"].ToString());
         }
 
         public static DBWord WordAt(int idx)

@@ -2,6 +2,7 @@
 using WordsLinks.Service;
 using WordsLinks.ViewModel;
 using Xamarin.Forms;
+using static WordsLinks.Util.BasicUtils;
 
 namespace WordsLinks.View
 {
@@ -33,11 +34,25 @@ namespace WordsLinks.View
         {
             if(sender == exportCell)
             {
-
+                try
+                {
+                    DBService.Export();
+                }
+                catch (Exception e)
+                {
+                    OnException(e, "export");
+                }
             }
             else if (sender == importCell)
             {
-
+                try
+                {
+                    TestService.ReadTester();
+                }
+                catch (Exception e)
+                {
+                    OnException(e, "export");
+                }
             }
             else if (sender == clearCell)
             {

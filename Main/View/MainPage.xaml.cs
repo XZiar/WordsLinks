@@ -6,6 +6,7 @@ namespace WordsLinks.View
 {
     public partial class MainPage : TabbedPage
     {
+        public NavigationPage theSettingPage { get { return settingPage; } }
         public MainPage()
         {
             InitializeComponent();
