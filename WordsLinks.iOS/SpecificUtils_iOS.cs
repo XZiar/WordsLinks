@@ -4,13 +4,13 @@ using SQLite;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
+using System.Threading.Tasks;
 using UIKit;
 using WordsLinks.iOS;
 using WordsLinks.Util;
 using Xamarin.Forms;
 using static WordsLinks.Util.BasicUtils;
+using static WordsLinks.iOS.BasicUtils;
 
 [assembly: Dependency(typeof(FileUtil_iOS))]
 [assembly: Dependency(typeof(SQLiteUtil_iOS))]
@@ -53,11 +53,20 @@ namespace WordsLinks.iOS
     class ImageUtil_iOS : ImageUtil
     {
         static CGColorSpace colorSpace = CGColorSpace.CreateDeviceRGB();
+
         public Stream CompressBitmap(byte[] data, int w, int h)
         {
-            var ctx = new CGBitmapContext(data, w, h, 8, 4 * w, colorSpace,
-                CGBitmapFlags.ByteOrder32Big | CGBitmapFlags.PremultipliedLast);
-            return UIImage.FromImage(ctx.ToImage()).AsPNG().AsStream();
+            using (var ctx = new CGBitmapContext(data, w, h, 8, 4 * w, colorSpace,
+                CGBitmapFlags.ByteOrder32Big | CGBitmapFlags.PremultipliedLast))
+            {
+                using (var cgimg = ctx.ToImage())
+                {
+                    using (var img = UIImage.FromImage(cgimg))
+                    {
+                        return img.AsPNG().AsStream();
+                    }
+                }
+            }
         }
 
         public void GetImage(GetImageResponde resp)
@@ -69,40 +78,25 @@ namespace WordsLinks.iOS
                 picker.MediaTypes = UIImagePickerController.AvailableMediaTypes(UIImagePickerControllerSourceType.PhotoLibrary);
                 picker.FinishedPickingMedia += (o, e) =>
                 {
-                    try
+                    picker.DismissModalViewController(true);
+                    if (e.Info[UIImagePickerController.MediaType].ToString() == "public.image")
                     {
-                        picker.DismissModalViewController(true);
-                        if (e.Info[UIImagePickerController.MediaType].ToString() == "public.image")
-                        {
-                            UIImage uiimg = e.Info[UIImagePickerController.OriginalImage] as UIImage;
-                            if (uiimg != null)
-                            {
-                                int w = (int)uiimg.Size.Width, h = (int)uiimg.Size.Height;
-                                int size = w * h * 4;
-                                Debug.Write($"uuimage size : {w} * {h}");
-                                byte[] data = new byte[size];
-                                var ctx = new CGBitmapContext(data, w, h, 8, 4 * w, colorSpace,
-                                    CGBitmapFlags.ByteOrder32Big | CGBitmapFlags.PremultipliedLast);
-                                ctx.DrawImage(new CGRect(0, 0, w, h), uiimg.CGImage);
+                        UIImage uiimg = e.Info[UIImagePickerController.OriginalImage] as UIImage;
+                        int w = (int)uiimg.Size.Width, h = (int)uiimg.Size.Height, size = w * h * 4;
+                        byte[] data = new byte[size];
+                        Debug.Write($"uuimage size : {w} * {h}");
 
-                                StringBuilder str = new StringBuilder("ptr:");
-                                for (int a = 0; a < 32; a++)
-                                    str.Append($"{data[a]},");
-                                Debug.WriteLine(str);
-                                str = new StringBuilder("reverse:");
-                                for (int a = 0, b = size; a < 32; a++)
-                                    str.Append($"{data[--b]},");
-                                Debug.WriteLine(str);
-                                resp(data);
-                            }
+                        using (var ctx = new CGBitmapContext(data, w, h, 8, 4 * w, colorSpace,
+                            CGBitmapFlags.ByteOrder32Big | CGBitmapFlags.PremultipliedLast))
+                        {
+                            ctx.DrawImage(new CGRect(0, 0, w, h), uiimg.CGImage);
+                            uiimg.Dispose();
+
+                            resp(data);
                         }
-                        else
-                            resp(null);
                     }
-                    catch (Exception ex)
-                    {
-                        OnException(ex, "finish pick");
-                    }
+                    else
+                        resp(null);
                 };
                 picker.Canceled += (o, e) => { picker.DismissModalViewController(true); resp(null); };
                 var vctrl = UIApplication.SharedApplication.KeyWindow.RootViewController;
@@ -121,6 +115,21 @@ namespace WordsLinks.iOS
             {
                 Debug.WriteLine($"error : {err}");
             });
+        }
+
+        public Task<bool> ASaveImage(Stream ins)
+        {
+            var tsk = new TaskCompletionSource<bool>();
+            using (var img = UIImage.LoadFromData(NSData.FromStream(ins)))
+            {
+                RunInUI(() => 
+                img.SaveToPhotosAlbum((Image, err) =>
+                    {
+                        tsk.SetResult(err != null);
+                    })
+                );
+            }
+            return tsk.Task;
         }
     }
 }

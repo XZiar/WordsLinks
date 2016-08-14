@@ -4,8 +4,9 @@ using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using System.Text;
+using System.Threading.Tasks;
 using WordsLinks.Model;
 using WordsLinks.Util;
 using Xamarin.Forms;
@@ -38,11 +39,13 @@ namespace WordsLinks.Service
         public static int WordsCount { get { return words.Count; } }
         public static int MeansCount { get { return means.Count; } }
 
+        private static ImageUtil imgUtil;
         static DBService()
         {
             string dbPath = DependencyService.Get<FileUtil>().GetFilePath("words.db", true);
             Debug.WriteLine("open db at " + dbPath);
             db = DependencyService.Get<SQLiteUtil>().GetSQLConn("words.db");
+            imgUtil = DependencyService.Get<ImageUtil>();
         }
 
         public static void Init()
@@ -75,62 +78,55 @@ namespace WordsLinks.Service
             Init();
         }
 
-        public static void Export()
-        {
-            var tmp = new
+        public static Task<bool> Export() 
+            => Task.Run(() =>
             {
-                words = words,
-                means = means,
-                links = db.Table<DBTranslation>().ToList(),
-            };
-            string total = JsonConvert.SerializeObject(tmp);
-            Debug.WriteLine(total);
+                var tmp = new
+                {
+                    words = words,
+                    means = means,
+                    links = db.Table<DBTranslation>().ToList(),
+                };
+                string total = JsonConvert.SerializeObject(tmp);
+                //Debug.WriteLine(total);
 
-            byte[] txtdat = Unicode.GetBytes(total);
-            int len = txtdat.Length;
-            StringBuilder str = new StringBuilder("raw-last:");
-            for (int a = 0, b = len; a < 32; a++)
-                str.Append($"{txtdat[--b]},");
-            Debug.WriteLine(str);
+                byte[] txtdat = Unicode.GetBytes(total);
+                int len = txtdat.Length;
+                int wh = (int)Math.Ceiling(Math.Sqrt((len + 4) / 3.0));//3byte=>4byte
+                byte[] dat = new byte[wh * wh * 4];
+                Debug.WriteLine($"calc:{len} => {dat.Length}({wh}*{wh})");
 
-            int ceilen = (int)Math.Ceiling(Math.Sqrt((len + 4) / 3.0));//3byte=>4byte
-            int newsize = ceilen * ceilen * 4;
-            byte[] ret = new byte[newsize];
-            Debug.WriteLine($"len:{len},ceil:{ceilen},newsize:{newsize}");
-            ret[0] = (byte)(len & 0xFF);
-            ret[1] = (byte)((len & 0xFF00) >> 8);
-            ret[2] = (byte)((len & 0xFF0000) >> 16);
-            ret[3] = 0xFF;
+                dat[0] = (byte)(len & 0xFF);
+                dat[1] = (byte)((len & 0xFF00) >> 8);
+                dat[2] = (byte)((len & 0xFF0000) >> 16);
+                dat[3] = 0xFF;
+                Byte3To4(len, txtdat, 0, dat, 4);
 
-            Byte3To4(len, txtdat, 0, ret, 4);
-            Debug.WriteLine("finish copy");
-            
-            str = new StringBuilder("first:");
-            for (int a = 0; a < 32; a++)
-                str.Append($"{ret[a]},");
-            Debug.WriteLine(str);
-            TestService.SaveTester(ret, ceilen, ceilen);
-        }
+                using (Stream stream = imgUtil.CompressBitmap(dat, wh, wh))
+                {
+                    return imgUtil.ASaveImage(stream);
+                }
+            });
 
-        public static void Import(byte[] data)
+        public static void Import()
         {
-            int len = data[0] + (data[1] << 8) + (data[2] << 16);
-            Debug.WriteLine($"len:{len},size:{data.Length}");
+            imgUtil.GetImage(bmp =>
+            {
+                if (bmp != null)
+                {
+                    int len = bmp[0] + (bmp[1] << 8) + (bmp[2] << 16);
+                    Debug.WriteLine($"len:{len},size:{bmp.Length}");
 
-            byte[] dat = new byte[len];
-            Byte4To3(len, data, 4, dat, 0);
-            Debug.WriteLine("finish copy");
+                    byte[] dat = new byte[len];
+                    Byte4To3(len, bmp, 4, dat, 0);
 
-            StringBuilder str = new StringBuilder("raw-last:");
-            for (int a = 0, b = len; a < 32; a++)
-                str.Append($"{dat[--b]},");
-            Debug.WriteLine(str);
-
-            var total = Unicode.GetString(dat, 0, dat.Length);
-            Debug.WriteLine(total);
-            var obj = JsonConvert.DeserializeObject<JObject>(total);
-            //words = JsonConvert.DeserializeObject<Dictionary<string, int>>(obj["words"].ToString());
-            //means = JsonConvert.DeserializeObject<Dictionary<string, int>>(obj["means"].ToString());
+                    var total = Unicode.GetString(dat, 0, dat.Length);
+                    //Debug.WriteLine(total);
+                    var obj = JsonConvert.DeserializeObject<JObject>(total);
+                }
+                else
+                    Debug.WriteLine("no image selected");
+            });
         }
 
         public static DBWord WordAt(int idx)

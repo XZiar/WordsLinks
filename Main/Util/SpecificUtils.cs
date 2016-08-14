@@ -1,5 +1,6 @@
 ﻿using SQLite;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace WordsLinks.Util
 {
@@ -20,5 +21,6 @@ namespace WordsLinks.Util
         Stream CompressBitmap(byte[] data, int w, int h);
         void GetImage(GetImageResponde resp);
         void SaveImage(Stream ins);
+        Task<bool> ASaveImage(Stream ins);
     }
 }

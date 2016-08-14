@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using WordsLinks.Service;
 using WordsLinks.ViewModel;
 using Xamarin.Forms;
@@ -30,34 +31,40 @@ namespace WordsLinks.View
             netChoiceGroup.Choose(dat.Item1);
         }
 
-        private void OnDBCellTapped(object sender, EventArgs args)
+        private async void OnDBCellTapped(object sender, EventArgs args)
         {
-            if(sender == exportCell)
+            if (sender == exportCell)
             {
                 try
                 {
-                    DBService.Export();
+                    var ret = DBService.Export();
+                    Debug.WriteLine("####here end call-DB");
+                    var res = await ret;
+                    Debug.WriteLine($"####here get result {res}");
+                    if (!res)
+                        exportCell.TextColor = Color.Red;
                 }
                 catch (Exception e)
                 {
-                    OnException(e, "export");
+                    OnException(e, "exportDB");
                 }
             }
             else if (sender == importCell)
             {
                 try
                 {
-                    TestService.ReadTester();
+                    DBService.Import();
                 }
                 catch (Exception e)
                 {
-                    OnException(e, "export");
+                    OnException(e, "importDB");
                 }
             }
             else if (sender == clearCell)
             {
                 DBService.Clear();
             }
+            Debug.WriteLine("####here end DB-key");
         }
     }
 }

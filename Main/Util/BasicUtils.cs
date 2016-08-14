@@ -1,13 +1,21 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 
 namespace WordsLinks.Util
 {
-    public class BasicUtils
+    public static class BasicUtils
     {
         public static void OnException(Exception e, string where = "", bool isShow = false)
         {
             Debug.WriteLine($"Exception when {where}:{e.GetType()}\n{e.Message}\nat {e.Source}\n{e.StackTrace}\n");
+        }
+
+        public static Assembly assembly { get; } = typeof(BasicUtils).GetTypeInfo().Assembly;
+        public static Stream AssembleResource(string filename)
+        {
+            return assembly.GetManifestResourceStream($"Main.{filename}");
         }
 
         unsafe public static void Byte3To4(int len3, byte[] dat3, int offsetF, byte[] dat4, int offsetT, byte fill = 0xff)

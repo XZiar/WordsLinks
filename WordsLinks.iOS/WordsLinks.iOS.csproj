@@ -6,9 +6,9 @@
     <ProjectGuid>{4086E75A-7291-4F3B-A493-20A6015BBDEF}</ProjectGuid>
     <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Exe</OutputType>
-    <RootNamespace>WordsList.iOS</RootNamespace>
+    <RootNamespace>WordsLinks.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
-    <AssemblyName>WordsListiOS</AssemblyName>
+    <AssemblyName>WordsLinksiOS</AssemblyName>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
@@ -143,6 +143,7 @@
     <MtouchFloat32>False</MtouchFloat32>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="BasicUtils.cs" />
     <Compile Include="CustomRenderer_iOS.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />

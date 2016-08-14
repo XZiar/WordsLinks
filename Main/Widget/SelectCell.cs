@@ -4,6 +4,8 @@ namespace WordsLinks.Widget
 {
     public class SelectCell : ViewCell
     {
+        private static ImageSource checkImg = ImageSource.FromResource("Main.yes.png");
+
         public Label CellText { get; set; }
         private Image CheckImage;
 
@@ -18,7 +20,6 @@ namespace WordsLinks.Widget
             Height = 60;
             CellText = new Label()
             {
-                //FontAttributes = FontAttributes.Bold,
                 VerticalOptions = LayoutOptions.CenterAndExpand,
             };
             CellText.SetBinding(Label.TextProperty, "Text");
@@ -29,15 +30,15 @@ namespace WordsLinks.Widget
                 Margin = new Thickness(10),
                 IsVisible = false,
             };
-            //this.SetBinding(IsSelectedProperty, "IsSelected");
+
             CheckImage.SetBinding(Image.IsVisibleProperty, "IsSelected");
-            CheckImage.Source = ImageSource.FromResource("Main.yes.png");
+            CheckImage.Source = checkImg;
 
             var layout = new StackLayout()
             {
                 Orientation = StackOrientation.Horizontal,
                 Spacing = 8,
-                Padding = new Thickness(16, 4, 8, 4),
+                Padding = new Thickness(16, 4, 4, 4),
             };
             layout.Children.Add(CellText);
             layout.Children.Add(CheckImage);

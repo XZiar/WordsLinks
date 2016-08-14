@@ -1,16 +1,16 @@
 ﻿using CoreGraphics;
+using System.ComponentModel;
 using System.Diagnostics;
 using UIKit;
 using WordsLinks.Widget;
-using WordsList.iOS.Renderer;
+using WordsLinks.iOS.Renderer;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.iOS;
 using static WordsLinks.Widget.BorderType;
-using System.ComponentModel;
 
 [assembly: ExportRenderer(typeof(EntryEx), typeof(EntryExRenderer))]
 [assembly: ExportRenderer(typeof(FrameEx), typeof(FrameExRenderer))]
-namespace WordsList.iOS.Renderer
+namespace WordsLinks.iOS.Renderer
 {
     public class EntryExRenderer : EntryRenderer
     {

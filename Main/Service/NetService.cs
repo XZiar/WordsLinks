@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using static WordsLinks.Util.BasicUtils;
 
 namespace WordsLinks
 {
@@ -44,10 +45,9 @@ namespace WordsLinks
 		{
 			JArray choices = new JArray();
 			#region Load network.json from embedded resource
-			var assembly = typeof(NetService).GetTypeInfo().Assembly;
 			try
 			{
-				Stream stream = assembly.GetManifestResourceStream("Main.network.json");
+                using(var stream = AssembleResource("network.json"))
 				using (var reader = new StreamReader(stream))
 				{
 					var json = reader.ReadToEnd();
@@ -56,7 +56,7 @@ namespace WordsLinks
 			}
 			catch(Exception e)
 			{
-				Debug.WriteLine("Failed when open {0} : {1}\n{2}", "network.json", e.Message, e.StackTrace);
+                OnException(e, "open network.json");
 			}
 			#endregion
 			foreach (JObject choice in choices)
