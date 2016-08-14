@@ -38,9 +38,7 @@ namespace WordsLinks.View
                 try
                 {
                     var ret = DBService.Export();
-                    Debug.WriteLine("####here end call-DB");
                     var res = await ret;
-                    Debug.WriteLine($"####here get result {res}");
                     if (!res)
                         exportCell.TextColor = Color.Red;
                 }
@@ -53,7 +51,10 @@ namespace WordsLinks.View
             {
                 try
                 {
-                    DBService.Import();
+                    var ret = DBService.Import();
+                    var res = await ret;
+                    if (res)
+                        importCell.TextColor = Color.Green;
                 }
                 catch (Exception e)
                 {
@@ -64,7 +65,6 @@ namespace WordsLinks.View
             {
                 DBService.Clear();
             }
-            Debug.WriteLine("####here end DB-key");
         }
     }
 }

@@ -15,12 +15,10 @@ namespace WordsLinks.Util
 		SQLiteConnection GetSQLConn(string dbName);
 	}
 
-    public delegate void GetImageResponde(byte[] data);
     public interface ImageUtil
     {
         Stream CompressBitmap(byte[] data, int w, int h);
-        void GetImage(GetImageResponde resp);
-        void SaveImage(Stream ins);
-        Task<bool> ASaveImage(Stream ins);
+        Task<byte[]> GetImage();
+        Task<bool> SaveImage(Stream ins);
     }
 }

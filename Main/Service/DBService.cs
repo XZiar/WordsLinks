@@ -104,14 +104,14 @@ namespace WordsLinks.Service
 
                 using (Stream stream = imgUtil.CompressBitmap(dat, wh, wh))
                 {
-                    return imgUtil.ASaveImage(stream);
+                    return imgUtil.SaveImage(stream);
                 }
             });
 
-        public static void Import()
-        {
-            imgUtil.GetImage(bmp =>
+        public static Task<bool> Import()
+            => Task.Run(async () =>
             {
+                var bmp = await imgUtil.GetImage();
                 if (bmp != null)
                 {
                     int len = bmp[0] + (bmp[1] << 8) + (bmp[2] << 16);
@@ -123,11 +123,12 @@ namespace WordsLinks.Service
                     var total = Unicode.GetString(dat, 0, dat.Length);
                     //Debug.WriteLine(total);
                     var obj = JsonConvert.DeserializeObject<JObject>(total);
+
+                    return true;
                 }
-                else
-                    Debug.WriteLine("no image selected");
+                Debug.WriteLine("no image selected");
+                return false;
             });
-        }
 
         public static DBWord WordAt(int idx)
         {
