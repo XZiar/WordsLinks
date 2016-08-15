@@ -1,4 +1,5 @@
-﻿using CoreGraphics;
+﻿using BigTed;
+using CoreGraphics;
 using Foundation;
 using SQLite;
 using System;
@@ -9,11 +10,13 @@ using UIKit;
 using WordsLinks.iOS;
 using WordsLinks.Util;
 using Xamarin.Forms;
+using static BigTed.ProgressHUD;
 using static WordsLinks.iOS.BasicUtils;
 
 [assembly: Dependency(typeof(FileUtil_iOS))]
 [assembly: Dependency(typeof(SQLiteUtil_iOS))]
 [assembly: Dependency(typeof(ImageUtil_iOS))]
+[assembly: Dependency(typeof(HUDPopup_iOS))]
 
 namespace WordsLinks.iOS
 {
@@ -65,7 +68,10 @@ namespace WordsLinks.iOS
         }
 
         private static UIImagePickerController picker = new UIImagePickerController()
-        { SourceType = UIImagePickerControllerSourceType.PhotoLibrary };
+        {
+            SourceType = UIImagePickerControllerSourceType.PhotoLibrary,
+            AllowsEditing = false,
+        };
         public Task<byte[]> GetImage()
         {
             var tsk = new TaskCompletionSource<byte[]>();
@@ -81,7 +87,7 @@ namespace WordsLinks.iOS
                     UIImage uiimg = e.Info[UIImagePickerController.OriginalImage] as UIImage;
                     int w = (int)uiimg.Size.Width, h = (int)uiimg.Size.Height, size = w * h * 4;
                     byte[] data = new byte[size];
-                    Debug.Write($"uuimage size : {w}*{h}");
+                    Debug.Write($"select image {size}({w}*{h})");
 
                     var ctx = new CGBitmapContext(data, w, h, 8, 4 * w, colorSpace, bmpFlags);
                     ctx.DrawImage(new CGRect(0, 0, w, h), uiimg.CGImage);
@@ -116,6 +122,7 @@ namespace WordsLinks.iOS
                 img.SaveToPhotosAlbum((image, err) =>
                 {
                     Dispose(img, image);
+                    System.Threading.Thread.Sleep(1000);
                     bool isSuc = (err == null);
                     if (!isSuc)
                         err.OnError("savePhoto");
@@ -123,6 +130,30 @@ namespace WordsLinks.iOS
                 })
             );
             return tsk.Task;
+        }
+    }
+
+    class HUDPopup_iOS : HUDPopup
+    {
+        public void Dismiss()
+        {
+            BTProgressHUD.Dismiss();
+        }
+
+        public void Show(HUDType type, string msg, int duaration)
+        {
+            switch (type)
+            {
+            case HUDType.Loading:
+                BTProgressHUD.Show(msg, maskType: MaskType.Black);
+                break;
+            case HUDType.Success:
+                BTProgressHUD.ShowImage(UIImage.FromBundle("IconSuccess"), msg, duaration);
+                break;
+            case HUDType.Fail:
+                BTProgressHUD.ShowImage(UIImage.FromBundle("IconFail"), msg, duaration);
+                break;
+            }
         }
     }
 }

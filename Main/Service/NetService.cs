@@ -48,7 +48,7 @@ namespace WordsLinks
 			#region Load network.json from embedded resource
 			try
 			{
-                using(var stream = AssembleResource("network.json"))
+                using (var stream = AssembleResource("network.json"))
 				using (var reader = new StreamReader(stream))
 				{
 					var json = reader.ReadToEnd();
@@ -58,6 +58,7 @@ namespace WordsLinks
 			catch(Exception e)
 			{
                 e.CopeWith("open network.json");
+                return;
 			}
 			#endregion
 			foreach (JObject choice in choices)

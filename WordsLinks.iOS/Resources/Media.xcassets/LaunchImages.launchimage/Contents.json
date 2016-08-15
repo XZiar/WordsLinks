@@ -5,7 +5,7 @@
       "extent": "full-screen",
       "minimum-system-version": "7.0",
       "scale": "2x",
-      "size": "0x0",
+      "size": "640x960",
       "idiom": "iphone",
       "filename": "Default@2x.png"
     },
@@ -15,7 +15,7 @@
       "minimum-system-version": "7.0",
       "subtype": "retina4",
       "scale": "2x",
-      "size": "0x0",
+      "size": "640x1136",
       "idiom": "iphone",
       "filename": "Default-568h@2x.png"
     },

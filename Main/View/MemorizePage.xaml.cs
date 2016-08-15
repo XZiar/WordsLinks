@@ -11,7 +11,7 @@ namespace WordsLinks.View
     public partial class MemorizePage : ContentPage
     {
         private bool mode = true;
-        private FrameEx[] answers;
+        private FrameEx[] choices;
         private FrameEx quest;
         private Quiz curQuiz;
         public MemorizePage()
@@ -24,7 +24,7 @@ namespace WordsLinks.View
                 ele.GestureRecognizers.Add(tapReg);
 
             quest = quizLayout.Children[0] as FrameEx;
-            answers = quizLayout.Children.Skip(1).Cast<FrameEx>().ToArray();
+            choices = quizLayout.Children.Skip(1).Cast<FrameEx>().ToArray();
 
             ChangeMode(true);
         }
@@ -37,15 +37,12 @@ namespace WordsLinks.View
             }
             else//click answer
             {
-                int idx = Array.IndexOf(answers, sender);
+                int idx = Array.IndexOf(choices, sender);
                 bool? isRight = curQuiz?.Test(idx);
-                if(isRight.HasValue)
-                {
-                    answers[idx].OutlineColor = isRight.Value ? Color.Green : Color.Red;
-                    answers[idx].BackgroundColor = isRight.Value ? Color.FromHex("E0FFE0") : Color.FromHex("FFE0E0");
-                }
-                else
-                    answers[idx].OutlineColor = Color.Blue;
+                if (!isRight.HasValue)
+                    return;
+                choices[idx].OutlineColor = isRight.Value ? Color.Green : Color.Red;
+                choices[idx].BackgroundColor = isRight.Value ? Color.FromHex("E0FFE0") : Color.FromHex("FFE0E0");
             }
         }
 
@@ -54,6 +51,7 @@ namespace WordsLinks.View
             try
             {
                 curQuiz = QuizService.GetQuiz(mode);
+                curQuiz?.init();
             }
             catch (Exception e)
             {
@@ -62,11 +60,11 @@ namespace WordsLinks.View
             }
             (quest.Content as Label).Text = curQuiz.quest;
             int a = 0;
-            foreach (var f in answers)
+            foreach (var f in choices)
             {
                 f.OutlineColor = Color.Silver;
                 f.BackgroundColor = Color.White;
-                (f.Content as Label).Text = curQuiz.answers[a++].Item1;
+                (f.Content as Label).Text = curQuiz.choices[a++].Item1;
             }
         }
 

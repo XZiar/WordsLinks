@@ -12,6 +12,7 @@ using WordsLinks.Util;
 using Xamarin.Forms;
 using static System.Text.Encoding;
 using static WordsLinks.Util.BasicUtils;
+using static WordsLinks.Util.SpecificUtils;
 
 namespace WordsLinks.Service
 {
@@ -39,13 +40,11 @@ namespace WordsLinks.Service
         public static int WordsCount { get { return words.Count; } }
         public static int MeansCount { get { return means.Count; } }
 
-        private static ImageUtil imgUtil;
         static DBService()
         {
-            string dbPath = DependencyService.Get<FileUtil>().GetFilePath("words.db", true);
+            string dbPath = fileUtil.GetFilePath("words.db", true);
             Debug.WriteLine("open db at " + dbPath);
             db = DependencyService.Get<SQLiteUtil>().GetSQLConn("words.db");
-            imgUtil = DependencyService.Get<ImageUtil>();
         }
 
         public static void Init()
@@ -108,14 +107,13 @@ namespace WordsLinks.Service
                 }
             });
 
-        public static Task<bool> Import()
-            => Task.Run(async () =>
+        public static Task<bool> Import(byte[] bmp)
+            => Task.Run(() =>
             {
-                var bmp = await imgUtil.GetImage();
                 if (bmp != null)
                 {
                     int len = bmp[0] + (bmp[1] << 8) + (bmp[2] << 16);
-                    Debug.WriteLine($"len:{len},size:{bmp.Length}");
+                    Debug.WriteLine($"decode:{bmp.Length} => {len}");
 
                     byte[] dat = new byte[len];
                     Byte4To3(len, bmp, 4, dat, 0);

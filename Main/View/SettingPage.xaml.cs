@@ -4,6 +4,7 @@ using WordsLinks.Service;
 using WordsLinks.Util;
 using WordsLinks.ViewModel;
 using Xamarin.Forms;
+using static WordsLinks.Util.SpecificUtils;
 
 namespace WordsLinks.View
 {
@@ -38,8 +39,11 @@ namespace WordsLinks.View
                 try
                 {
                     var ret = DBService.Export();
-                    var res = await ret;
-                    exportCell.TextColor = res ? Color.Green : Color.Red;
+                    hudPopup.Show(msg: "导出中");
+                    if (await ret)
+                        hudPopup.Show(HUDType.Success, "导出成功");
+                    else
+                        hudPopup.Show(HUDType.Fail, "导出失败");
                 }
                 catch (Exception e)
                 {
@@ -50,9 +54,16 @@ namespace WordsLinks.View
             {
                 try
                 {
-                    var ret = DBService.Import();
-                    var res = await ret;
-                    importCell.TextColor = res ? Color.Green : Color.Red;
+                    var pic = imgUtil.GetImage();
+                    if ((await pic) != null)
+                    {
+                        var ret = DBService.Import(pic.Result);
+                        hudPopup.Show(msg: "导入中");
+                        if (await ret)
+                            hudPopup.Show(HUDType.Success, "导出成功");
+                        else
+                            hudPopup.Show(HUDType.Fail, "导出失败");
+                    }
                 }
                 catch (Exception e)
                 {

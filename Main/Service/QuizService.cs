@@ -10,20 +10,22 @@ namespace WordsLinks.Service
     class Quiz
     {
         public string quest { get; internal set; }
-        public Tuple<string, bool>[] answers { get; internal set; }
-        public int leftChoice { get; private set; }
+        public Tuple<string, bool>[] choices { get; internal set; }
+        private bool[] ans = new bool[5];
+        public int leftCount { get; private set; }
         internal void init()
         {
-            leftChoice = 0;
-            foreach (var a in answers)
-                if (a.Item2)
-                    leftChoice++;
+            leftCount = choices.Count(c => c.Item2);
+            Array.Clear(ans, 0, 5);
         }
-        public bool Test(int idx)
+        public bool? Test(int idx)
         {
-            bool isRight = answers[idx].Item2;
+            if (ans[idx])
+                return null;
+            ans[idx] = true;
+            var isRight = choices[idx].Item2;
             if (isRight)
-                leftChoice--;
+                leftCount--;
             return isRight;
         }
     }
@@ -71,7 +73,7 @@ namespace WordsLinks.Service
                 bool isRight = waitList.Any(x => x.GetId() == ele.GetId());
                 anss.Add(new Tuple<string, bool>(ele.GetStr(), isRight));
             }
-            q.answers = anss.Shuffle(rand).ToArray();
+            q.choices = anss.Shuffle(rand).ToArray();
             return q;
         }
     }
