@@ -43,7 +43,15 @@ namespace WordsLinks.View
                     return;
                 choices[idx].OutlineColor = isRight.Value ? Color.Green : Color.Red;
                 choices[idx].BackgroundColor = isRight.Value ? Color.FromHex("E0FFE0") : Color.FromHex("FFE0E0");
+                if (curQuiz.leftCount == 0)
+                    EndQuiz();
             }
+        }
+
+        private void EndQuiz()
+        {
+            quest.OutlineColor = curQuiz.isAllRight ? Color.Green : Color.Red;
+            quest.BackgroundColor = curQuiz.isAllRight ? Color.FromHex("E0FFE0") : Color.FromHex("FFE0E0");
         }
 
         private void RefreshQuiz()
@@ -66,6 +74,8 @@ namespace WordsLinks.View
                 f.BackgroundColor = Color.White;
                 (f.Content as Label).Text = curQuiz.choices[a++].Item1;
             }
+            quest.OutlineColor = Color.Silver;
+            quest.BackgroundColor = Color.White;
         }
 
         public void OnClickMode(object sender, EventArgs args)

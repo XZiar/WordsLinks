@@ -35,16 +35,19 @@ namespace WordsLinks.View
             RefreshDB();
         }
 
+        public void judgeAdd() =>
+            add.IsEnabled = word.Text != null && (webTGroup.SelectedItems.Length > 0 || finTGroup.SelectedItems.Length > 0);
+
         private void OnSelectWebTrans(object sender, SelectCellGroup.SelectEventArgs e)
         {
-            if(e.msg == Selected)
-                add.IsEnabled = webTGroup.SelectedItems.Length > 0 || finTGroup.SelectedItems.Length > 0;
+            if (e.msg == Selected)
+                judgeAdd();
         }
 
         private void OnSelectFinTrans(object sender, SelectCellGroup.SelectEventArgs e)
         {
             if (e.msg == Selected)
-                add.IsEnabled = webTGroup.SelectedItems.Length > 0 || finTGroup.SelectedItems.Length > 0;
+                judgeAdd();
         }
 
         private void OnClickSearch(object sender, EventArgs args)

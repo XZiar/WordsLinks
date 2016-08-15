@@ -77,7 +77,7 @@ namespace WordsLinks.Service
             Init();
         }
 
-        public static Task<bool> Export() 
+        public static Task<bool> Export()
             => Task.Run(() =>
             {
                 var tmp = new
@@ -110,41 +110,37 @@ namespace WordsLinks.Service
         public static Task<bool> Import(byte[] bmp)
             => Task.Run(() =>
             {
-                if (bmp != null)
+                int len = bmp[0] + (bmp[1] << 8) + (bmp[2] << 16);
+                Debug.WriteLine($"decode:{bmp.Length} => {len}");
+
+                byte[] dat = new byte[len];
+                Byte4To3(len, bmp, 4, dat, 0);
+
+                var total = Unicode.GetString(dat, 0, dat.Length);
+                //Debug.WriteLine(total);
+                var obj = JsonConvert.DeserializeObject<JObject>(total);
+                Clear();
+                var w = new DBWord();
+                var m = new DBMeaning();
+                var t = new DBTranslation();
+                foreach (var jp in obj["words"] as JObject)
                 {
-                    int len = bmp[0] + (bmp[1] << 8) + (bmp[2] << 16);
-                    Debug.WriteLine($"decode:{bmp.Length} => {len}");
-
-                    byte[] dat = new byte[len];
-                    Byte4To3(len, bmp, 4, dat, 0);
-
-                    var total = Unicode.GetString(dat, 0, dat.Length);
-                    //Debug.WriteLine(total);
-                    var obj = JsonConvert.DeserializeObject<JObject>(total);
-                    Clear();
-                    var w = new DBWord();
-                    var m = new DBMeaning();
-                    var t = new DBTranslation();
-                    foreach (var jp in obj["words"] as JObject)
-                    {
-                        words.Add(w.Letters = jp.Key, w.Id = jp.Value.ToInt());
-                        db.Insert(w);
-                    }
-                    foreach (var jp in obj["means"] as JObject)
-                    {
-                        means.Add(m.Meaning = jp.Key, m.Id = jp.Value.ToInt());
-                        db.Insert(m);
-                    }
-                    foreach (var jp in obj["links"] as JArray)
-                    {
-                        e2c.Add(t.Wid = jp["Wid"].ToInt(), t.Mid = jp["Mid"].ToInt());
-                        c2e.Add(t.Mid, t.Wid);
-                        db.Insert(t);
-                    }
-                    return true;
+                    words.Add(w.Letters = jp.Key, w.Id = jp.Value.ToInt());
+                    db.Insert(w);
                 }
-                Debug.WriteLine("no image selected");
-                return false;
+                foreach (var jp in obj["means"] as JObject)
+                {
+                    means.Add(m.Meaning = jp.Key, m.Id = jp.Value.ToInt());
+                    db.Insert(m);
+                }
+                foreach (var jp in obj["links"] as JArray)
+                {
+                    e2c.Add(t.Wid = jp["Wid"].ToInt(), t.Mid = jp["Mid"].ToInt());
+                    c2e.Add(t.Mid, t.Wid);
+                    db.Insert(t);
+                }
+                isChanged = true;
+                return true;
             });
 
         public static DBWord WordAt(int idx)

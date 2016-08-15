@@ -13,19 +13,23 @@ namespace WordsLinks.Service
         public Tuple<string, bool>[] choices { get; internal set; }
         private bool[] ans = new bool[5];
         public int leftCount { get; private set; }
+        public bool isAllRight { get; private set; }
         internal void init()
         {
             leftCount = choices.Count(c => c.Item2);
             Array.Clear(ans, 0, 5);
+            isAllRight = true;
         }
         public bool? Test(int idx)
         {
-            if (ans[idx])
+            if (leftCount == 0 || ans[idx])
                 return null;
             ans[idx] = true;
             var isRight = choices[idx].Item2;
             if (isRight)
                 leftCount--;
+            else
+                isAllRight = false;
             return isRight;
         }
     }

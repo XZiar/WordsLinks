@@ -18,33 +18,33 @@
     <StackLayout x:Name="quizLayout" Orientation="Vertical" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" >
       <wid:FrameEx ShadowWidth="3" Padding="16" Border="Round" ShadowPos="Around"
                    Margin="64,16" HorizontalOptions="FillAndExpand">
-        <Label x:Name="word" FontSize="Large" Text="word" FontAttributes="Bold"
+        <Label FontSize="Large" Text="请出题" FontAttributes="Bold"
                HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
       </wid:FrameEx>
 
       <wid:FrameEx ShadowWidth="1" Padding="12" Border="Round" ShadowPos="Around"
                    Margin="32,8" HorizontalOptions="FillAndExpand">
-        <Label FontSize="Medium" Text="ans1"
+        <Label FontSize="Medium" Text="A"
                HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
       </wid:FrameEx>
       <wid:FrameEx ShadowWidth="1" Padding="12" Border="Round" ShadowPos="Around"
                    Margin="32,8" HorizontalOptions="FillAndExpand">
-        <Label FontSize="Medium" Text="ans2"
+        <Label FontSize="Medium" Text="B"
                HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
       </wid:FrameEx>
       <wid:FrameEx ShadowWidth="1" Padding="12" Border="Round" ShadowPos="Around"
                    Margin="32,8" HorizontalOptions="FillAndExpand">
-        <Label FontSize="Medium" Text="ans3"
+        <Label FontSize="Medium" Text="C"
                HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
       </wid:FrameEx>
       <wid:FrameEx ShadowWidth="1" Padding="12" Border="Round" ShadowPos="Around"
                    Margin="32,8" HorizontalOptions="FillAndExpand">
-        <Label FontSize="Medium" Text="ans4"
+        <Label FontSize="Medium" Text="D"
                HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
       </wid:FrameEx>
       <wid:FrameEx ShadowWidth="1" Padding="12" Border="Round" ShadowPos="Around"
                    Margin="32,8" HorizontalOptions="FillAndExpand">
-        <Label FontSize="Medium" Text="ans5"
+        <Label FontSize="Medium" Text="E"
                HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
       </wid:FrameEx>
     </StackLayout>

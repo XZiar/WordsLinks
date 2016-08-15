@@ -26,7 +26,7 @@ namespace WordsLinks.Util
     public enum HUDType { Loading, Success, Fail};
     public interface HUDPopup
     {
-        void Show(HUDType type = HUDType.Loading, string msg = "", int duaration = 1000);
+        void Show(HUDType type = HUDType.Loading, string msg = "", int duaration = 640);
         void Dismiss();
     }
 

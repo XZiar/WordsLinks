@@ -60,9 +60,9 @@ namespace WordsLinks.View
                         var ret = DBService.Import(pic.Result);
                         hudPopup.Show(msg: "导入中");
                         if (await ret)
-                            hudPopup.Show(HUDType.Success, "导出成功");
+                            hudPopup.Show(HUDType.Success, "导入成功");
                         else
-                            hudPopup.Show(HUDType.Fail, "导出失败");
+                            hudPopup.Show(HUDType.Fail, "导入失败");
                     }
                 }
                 catch (Exception e)
