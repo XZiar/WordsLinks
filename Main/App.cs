@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using WordsLinks.Service;
+using WordsLinks.Util;
 using WordsLinks.View;
 using Xamarin.Forms;
 using static WordsLinks.Util.BasicUtils;
@@ -19,7 +20,7 @@ namespace WordsLinks
             }
             catch (Exception e)
             {
-                OnException(e, "init app");
+                e.CopeWith("init app");
             }
         }
 

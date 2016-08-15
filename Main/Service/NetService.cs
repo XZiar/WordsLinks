@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using WordsLinks.Util;
 using static WordsLinks.Util.BasicUtils;
 
 namespace WordsLinks
@@ -56,7 +57,7 @@ namespace WordsLinks
 			}
 			catch(Exception e)
 			{
-                OnException(e, "open network.json");
+                e.CopeWith("open network.json");
 			}
 			#endregion
 			foreach (JObject choice in choices)
@@ -65,11 +66,11 @@ namespace WordsLinks
 				var ub = new UriBuilder(choice["scheme"].ToString(), choice["host"].ToString());
 				JToken port;
 				if (choice.TryGetValue("port", out port))
-					ub.Port = int.Parse(port.ToString());
+					ub.Port = port.ToInt();
 				JToken jp;
 				if (choice.TryGetValue("proxy", out jp))
 				{
-					var ubp = new UriBuilder(jp["type"].ToString(), jp["host"].ToString(), int.Parse(jp["port"].ToString()));
+					var ubp = new UriBuilder(jp["type"].ToString(), jp["host"].ToString(), jp["port"].ToInt());
 					handler.Proxy = new WebProxy(ubp.Uri);
 					handler.UseProxy = true;
 				}

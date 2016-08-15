@@ -9,8 +9,10 @@ namespace WordsLinks.Util
     {
         public static void OnException(Exception e, string where = "", bool isShow = false)
         {
-            Debug.WriteLine($"Exception when {where}:{e.GetType()}\n{e.Message}\nat {e.Source}\n{e.StackTrace}\n");
+            Debug.WriteLine($"Exception when {where} :{e.GetType()}\n{e.Message}\n##at \t{e.Source}\n{e.StackTrace}\n");
         }
+        public static void CopeWith(this Exception e, string where = "", bool isShow = false)
+            => OnException(e, where, isShow);
 
         public static Assembly assembly { get; } = typeof(BasicUtils).GetTypeInfo().Assembly;
         public static Stream AssembleResource(string filename)

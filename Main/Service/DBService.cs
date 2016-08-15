@@ -123,7 +123,26 @@ namespace WordsLinks.Service
                     var total = Unicode.GetString(dat, 0, dat.Length);
                     //Debug.WriteLine(total);
                     var obj = JsonConvert.DeserializeObject<JObject>(total);
-
+                    Clear();
+                    var w = new DBWord();
+                    var m = new DBMeaning();
+                    var t = new DBTranslation();
+                    foreach (var jp in obj["words"] as JObject)
+                    {
+                        words.Add(w.Letters = jp.Key, w.Id = jp.Value.ToInt());
+                        db.Insert(w);
+                    }
+                    foreach (var jp in obj["means"] as JObject)
+                    {
+                        means.Add(m.Meaning = jp.Key, m.Id = jp.Value.ToInt());
+                        db.Insert(m);
+                    }
+                    foreach (var jp in obj["links"] as JArray)
+                    {
+                        e2c.Add(t.Wid = jp["Wid"].ToInt(), t.Mid = jp["Mid"].ToInt());
+                        c2e.Add(t.Mid, t.Wid);
+                        db.Insert(t);
+                    }
                     return true;
                 }
                 Debug.WriteLine("no image selected");
@@ -209,7 +228,7 @@ namespace WordsLinks.Service
                         e2c.Add(wid, mid);
                         c2e.Add(mid, wid);
                     }
-                    catch (ArgumentException e) { OnException(e, "insert db"); }
+                    catch (ArgumentException e) { e.CopeWith("insert db"); }
                 }
             }
             isChanged = true;

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using WordsLinks.Util;
 using static System.StringComparison;
 
 namespace WordsLinks.Service
@@ -31,13 +32,14 @@ namespace WordsLinks.Service
 			}
 			catch (WebException e)
 			{
-				Debug.WriteLine($"failed: {e.Message}\n{e.StackTrace}");
-				onRes(new string[] { $"failed: {e.Status}\n{e.Response}" });
+                e.CopeWith("Eng2Chi");
+                Debug.WriteLine($"web fail reason: {e.Status}\n{e.Response}");
+                onRes(new string[] { $"{e.Status}\n{e.Response}" });
 				return;
 			}
             catch (Exception e)
             {
-                Debug.WriteLine($"exception: {e.GetType()}\nfailed: {e.Message}\n{e.StackTrace}");
+                e.CopeWith("Eng2Chi");
                 return;
             }
 			HashSet<string> trans = new HashSet<string>();

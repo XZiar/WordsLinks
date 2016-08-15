@@ -9,7 +9,6 @@ using UIKit;
 using WordsLinks.iOS;
 using WordsLinks.Util;
 using Xamarin.Forms;
-using static WordsLinks.Util.BasicUtils;
 using static WordsLinks.iOS.BasicUtils;
 
 [assembly: Dependency(typeof(FileUtil_iOS))]
@@ -53,51 +52,54 @@ namespace WordsLinks.iOS
     class ImageUtil_iOS : ImageUtil
     {
         static CGColorSpace colorSpace = CGColorSpace.CreateDeviceRGB();
+        static CGBitmapFlags bmpFlags = CGBitmapFlags.ByteOrder32Big | CGBitmapFlags.PremultipliedLast;
 
         public Stream CompressBitmap(byte[] data, int w, int h)
         {
-            using (var ctx = new CGBitmapContext(data, w, h, 8, 4 * w, colorSpace,
-                CGBitmapFlags.ByteOrder32Big | CGBitmapFlags.PremultipliedLast))
-            {
-                using (var cgimg = ctx.ToImage())
-                {
-                    using (var img = UIImage.FromImage(cgimg))
-                    {
-                        return img.AsPNG().AsStream();
-                    }
-                }
-            }
+            var ctx = new CGBitmapContext(data, w, h, 8, 4 * w, colorSpace, bmpFlags);
+            var cgimg = ctx.ToImage();
+            var img = UIImage.FromImage(cgimg);
+            var dat = img.AsPNG();
+            Dispose(img, cgimg, ctx);
+            return dat.AsStream();
         }
 
+        private static UIImagePickerController picker = new UIImagePickerController()
+        { SourceType = UIImagePickerControllerSourceType.PhotoLibrary };
         public Task<byte[]> GetImage()
         {
             var tsk = new TaskCompletionSource<byte[]>();
-            var picker = new UIImagePickerController();
-            EventHandler<UIImagePickerMediaPickedEventArgs> onSuc = (o, e) =>
+            EventHandler<UIImagePickerMediaPickedEventArgs> onSuc = null;
+            EventHandler onCancel = null;
+            onSuc = (o, e) =>
             {
+                picker.FinishedPickingMedia -= onSuc;
+                picker.Canceled -= onCancel;
                 picker.DismissModalViewController(true);
                 if (e.Info[UIImagePickerController.MediaType].ToString() == "public.image")
                 {
                     UIImage uiimg = e.Info[UIImagePickerController.OriginalImage] as UIImage;
                     int w = (int)uiimg.Size.Width, h = (int)uiimg.Size.Height, size = w * h * 4;
                     byte[] data = new byte[size];
-                    Debug.Write($"uuimage size : {w}*{h} with{NSThread.Current.IsMainThread}");
+                    Debug.Write($"uuimage size : {w}*{h}");
 
-                    using (var ctx = new CGBitmapContext(data, w, h, 8, 4 * w, colorSpace,
-                        CGBitmapFlags.ByteOrder32Big | CGBitmapFlags.PremultipliedLast))
-                    {
-                        ctx.DrawImage(new CGRect(0, 0, w, h), uiimg.CGImage);
-                        uiimg.Dispose();
-                        tsk.SetResult(data);
-                    }
+                    var ctx = new CGBitmapContext(data, w, h, 8, 4 * w, colorSpace, bmpFlags);
+                    ctx.DrawImage(new CGRect(0, 0, w, h), uiimg.CGImage);
+                    Dispose(ctx, uiimg);
+                    tsk.SetResult(data);
                 }
                 else
                     tsk.SetResult(null);
             };
-            EventHandler onCancel = (o, e) => { picker.DismissModalViewController(true); tsk.SetResult(null); };
+            onCancel = (o, e) => 
+            {
+                picker.FinishedPickingMedia -= onSuc;
+                picker.Canceled -= onCancel;
+                picker.DismissModalViewController(true);
+                tsk.SetResult(null);
+            };
             RunInUI(() =>
             {
-                picker.SourceType = UIImagePickerControllerSourceType.PhotoLibrary;
                 picker.MediaTypes = UIImagePickerController.AvailableMediaTypes(UIImagePickerControllerSourceType.PhotoLibrary);
                 picker.FinishedPickingMedia += onSuc;
                 picker.Canceled += onCancel;
@@ -109,15 +111,17 @@ namespace WordsLinks.iOS
         public Task<bool> SaveImage(Stream ins)
         {
             var tsk = new TaskCompletionSource<bool>();
-            using (var img = UIImage.LoadFromData(NSData.FromStream(ins)))
-            {
-                RunInUI(() => 
-                img.SaveToPhotosAlbum((Image, err) =>
-                    {
-                        tsk.SetResult(err != null);
-                    })
-                );
-            }
+            var img = UIImage.LoadFromData(NSData.FromStream(ins));
+            RunInUI(() =>
+                img.SaveToPhotosAlbum((image, err) =>
+                {
+                    Dispose(img, image);
+                    bool isSuc = (err == null);
+                    if (!isSuc)
+                        err.OnError("savePhoto");
+                    tsk.SetResult(isSuc);
+                })
+            );
             return tsk.Task;
         }
     }

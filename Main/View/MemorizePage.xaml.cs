@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.Linq;
 using WordsLinks.Service;
+using WordsLinks.Util;
 using WordsLinks.Widget;
 using Xamarin.Forms;
-using static WordsLinks.Util.BasicUtils;
 
 namespace WordsLinks.View
 {
@@ -57,7 +57,7 @@ namespace WordsLinks.View
             }
             catch (Exception e)
             {
-                OnException(e, "get quiz");
+                e.CopeWith("get quiz");
                 return;
             }
             (quest.Content as Label).Text = curQuiz.quest;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 
 namespace WordsLinks.Util
@@ -24,5 +25,7 @@ namespace WordsLinks.Util
             }
             return list;
         }
+
+        public static int ToInt(this JToken token) => int.Parse(token.ToString());
     }
 }

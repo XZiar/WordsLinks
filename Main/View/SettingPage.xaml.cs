@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using WordsLinks.Service;
+using WordsLinks.Util;
 using WordsLinks.ViewModel;
 using Xamarin.Forms;
-using static WordsLinks.Util.BasicUtils;
 
 namespace WordsLinks.View
 {
@@ -39,12 +39,11 @@ namespace WordsLinks.View
                 {
                     var ret = DBService.Export();
                     var res = await ret;
-                    if (!res)
-                        exportCell.TextColor = Color.Red;
+                    exportCell.TextColor = res ? Color.Green : Color.Red;
                 }
                 catch (Exception e)
                 {
-                    OnException(e, "exportDB");
+                    e.CopeWith("exportDB");
                 }
             }
             else if (sender == importCell)
@@ -53,12 +52,11 @@ namespace WordsLinks.View
                 {
                     var ret = DBService.Import();
                     var res = await ret;
-                    if (res)
-                        importCell.TextColor = Color.Green;
+                    importCell.TextColor = res ? Color.Green : Color.Red;
                 }
                 catch (Exception e)
                 {
-                    OnException(e, "importDB");
+                    e.CopeWith("importDB");
                 }
             }
             else if (sender == clearCell)
