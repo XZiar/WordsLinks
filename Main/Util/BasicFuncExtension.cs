@@ -26,6 +26,8 @@ namespace WordsLinks.Util
             return list;
         }
 
-        public static int ToInt(this JToken token) => int.Parse(token.ToString());
+        public static int ToInt(this JToken token) => token.ToString().ToInt();
+
+        public static int ToInt(this string str) => int.Parse(str);
     }
 }

@@ -18,6 +18,7 @@ namespace WordsLinks.Service
 {
     static class DBService
     {
+        private static byte DBver = 0x1;
         private static SQLiteConnection db;
         private static bool _isChanged;
         public static bool isChanged
@@ -84,22 +85,24 @@ namespace WordsLinks.Service
                 {
                     words = words,
                     means = means,
-                    links = db.Table<DBTranslation>().ToList(),
+                    //links = db.Table<DBTranslation>().ToList(),
+                    links = e2c,
                 };
                 string total = JsonConvert.SerializeObject(tmp);
-                //Debug.WriteLine(total);
+                Debug.WriteLine(total);
 
                 byte[] txtdat = Unicode.GetBytes(total);
                 int len = txtdat.Length;
-                int wh = (int)Math.Ceiling(Math.Sqrt((len + 4) / 3.0));//3byte=>4byte
+                int wh = (int)Math.Ceiling(Math.Sqrt((len + 2) / 3 + 2));//3byte=>4byte
                 byte[] dat = new byte[wh * wh * 4];
                 Debug.WriteLine($"calc:{len} => {dat.Length}({wh}*{wh})");
-
-                dat[0] = (byte)(len & 0xFF);
-                dat[1] = (byte)((len & 0xFF00) >> 8);
-                dat[2] = (byte)((len & 0xFF0000) >> 16);
-                dat[3] = 0xFF;
-                Byte3To4(len, txtdat, 0, dat, 4);
+                byte[] header = new byte[8]
+                {
+                    DBver, 0, 0, 0xFF,
+                    (byte)len, (byte)(len >> 8), (byte)(len >> 16), 0xFF
+                };
+                Array.Copy(header, dat, 8);
+                Byte3To4(len, txtdat, 0, dat, 8);
 
                 using (Stream stream = imgUtil.CompressBitmap(dat, wh, wh))
                 {
@@ -110,14 +113,16 @@ namespace WordsLinks.Service
         public static Task<bool> Import(byte[] bmp)
             => Task.Run(() =>
             {
-                int len = bmp[0] + (bmp[1] << 8) + (bmp[2] << 16);
+                if (DBver != bmp[0])
+                    return false;
+                int len = bmp[4] + (bmp[5] << 8) + (bmp[6] << 16);
                 Debug.WriteLine($"decode:{bmp.Length} => {len}");
 
                 byte[] dat = new byte[len];
-                Byte4To3(len, bmp, 4, dat, 0);
+                Byte4To3(len, bmp, 8, dat, 0);
 
                 var total = Unicode.GetString(dat, 0, dat.Length);
-                //Debug.WriteLine(total);
+                Debug.WriteLine(total);
                 var obj = JsonConvert.DeserializeObject<JObject>(total);
                 Clear();
                 var w = new DBWord();
@@ -125,7 +130,7 @@ namespace WordsLinks.Service
                 var t = new DBTranslation();
                 foreach (var jp in obj["words"] as JObject)
                 {
-                    words.Add(w.Letters = jp.Key, w.Id = jp.Value.ToInt());
+                    words.Add(w.Letters = jp.Key.ToLower(), w.Id = jp.Value.ToInt());
                     db.Insert(w);
                 }
                 foreach (var jp in obj["means"] as JObject)
@@ -133,11 +138,15 @@ namespace WordsLinks.Service
                     means.Add(m.Meaning = jp.Key, m.Id = jp.Value.ToInt());
                     db.Insert(m);
                 }
-                foreach (var jp in obj["links"] as JArray)
+                foreach (var jp in obj["links"] as JObject)
                 {
-                    e2c.Add(t.Wid = jp["Wid"].ToInt(), t.Mid = jp["Mid"].ToInt());
-                    c2e.Add(t.Mid, t.Wid);
-                    db.Insert(t);
+                    t.Wid = jp.Key.ToInt();
+                    foreach (var ji in jp.Value as JArray)
+                    {
+                        e2c.Add(t.Wid, t.Mid = ji.ToInt());
+                        c2e.Add(t.Mid, t.Wid);
+                        db.Insert(t);
+                    }
                 }
                 isChanged = true;
                 return true;

@@ -9,8 +9,9 @@
     <wid:FrameEx ShadowWidth="2" Padding="4" Border="Rect"
                  Margin="8,0" HorizontalOptions="FillAndExpand" VerticalOptions="Start">
       <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" >
-        <wid:EntryEx x:Name="word" FontSize="Large" Placeholder="待查单词" Border="None" Completed="OnClickSearch"
-               Margin="4,8" HorizontalOptions="FillAndExpand" VerticalOptions="Center"/>
+        <wid:EntryEx x:Name="word" FontSize="Large" Placeholder="待查单词" Border="None" 
+                     Completed="OnClickSearch" TextChanged="CapChecker"
+                     Margin="4,8" HorizontalOptions="FillAndExpand" VerticalOptions="Center"/>
         <Image x:Name="search" Source="{tool:ImageResource Main.search.png}" WidthRequest="24" HeightRequest="24"
                Margin="4" HorizontalOptions="End" VerticalOptions="Center">
           <Image.GestureRecognizers>

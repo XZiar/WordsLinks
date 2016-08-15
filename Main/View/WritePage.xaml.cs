@@ -38,6 +38,13 @@ namespace WordsLinks.View
         public void judgeAdd() =>
             add.IsEnabled = word.Text != null && (webTGroup.SelectedItems.Length > 0 || finTGroup.SelectedItems.Length > 0);
 
+        private void CapChecker(object sender, TextChangedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(e.NewTextValue))
+                word.Text = e.NewTextValue.ToLower();
+            judgeAdd();
+        }
+
         private void OnSelectWebTrans(object sender, SelectCellGroup.SelectEventArgs e)
         {
             if (e.msg == Selected)
@@ -52,8 +59,8 @@ namespace WordsLinks.View
 
         private void OnClickSearch(object sender, EventArgs args)
         {
-            if (word.Text != "")
-                TranslateService.Eng2Chi(word.Text, strs => webTGroup.Set(strs));
+            if (!string.IsNullOrWhiteSpace(word.Text))
+                TranslateService.Eng2Chi(word.Text.ToLower(), strs => webTGroup.Set(strs));
         }
 
         private void OnAddClicked(object sender, EventArgs args)
@@ -63,7 +70,7 @@ namespace WordsLinks.View
                 chi.Add(s);
             foreach (var s in finTGroup.SelectedItems)
                 chi.Add(s);
-            DBService.AddWord(word.Text, chi);
+            DBService.AddWord(word.Text.ToLower(), chi);
             RefreshDB();
         }
 	}
