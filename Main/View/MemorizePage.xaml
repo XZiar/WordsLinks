@@ -13,8 +13,6 @@
       </Label>
     </wid:FrameEx>
 
-    <BoxView Color="Gray" HeightRequest="1" Margin="4,8" HorizontalOptions="FillAndExpand"/>
-
     <StackLayout x:Name="quizLayout" Orientation="Vertical" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" >
       <wid:FrameEx ShadowWidth="3" Padding="16" Border="Round" ShadowPos="Around"
                    Margin="64,16" HorizontalOptions="FillAndExpand">
