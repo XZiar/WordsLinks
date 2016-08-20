@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Main.Service;
+using Main.Util;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using WordsLinks.Service;
-using WordsLinks.Util;
 using WordsLinks.ViewModel;
 using Xamarin.Forms;
 using static WordsLinks.ViewModel.SelectCellGroup.SelectEventArgs.Message;

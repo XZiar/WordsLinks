@@ -2,19 +2,19 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using WordsLinks.Model;
-using WordsLinks.Util;
+using Main.Model;
+using Main.Util;
 
-namespace WordsLinks.Service
+namespace Main.Service
 {
-    class Quiz
+    public class Quiz
     {
         public string quest { get; internal set; }
         public Tuple<string, bool>[] choices { get; internal set; }
         private bool[] ans = new bool[5];
         public int leftCount { get; private set; }
         public bool isAllRight { get; private set; }
-        internal void init()
+        public void init()
         {
             leftCount = choices.Count(c => c.Item2);
             Array.Clear(ans, 0, 5);
@@ -33,7 +33,7 @@ namespace WordsLinks.Service
             return isRight;
         }
     }
-    static class QuizService
+    public static class QuizService
     {
         private static Random rand = new Random();
         private static int lastRand = 65536;

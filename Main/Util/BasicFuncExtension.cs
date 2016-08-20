@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace WordsLinks.Util
+namespace Main.Util
 {
     static class BasicFuncExtension
     {

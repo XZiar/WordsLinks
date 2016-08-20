@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:wid="clr-namespace:WordsLinks.Widget;assembly=Main"
-             xmlns:tool="clr-namespace:WordsLinks.Util;assembly=Main"
+             xmlns:wid="clr-namespace:WordsLinks.Widget;assembly=WordsLinks"
+             xmlns:tool="clr-namespace:WordsLinks.Util;assembly=WordsLinks"
              x:Class="WordsLinks.View.WritePage">
   <StackLayout Spacing="8" Padding="8" Orientation="Vertical">
 
@@ -12,7 +12,7 @@
         <wid:EntryEx x:Name="word" FontSize="Large" Placeholder="待查单词" Border="None" 
                      Completed="OnClickSearch" TextChanged="CapChecker"
                      Margin="4,8" HorizontalOptions="FillAndExpand" VerticalOptions="Center"/>
-        <Image x:Name="search" Source="{tool:ImageResource Main.search.png}" WidthRequest="24" HeightRequest="24"
+        <Image x:Name="search" Source="{tool:ImageResource search.png}" WidthRequest="24" HeightRequest="24"
                Margin="4" HorizontalOptions="End" VerticalOptions="Center">
           <Image.GestureRecognizers>
             <TapGestureRecognizer Tapped="OnClickSearch" NumberOfTapsRequired="1" />

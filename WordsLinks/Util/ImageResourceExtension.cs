@@ -12,7 +12,7 @@ namespace WordsLinks.Util
         {
             if (null == Source)
                 return null;
-            return ImageSource.FromResource(Source);
+            return ImageSource.FromResource("WordsLinks." + Source);
         }
     }
 }

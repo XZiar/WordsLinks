@@ -4,7 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 
-namespace WordsLinks.Util
+namespace Main.Util
 {
     public static class BasicUtils
     {

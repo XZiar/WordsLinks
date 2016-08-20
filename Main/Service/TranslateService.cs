@@ -7,12 +7,12 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using WordsLinks.Util;
+using Main.Util;
 using static System.StringComparison;
 
-namespace WordsLinks.Service
+namespace Main.Service
 {
-    static class TranslateService
+    public static class TranslateService
     {
         private static char[] spliter = new char[] { '；', ';', '，', ',' };
         private static Regex chsRex = new Regex(@"[\u4e00-\u9fa5]"),

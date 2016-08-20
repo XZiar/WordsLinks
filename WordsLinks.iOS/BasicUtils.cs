@@ -1,7 +1,7 @@
 using Foundation;
 using System;
 using System.Diagnostics;
-using WordsLinks.Util;
+using Main.Util;
 using Xamarin.Forms;
 
 namespace WordsLinks.iOS

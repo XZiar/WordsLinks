@@ -1,9 +1,8 @@
-﻿using WordsLinks.Util;
-using Xamarin.Forms;
+﻿using Main.Util;
 
-namespace WordsLinks.Service
+namespace Main.Service
 {
-    static class TestService
+    public static class TestService
     {
         static TestService()
         {

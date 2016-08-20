@@ -7,16 +7,15 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using WordsLinks.Model;
-using WordsLinks.Util;
-using Xamarin.Forms;
+using Main.Model;
+using Main.Util;
 using static System.Text.Encoding;
-using static WordsLinks.Util.BasicUtils;
-using static WordsLinks.Util.SpecificUtils;
+using static Main.Util.BasicUtils;
+using static Main.Util.SpecificUtils;
 
-namespace WordsLinks.Service
+namespace Main.Service
 {
-    static class DBService
+    public static class DBService
     {
         private static byte DBver = 0x1;
         private static SQLiteConnection db;
@@ -47,7 +46,7 @@ namespace WordsLinks.Service
         {
             string dbPath = fileUtil.GetFilePath("words.db", true);
             Debug.WriteLine("open db at " + dbPath);
-            db = DependencyService.Get<SQLiteUtil>().GetSQLConn("words.db");
+            db = sqlUtil.GetSQLConn("words.db");
         }
 
         public static void Init()

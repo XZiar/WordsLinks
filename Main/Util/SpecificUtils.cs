@@ -1,9 +1,8 @@
 ﻿using SQLite;
 using System.IO;
 using System.Threading.Tasks;
-using Xamarin.Forms;
 
-namespace WordsLinks.Util
+namespace Main.Util
 {
 	public interface FileUtil
 	{
@@ -37,9 +36,27 @@ namespace WordsLinks.Util
 
     public static class SpecificUtils
     {
-        public static FileUtil fileUtil = DependencyService.Get<FileUtil>();
-        public static ImageUtil imgUtil = DependencyService.Get<ImageUtil>();
-        public static HUDPopup hudPopup = DependencyService.Get<HUDPopup>();
-        public static ThreadUtil threadUtil = DependencyService.Get<ThreadUtil>();
+        public static FileUtil fileUtil { get; private set; }
+        public static ImageUtil imgUtil { get; private set; }
+        public static HUDPopup hudPopup { get; private set; }
+        public static ThreadUtil threadUtil { get; private set; }
+        public static SQLiteUtil sqlUtil { get; private set; }
+
+        public static void Init(params object[] utils)
+        {
+            foreach (var u in utils)
+            {
+                if (u is FileUtil)
+                    fileUtil = u as FileUtil;
+                else if (u is ImageUtil)
+                    imgUtil = u as ImageUtil;
+                else if (u is HUDPopup)
+                    hudPopup = u as HUDPopup;
+                else if (u is ThreadUtil)
+                    threadUtil = u as ThreadUtil;
+                else if (u is SQLiteUtil)
+                    sqlUtil = u as SQLiteUtil;
+            }
+        }
     }
 }

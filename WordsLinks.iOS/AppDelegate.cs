@@ -2,7 +2,7 @@
 using System;
 using System.Diagnostics;
 using UIKit;
-using WordsLinks.Util;
+using Main.Util;
 
 namespace WordsLinks.iOS
 {

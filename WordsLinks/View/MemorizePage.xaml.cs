@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Main.Service;
+using Main.Util;
+using System;
 using System.Diagnostics;
 using System.Linq;
-using WordsLinks.Service;
-using WordsLinks.Util;
 using WordsLinks.Widget;
 using Xamarin.Forms;
 

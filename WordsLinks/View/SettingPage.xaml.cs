@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Main.Service;
+using Main.Util;
+using System;
 using System.Diagnostics;
-using WordsLinks.Service;
-using WordsLinks.Util;
 using WordsLinks.ViewModel;
 using Xamarin.Forms;
-using static WordsLinks.Util.SpecificUtils;
+using static Main.Util.SpecificUtils;
 
 namespace WordsLinks.View
 {

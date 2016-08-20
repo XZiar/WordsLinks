@@ -1,7 +1,7 @@
 ﻿using System;
 using SQLite;
 
-namespace WordsLinks.Model
+namespace Main.Model
 {
     public interface WordElement
     {

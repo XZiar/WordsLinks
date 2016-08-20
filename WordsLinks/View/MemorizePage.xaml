@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:wid="clr-namespace:WordsLinks.Widget;assembly=Main"
+             xmlns:wid="clr-namespace:WordsLinks.Widget;assembly=WordsLinks"
              x:Class="WordsLinks.View.MemorizePage">
   <StackLayout Padding="8" Orientation="Vertical" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" >
     <wid:FrameEx x:Name="modeRect" ShadowWidth="1" Padding="8,4" Border="Rect" ShadowPos="Around"

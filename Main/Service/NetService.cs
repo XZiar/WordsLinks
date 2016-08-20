@@ -8,12 +8,12 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
-using WordsLinks.Util;
-using static WordsLinks.Util.BasicUtils;
+using Main.Util;
+using static Main.Util.BasicUtils;
 
-namespace WordsLinks
+namespace Main.Service
 {
-	static class NetService
+	public static class NetService
 	{
 		class WebProxy : IWebProxy
 		{
