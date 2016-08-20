@@ -57,10 +57,12 @@ namespace WordsLinks.View
                 judgeAdd();
         }
 
-        private void OnClickSearch(object sender, EventArgs args)
+        private async void OnClickSearch(object sender, EventArgs args)
         {
-            if (!string.IsNullOrWhiteSpace(word.Text))
-                TranslateService.Eng2Chi(word.Text.ToLower(), strs => webTGroup.Set(strs));
+            if (string.IsNullOrWhiteSpace(word.Text))
+                return;
+            var ret = TranslateService.Eng2Chi(word.Text.ToLower());
+            webTGroup.Set(await ret);
         }
 
         private void OnAddClicked(object sender, EventArgs args)
