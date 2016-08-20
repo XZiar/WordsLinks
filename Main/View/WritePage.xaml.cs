@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using WordsLinks.Service;
+using WordsLinks.Util;
 using WordsLinks.ViewModel;
 using Xamarin.Forms;
 using static WordsLinks.ViewModel.SelectCellGroup.SelectEventArgs.Message;
@@ -11,7 +12,7 @@ namespace WordsLinks.View
 {
     public partial class WritePage : ContentPage
 	{
-        SelectCellGroup webTGroup, finTGroup;
+        private SelectCellGroup webTGroup, finTGroup;
         public WritePage()
 		{
             InitializeComponent();
@@ -21,18 +22,6 @@ namespace WordsLinks.View
             finTGroup.SetTo(fintrans);
             webTGroup.Select += OnSelectWebTrans;
             finTGroup.Select += OnSelectFinTrans;
-        }
-
-        private void RefreshDB()
-        {
-            if (DBService.isChanged)
-                finTGroup.Set(DBService.Meanings);
-        }
-
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-            RefreshDB();
         }
 
         public void judgeAdd() =>
@@ -61,8 +50,16 @@ namespace WordsLinks.View
         {
             if (string.IsNullOrWhiteSpace(word.Text))
                 return;
-            var ret = TranslateService.Eng2Chi(word.Text.ToLower());
-            webTGroup.Set(await ret);
+            try
+            {
+                var trans = await TranslateService.Eng2Chi(word.Text.ToLower());
+                webTGroup.Set(trans);
+                finTGroup.Set(await DBService.MatchMeanings(trans));
+            }
+            catch(Exception e)
+            {
+                e.CopeWith("searching");
+            }
         }
 
         private void OnAddClicked(object sender, EventArgs args)
@@ -73,7 +70,6 @@ namespace WordsLinks.View
             foreach (var s in finTGroup.SelectedItems)
                 chi.Add(s);
             DBService.AddWord(word.Text.ToLower(), chi);
-            RefreshDB();
         }
 	}
 }

@@ -14,15 +14,16 @@ namespace WordsLinks.Service
 {
     static class TranslateService
     {
-        //public delegate void OnResult(string[] data);
-        static char[] spliter = new char[] { '；', ';', '，', ',' };
-        static string baseAPI = "https://fanyi.youdao.com/openapi.do?keyfrom={0}&key={1}&type=data&doctype=json&version=1.1&q=";
-        static string APIurl;
+        private static char[] spliter = new char[] { '；', ';', '，', ',' };
+        private static Regex chsRex = new Regex(@"[\u4e00-\u9fa5]"),
+            delEngRex = new Regex(@"[a-zA-Z. ]|\(([a-zA-Z. ]*|[\u4e00-\u9fa5])\)");
+        private static string baseAPI = "https://fanyi.youdao.com/openapi.do?keyfrom={0}&key={1}&type=data&doctype=json&version=1.1&q=";
+        private static string APIurl;
         static TranslateService()
         {
             APIurl = string.Format(baseAPI, "WordsLinks", "57959088");
         }
-
+        
         public static Task<string[]> Eng2Chi(string eng)
             => Task.Run(async () =>
             {
@@ -30,6 +31,7 @@ namespace WordsLinks.Service
                 try
                 {
                     var ret = await NetService.client.GetStringAsync(APIurl + eng);
+                    //Debug.WriteLine(ret);
                     result = JsonConvert.DeserializeObject<JObject>(ret);
                 }
                 catch (WebException e)
@@ -46,8 +48,8 @@ namespace WordsLinks.Service
                 HashSet<string> trans = new HashSet<string>();
                 try
                 {
-                    foreach (var tr in result["translation"])
-                        trans.Add(tr.ToString());
+                    foreach (string tr in result["translation"])
+                        trans.Add(tr);
                 }
                 catch(Exception e)
                 {
@@ -56,10 +58,9 @@ namespace WordsLinks.Service
                 //add basic translation
                 try
                 {
-                    foreach (var basic in result["basic"]["explains"])
+                    foreach (string basic in result["basic"]["explains"])
                     {
-                        string[] explains = Regex.Replace(basic.ToString(), "[a-zA-Z.]", "").Split(spliter);
-                        foreach (string txt in explains)
+                        foreach (var txt in delEngRex.Replace(basic, "").Split(spliter))
                         {
                             string str = txt.Trim();
                             if (str != "")
@@ -77,8 +78,9 @@ namespace WordsLinks.Service
                     foreach (var web in result["web"].Where(
                         w => string.Equals(eng, w["key"].ToString(), CurrentCultureIgnoreCase)))
                     {
-                        foreach (var val in web["value"])
-                            trans.Add(val.ToString());
+                        foreach (string val in web["value"])
+                            if (chsRex.IsMatch(val))
+                                trans.Add(val);
                     }
                 }
                 catch (Exception e)

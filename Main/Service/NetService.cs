@@ -87,8 +87,8 @@ namespace WordsLinks
             Choose(0);
         }
 
-        public static Tuple<int, string[]> GetChoices() 
-            => new Tuple<int, string[]>(curChoiceIdx, servers.Select(s => s.Item1).ToArray());
+        public static Tuple<int, IEnumerable<string>> GetChoices() 
+            => new Tuple<int, IEnumerable<string>>(curChoiceIdx, servers.Select(s => s.Item1));
 
 		public static void Choose(int idx)
 		{

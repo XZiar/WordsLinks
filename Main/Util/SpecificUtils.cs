@@ -30,10 +30,16 @@ namespace WordsLinks.Util
         void Dismiss();
     }
 
+    public interface ThreadUtil
+    {
+        void Sleep(int ms);
+    }
+
     public static class SpecificUtils
     {
         public static FileUtil fileUtil = DependencyService.Get<FileUtil>();
         public static ImageUtil imgUtil = DependencyService.Get<ImageUtil>();
         public static HUDPopup hudPopup = DependencyService.Get<HUDPopup>();
+        public static ThreadUtil threadUtil = DependencyService.Get<ThreadUtil>();
     }
 }

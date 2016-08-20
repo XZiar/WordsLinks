@@ -37,7 +37,9 @@ namespace WordsLinks.Service
         private static Dictionary<string, int> words;
         private static Dictionary<string, int> means;
         private static MultiValueDictionary<int, int> e2c, c2e;
-        public static string[] Meanings { get { return means.Keys.ToArray(); } }
+
+        public static IEnumerable<string> Words { get { return words.Keys; } }
+        public static IEnumerable<string> Meanings { get { return means.Keys; } }
         public static int WordsCount { get { return words.Count; } }
         public static int MeansCount { get { return means.Count; } }
 
@@ -53,12 +55,7 @@ namespace WordsLinks.Service
             db.CreateTable<DBWord>();
             db.CreateTable<DBMeaning>();
             db.CreateTable<DBTranslation>();
-            GetAll();
-            isChanged = true;
-        }
 
-        private static void GetAll()
-        {
             words = db.Table<DBWord>().ToDictionary(w => w.Letters, w => w.Id);
             means = db.Table<DBMeaning>().ToDictionary(w => w.Meaning, w => w.Id);
             e2c = new MultiValueDictionary<int, int>();
@@ -68,6 +65,8 @@ namespace WordsLinks.Service
                 e2c.Add(t.Wid, t.Mid);
                 c2e.Add(t.Mid, t.Wid);
             }
+
+            isChanged = true;
         }
 
         public static void Clear()
@@ -78,6 +77,47 @@ namespace WordsLinks.Service
             Init();
         }
 
+        public static DBWord WordAt(int idx)
+        {
+            var dat = words.ElementAt(idx);
+            return new DBWord() { Letters = dat.Key, Id = dat.Value };
+        }
+        public static DBMeaning MeanAt(int idx)
+        {
+            var dat = means.ElementAt(idx);
+            return new DBMeaning() { Meaning = dat.Key, Id = dat.Value };
+        }
+
+        public static Task<IEnumerable<string>> MatchMeanings(IEnumerable<string> checker)
+            => Task.Run(() =>
+            {
+                List<string> ret = new List<string>();
+                Tuple<int, int> pos;
+                foreach (var mean in means.Keys)
+                    foreach (var m in checker)
+                    {
+                        try
+                        {
+                            int len = LCS(mean, m, out pos);
+                            int objlen = Math.Min(mean.Length, m.Length);
+                            //Debug.WriteLine($"compare {mean} & {m} : {len} at {pos.Item1},{pos.Item2} of {objlen}");
+                            if (len * 2 >= objlen)
+                            {
+                                if (pos.Item1 * pos.Item2 == 0)
+                                    ret.Insert(0, mean);
+                                else
+                                    ret.Add(mean);
+                                break;
+                            }
+                        }
+                        catch(Exception e)
+                        {
+                            e.CopeWith("LCS matching");
+                        }
+                    }
+                return ret as IEnumerable<string>;
+            });
+
         public static Task<bool> Export()
             => Task.Run(() =>
             {
@@ -85,7 +125,6 @@ namespace WordsLinks.Service
                 {
                     words = words,
                     means = means,
-                    //links = db.Table<DBTranslation>().ToList(),
                     links = e2c,
                 };
                 string total = JsonConvert.SerializeObject(tmp);
@@ -151,18 +190,6 @@ namespace WordsLinks.Service
                 isChanged = true;
                 return true;
             });
-
-        public static DBWord WordAt(int idx)
-        {
-            var dat = words.ElementAt(idx);
-            return new DBWord() { Letters = dat.Key, Id = dat.Value };
-        }
-
-        public static DBMeaning MeanAt(int idx)
-        {
-            var dat = means.ElementAt(idx);
-            return new DBMeaning() { Meaning = dat.Key, Id = dat.Value };
-        }
 
         public static DBMeaning[] GetMeansByWord(string eng)
         {

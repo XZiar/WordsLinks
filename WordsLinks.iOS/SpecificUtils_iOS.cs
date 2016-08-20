@@ -17,6 +17,7 @@ using static WordsLinks.iOS.BasicUtils;
 [assembly: Dependency(typeof(SQLiteUtil_iOS))]
 [assembly: Dependency(typeof(ImageUtil_iOS))]
 [assembly: Dependency(typeof(HUDPopup_iOS))]
+[assembly: Dependency(typeof(ThreadUtil_iOS))]
 
 namespace WordsLinks.iOS
 {
@@ -49,6 +50,14 @@ namespace WordsLinks.iOS
         {
             string dbPath = new FileUtil_iOS().GetFilePath(dbName, true);
             return new SQLiteConnection(dbPath);
+        }
+    }
+
+    class ThreadUtil_iOS : ThreadUtil
+    {
+        public void Sleep(int ms)
+        {
+            System.Threading.Thread.Sleep(ms);
         }
     }
 
@@ -122,7 +131,6 @@ namespace WordsLinks.iOS
                 img.SaveToPhotosAlbum((image, err) =>
                 {
                     Dispose(img, image);
-                    System.Threading.Thread.Sleep(1000);
                     bool isSuc = (err == null);
                     if (!isSuc)
                         err.OnError("savePhoto");

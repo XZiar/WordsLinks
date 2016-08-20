@@ -30,6 +30,12 @@ namespace WordsLinks.View
             base.OnAppearing();
             var dat = NetService.GetChoices();
             netChoiceGroup.Choose(dat.Item1);
+            RefreshWords();
+        }
+
+        private void RefreshWords()
+        {
+            wordsSect.Title = $"单词本\t（{DBService.WordsCount}个单词）";
         }
 
         private async void OnDBCellTapped(object sender, EventArgs args)
@@ -63,6 +69,7 @@ namespace WordsLinks.View
                             hudPopup.Show(HUDType.Success, "导入成功");
                         else
                             hudPopup.Show(HUDType.Fail, "导入失败");
+                        RefreshWords();
                     }
                 }
                 catch (Exception e)
@@ -73,6 +80,7 @@ namespace WordsLinks.View
             else if (sender == clearCell)
             {
                 DBService.Clear();
+                RefreshWords();
             }
         }
     }

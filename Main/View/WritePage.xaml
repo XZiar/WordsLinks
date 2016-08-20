@@ -34,7 +34,7 @@
 
       <Label FontSize="Large" Text="在线翻译"
              Margin="0,4" Grid.Row="0" Grid.Column="0" HorizontalOptions="Center"/>
-      <Label FontSize="Large" Text="确认翻译"
+      <Label FontSize="Large" Text="现有翻译"
              Margin="0,4" Grid.Row="0" Grid.Column="2" HorizontalOptions="Center"/>
       <ListView x:Name="webtrans" BackgroundColor="#FFFCF8"
                 Grid.Row="1" Grid.Column="0" HorizontalOptions="FillAndExpand"/>

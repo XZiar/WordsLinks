@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -83,7 +84,7 @@ namespace WordsLinks.ViewModel
             NullSelect = nullSel;
         }
 
-        public void Set(string[] data)
+        public void Set(IEnumerable<string> data)
         {
             datas.Clear();
             foreach (var str in data)

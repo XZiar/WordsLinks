@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 
 namespace WordsLinks.Util
 {
@@ -23,8 +24,10 @@ namespace WordsLinks.Util
         unsafe public static void Byte3To4(int len3, byte[] dat3, int offsetF, byte[] dat4, int offsetT, byte fill = 0xff)
         {
             int count = (len3 + 2) / 3, newlen = count * 4;
-            if (offsetF + len3 > dat3.Length || offsetT + newlen > dat4.Length)
-                throw new ArgumentException();
+            if (offsetF + len3 > dat3.Length)
+                throw new ArgumentException($"require {len3} from {offsetF}, overflow input's {dat3.Length}");
+            if (offsetT + newlen > dat4.Length)
+                throw new ArgumentException($"require {newlen} from {offsetT}, overflow input's {dat4.Length}");
             fixed (byte* d3 = dat3, d4 = dat4)
             {
                 byte* f = d3 + offsetF, t = d4 + offsetT;
@@ -45,8 +48,10 @@ namespace WordsLinks.Util
         unsafe public static void Byte4To3(int len3, byte[] dat4, int offsetF, byte[] dat3, int offsetT)
         {
             int count = (len3 + 2) / 3, oldlen = count * 4;
-            if (offsetT + len3 > dat3.Length || offsetF + oldlen > dat4.Length)
-                throw new ArgumentException();
+            if (offsetT + len3 > dat3.Length)
+                throw new ArgumentException($"require {len3} from {offsetT}, overflow input's {dat3.Length}");
+            if (offsetF + oldlen > dat4.Length)
+                throw new ArgumentException($"require {oldlen} from {offsetF}, overflow input's {dat4.Length}");
             fixed (byte* d3 = dat3, d4 = dat4)
             {
                 byte* t = d3 + offsetT, f = d4 + offsetF;
@@ -60,6 +65,35 @@ namespace WordsLinks.Util
                 while (b-- > 0)
                     *t++ = *f++;
             }
+        }
+
+        private static ThreadLocal<byte[,]> matchMap = new ThreadLocal<byte[,]>(() => new byte[16, 16]);
+        unsafe public static int LCS(string stra, string strb, out Tuple<int, int> pos)
+        {
+            byte[,] map = matchMap.Value;
+            int lena = stra.Length, lenb = strb.Length, max = 0, posa = 0, posb = 0;
+            if (lena > 16 || lenb > 16)
+                throw new ArgumentException($"{stra} &&& {strb} \t : {lena} vs {lenb} overflow the limit of 16");
+            fixed (char* cha = stra, chb = strb)
+            {
+                for (int a = 0; a < lena; a++)
+                for (int b = 0; b < lenb; b++)
+                    {
+                        if (cha[a] != chb[b])
+                        {
+                            map[a, b] = 0;
+                            continue;
+                        }
+                        map[a, b] = (a * b == 0) ? (byte)1 : (byte)(map[a - 1, b - 1] + 1);
+                        if(map[a, b] > max)
+                        {
+                            max = map[a, b];
+                            posa = a; posb = b;
+                        }
+                    }
+            }
+            pos = new Tuple<int, int>(posa, posb);
+            return max;
         }
     }
 }
