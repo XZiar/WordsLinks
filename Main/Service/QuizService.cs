@@ -40,23 +40,24 @@ namespace Main.Service
         public static Quiz GetQuiz(bool type)
         {
             Quiz q = new Quiz();
-            int r = lastRand, sum = DBService.WordsCount + DBService.MeansCount;
+            int r = lastRand, max = 2 * Math.Max(DBService.WordsCount, DBService.MeansCount);
+            float ratio = DBService.WordsCount * 1.0f / DBService.MeansCount;
             while (r == lastRand)
-                r = rand.Next(sum);
+                r = rand.Next(max);
             lastRand = r;
             WordElement[] waitList;
-            bool isWord = r < DBService.WordsCount;
-
+            bool isWord = r % 2 == 0;
+            r /= 2;
             //get basic data
             if (isWord)
             {
-                var word = DBService.WordAt(r);
+                var word = DBService.WordAt(ratio < 1.0f ? (int)(r * ratio) : r);
                 q.quest = word.Letters;
                 waitList = DBService.GetMeansByWId(word.Id);
             }
             else
             {
-                var mean = DBService.MeanAt(r - DBService.WordsCount);
+                var mean = DBService.MeanAt(ratio > 1.0f ? (int)(r / ratio) : r);
                 q.quest = mean.Meaning;
                 waitList = DBService.GetWordsByMId(mean.Id);
             }

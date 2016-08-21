@@ -1,10 +1,11 @@
-﻿using Xamarin.Forms;
+﻿using WordsLinks.Util;
+using Xamarin.Forms;
 
 namespace WordsLinks.Widget
 {
     public class SelectCell : ViewCell
     {
-        private static ImageSource checkImg = ImageSource.FromResource("WordsLinks.yes.png");
+        private static ImageSource checkImg = BasicUtils.AssembleImage("yes.png");
 
         public Label CellText { get; set; }
         private Image CheckImage;
