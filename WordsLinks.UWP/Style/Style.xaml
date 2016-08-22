@@ -1,7 +1,6 @@
 ﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:WordsLinks.UWP.Style"
     xmlns:util="using:WordsLinks.UWP.Util">
     <Style x:Key="NavMenuItemContainerStyle" TargetType="ListViewItem">
         <Setter Property="MinWidth" Value="{StaticResource SplitViewCompactPaneThemeLength}"/>
@@ -25,6 +24,30 @@
                         HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
                         VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
                         ContentMargin="{TemplateBinding Padding}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="SelectItemContainerStyle" TargetType="ListViewItem">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListViewItem">
+                    <ListViewItemPresenter ContentTransitions="{TemplateBinding ContentTransitions}"
+                        Control.IsTemplateFocusTarget="True"
+                        SelectionCheckMarkVisualEnabled="False"
+                        PointerOverBackground="{ThemeResource SystemControlHighlightListLowBrush}"
+                        PointerOverForeground="{ThemeResource ListViewItemForegroundPointerOver}"
+                        SelectedBackground="Transparent"
+                        SelectedForeground="{ThemeResource SystemControlForegroundAccentBrush}"
+                        SelectedPointerOverBackground="{ThemeResource SystemControlHighlightListLowBrush}"
+                        PressedBackground="{ThemeResource SystemControlHighlightListMediumBrush}"
+                        SelectedPressedBackground="{ThemeResource SystemControlHighlightListMediumBrush}"
+                        DisabledOpacity="{ThemeResource ListViewItemDisabledThemeOpacity}"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch"
+                        ContentMargin="4" />
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

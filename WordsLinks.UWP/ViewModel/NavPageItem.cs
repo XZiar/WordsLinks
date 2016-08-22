@@ -14,6 +14,7 @@ namespace WordsLinks.UWP.ViewModel
         public string Source { get; set; }
         public string Label { get; set; }
         public Type PageType { get; set; }
+        public Page Page { get; set; }
 
         private bool _isSelected = false;
         public bool IsSelected

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
 using WordsLinks.UWP.View;
 using WordsLinks.UWP.ViewModel;
 
@@ -18,19 +20,22 @@ namespace WordsLinks.UWP
                 {
                     Label = "添加",
                     Source = "Assets/IconWrite.png",
-                    PageType = typeof(WritePage)
+                    PageType = typeof(WritePage),
+                    //Page = new WritePage()
                 },
                 new NavPageItem()
                 {
                     Label = "记忆",
                     Source = "Assets/IconMemorize.png",
-                    PageType = typeof(MemorizePage)
+                    PageType = typeof(MemorizePage),
+                    //Page = new MemorizePage()
                 },
                 new NavPageItem()
                 {
                     Label = "设置",
                     Source = "Assets/IconSetting.png",
-                    PageType = typeof(SettingPage)
+                    PageType = typeof(SettingPage),
+                    //Page = new SettingPage()
                 },
             };
 
@@ -44,9 +49,9 @@ namespace WordsLinks.UWP
             Loaded += (o, e) => NavMenuList.Select(0);
         }
 
-
         private void OnPageSelected(object sender, NavPageItem item)
         {
+            //frame.Content = item.Page;
             frame.Navigate(item.PageType, null, new Windows.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
         }
 

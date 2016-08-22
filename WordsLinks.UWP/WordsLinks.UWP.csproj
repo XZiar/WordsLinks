@@ -100,6 +100,8 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\Converter.cs" />
+    <Compile Include="Util\SpecificUtils_UWP.cs" />
+    <Compile Include="ViewModel\SelectItem.cs" />
     <Compile Include="ViewModel\NavPageItem.cs" />
     <Compile Include="View\MemorizePage.xaml.cs">
       <DependentUpon>MemorizePage.xaml</DependentUpon>
@@ -168,6 +170,9 @@
       <Project>{fc905d03-5a69-4990-95b6-b585cf34f376}</Project>
       <Name>Main</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\IconSearch.png" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
