@@ -1,17 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
+﻿using System.Collections.Generic;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
+using WordsLinks.UWP.View;
 using WordsLinks.UWP.ViewModel;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -28,25 +17,38 @@ namespace WordsLinks.UWP
                 new NavPageItem()
                 {
                     Label = "添加",
-                    Source = "Assets/IconWrite.png"
+                    Source = "Assets/IconWrite.png",
+                    PageType = typeof(WritePage)
                 },
                 new NavPageItem()
                 {
                     Label = "记忆",
-                    Source = "Assets/IconMemorize.png"
+                    Source = "Assets/IconMemorize.png",
+                    PageType = typeof(MemorizePage)
                 },
                 new NavPageItem()
                 {
                     Label = "设置",
-                    Source = "Assets/IconSetting.png"
+                    Source = "Assets/IconSetting.png",
+                    PageType = typeof(SettingPage)
                 },
             };
+
+        public Frame PageFrame { get { return frame; } }
+
         public PageShell()
         {
             InitializeComponent();
             NavMenuList.ItemsSource = navList;
+            NavMenuList.PageSelected += OnPageSelected;
+            Loaded += (o, e) => NavMenuList.Select(0);
         }
 
-        public Frame PageFrame { get { return frame; } }
+
+        private void OnPageSelected(object sender, NavPageItem item)
+        {
+            frame.Navigate(item.PageType, null, new Windows.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
+        }
+
     }
 }

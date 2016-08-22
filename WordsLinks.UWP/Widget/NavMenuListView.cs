@@ -22,11 +22,11 @@ namespace WordsLinks.UWP.Widget
             SelectionMode = ListViewSelectionMode.Single;
             SingleSelectionFollowsFocus = false;
             IsItemClickEnabled = true;
-            ItemClick += ItemClickedHandler;
+            ItemClick += (o, e) => OnItemClicked(e.ClickedItem as NavPageItem);
 
             // Locate the hosting SplitView control
             
-            this.Loaded += (s, a) =>
+            Loaded += (s, a) =>
             {
                 var parent = VisualTreeHelper.GetParent(this);
                 while (parent != null && !(parent is SplitView))
@@ -66,10 +66,15 @@ namespace WordsLinks.UWP.Widget
             }
         }
 
-        private void ItemClickedHandler(object sender, ItemClickEventArgs args)
+
+        public void Select(int index)
         {
-            // Triggered when the item is selected using something other than a keyboard
-            NavPageItem npi = args.ClickedItem as NavPageItem;
+            if (index >= 0 && index < Items.Count)
+                OnItemClicked(Items[index] as NavPageItem);
+        }
+
+        private void OnItemClicked(NavPageItem npi)
+        {
             ListViewItem lvi = ContainerFromItem(npi) as ListViewItem;
             if (lvi == null)
                 return;
@@ -85,7 +90,8 @@ namespace WordsLinks.UWP.Widget
             }
             PageSelected?.Invoke(this, npi);
 
-            host.IsPaneOpen = false;
+            if(host != null)
+                host.IsPaneOpen = false;
 
             lvi.Focus(FocusState.Programmatic);
         }

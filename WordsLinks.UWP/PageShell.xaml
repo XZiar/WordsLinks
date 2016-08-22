@@ -5,92 +5,54 @@
     xmlns:local="using:WordsLinks.UWP"
     xmlns:ele="using:WordsLinks.UWP.ViewModel"
     xmlns:wid="using:WordsLinks.UWP.Widget"
+    xmlns:util="using:WordsLinks.UWP.Util"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
+        <util:NavTrueWidthConverter x:Key="NavTrueWidthCvt" ObjSplitView="{x:Bind RootSplitView}"/>
         <DataTemplate x:Key="NavMenuItemTemplate" x:DataType="ele:NavPageItem">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="48" />
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Rectangle Width="6"
-                           Height="24"
-                           Margin="-2,0,0,0"
-                           Fill="{ThemeResource SystemControlForegroundAccentBrush}"
-                           Visibility="{x:Bind SelectedVis, Mode=OneWay}"
-                           VerticalAlignment="Center"
-                           HorizontalAlignment="Left"/>
-                <Image Margin="8" Source="{x:Bind Source}" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTipService.ToolTip="{x:Bind Label}"/>
+                <Rectangle Width="4" Height="48" Margin="-2,0,0,0"
+                    Fill="{StaticResource AccentBrush}"
+                    Visibility="{x:Bind SelectedVis, Mode=OneWay}"
+                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                <Image Margin="12" Source="{x:Bind Source}" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTipService.ToolTip="{x:Bind Label}"/>
                 <TextBlock Grid.Column="1" Text="{x:Bind Label}" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="NoWrap" VerticalAlignment="Center"/>
             </Grid>
         </DataTemplate>
     </Page.Resources>
 
-        <SplitView x:Name="RootSplitView"
-               IsPaneOpen="True"
-               DisplayMode="CompactInline"
-               OpenPaneLength="128"
-               CompactPaneLength="48">
+    <SplitView x:Name="RootSplitView" DisplayMode="CompactInline"
+        OpenPaneLength="128" CompactPaneLength="48">
         <SplitView.Pane>
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="48"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <ToggleButton x:Name="BtnPanel" Grid.Row="0" Style="{StaticResource PanelToggleButtonStyle}"
-                              IsChecked="{Binding IsPaneOpen, ElementName=RootSplitView, Mode=TwoWay}"
-                              AutomationProperties.Name="Navigation"
-                              ToolTipService.ToolTip="Navigation">
-                    <SymbolIcon Symbol="List" HorizontalAlignment="Left" VerticalAlignment="Center"
-                                Width="{Binding RootSplitView.OpenPaneLengthProperty}" Height="48"/>
+                <ToggleButton x:Name="BtnPanel" Grid.Row="0" Padding="0"
+                    Width="{Binding IsPaneOpen, ElementName=RootSplitView, Converter={StaticResource NavTrueWidthCvt}, Mode=OneWay}"
+                    IsChecked="{Binding IsPaneOpen, ElementName=RootSplitView, Mode=TwoWay}"
+                    AutomationProperties.Name="Navigation"
+                    ToolTipService.ToolTip="Navigation">
+                    <SymbolIcon Symbol="List" VerticalAlignment="Center" HorizontalAlignment="Center"
+                        Width="40" Height="40"/>
                 </ToggleButton>
                 <wid:NavMenuListView x:Name="NavMenuList" Grid.Row="1"
-                                     ItemContainerStyle="{StaticResource NavMenuItemContainerStyle}"
-                                     ItemTemplate="{StaticResource NavMenuItemTemplate}"/>
+                    ItemContainerStyle="{StaticResource NavMenuItemContainerStyle}"
+                    ItemTemplate="{StaticResource NavMenuItemTemplate}"/>
             </Grid>
-            <!--<Grid x:Name="PaneContentGrid">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="48"/>
-                    <RowDefinition Height="48"/>
-                    <RowDefinition Height="48"/>
-                    <RowDefinition Height="48"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="48"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <ToggleButton x:Name="BtnPanel" Grid.Row="0" Grid.Column="0" Style="{StaticResource PanelToggleButtonStyle}"
-                              Content="&#xE700;"
-                              IsChecked="{Binding IsPaneOpen, ElementName=RootSplitView, Mode=TwoWay}"
-                              AutomationProperties.Name="Navigation"
-                              ToolTipService.ToolTip="Navigation"  />
-                <ToggleButton x:Name="BtnWrite" Grid.Row="1" Grid.Column="0" Style="{StaticResource PanelToggleButtonStyle}">
-                    <Image Source="Assets/IconWrite.png" Stretch="Uniform"/>
-                </ToggleButton>
-                <TextBlock Grid.Row="1" Grid.Column="1" Text="添加" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="24"/>
-                <ToggleButton x:Name="BtnMemorize" Grid.Row="2" Grid.ColumnSpan="2"  Grid.Column="0" Style="{StaticResource PanelToggleButtonStyle}">
-                    <ToggleButton.Background>
-                        <ImageBrush ImageSource="Assets/IconMemorize.png" Stretch="Uniform"/>
-                    </ToggleButton.Background>
-                </ToggleButton>
-                --><!--<TextBlock Grid.Row="2" Grid.Column="1" Text="记忆" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="24"/>--><!--
-                <ToggleButton x:Name="BtnSetting" Grid.Row="3" Grid.Column="0" Style="{StaticResource PanelToggleButtonStyle}">
-                    <ToggleButton.Background>
-                        <ImageBrush ImageSource="Assets/IconSetting.png" Stretch="Uniform"/>
-                    </ToggleButton.Background>
-                </ToggleButton>
-                <TextBlock Grid.Row="3" Grid.Column="1" Text="设置" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="24"/>
-            </Grid>-->
         </SplitView.Pane>
 
         <Grid>
-            <Frame x:Name="frame"
-                   Margin="0,4,0,0">
+            <Frame x:Name="frame" Margin="0,4,0,0">
                 <Frame.ContentTransitions>
                     <TransitionCollection>
                         <NavigationThemeTransition>

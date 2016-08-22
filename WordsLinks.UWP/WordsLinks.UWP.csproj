@@ -99,8 +99,14 @@
       <DependentUpon>PageShell.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Util\TextMatchConverter.cs" />
+    <Compile Include="Util\Converter.cs" />
     <Compile Include="ViewModel\NavPageItem.cs" />
+    <Compile Include="View\MemorizePage.xaml.cs">
+      <DependentUpon>MemorizePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SettingPage.xaml.cs">
+      <DependentUpon>SettingPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\WritePage.xaml.cs">
       <DependentUpon>WritePage.xaml</DependentUpon>
     </Compile>
@@ -143,6 +149,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="View\MemorizePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SettingPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="View\WritePage.xaml">
       <SubType>Designer</SubType>

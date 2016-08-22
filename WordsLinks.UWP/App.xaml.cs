@@ -1,21 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using WordsLinks.UWP.View;
 
 namespace WordsLinks.UWP
 {
@@ -68,12 +57,6 @@ namespace WordsLinks.UWP
             // Place our app shell in the current Window
             Window.Current.Content = shell;
 
-            if (shell.PageFrame.Content == null)
-            {
-                // When the navigation stack isn't restored, navigate to the first page
-                // suppressing the initial entrance animation.
-                shell.PageFrame.Navigate(typeof(WritePage), e.Arguments, new Windows.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
-            }
             // Ensure the current window is active
             Window.Current.Activate();
         }

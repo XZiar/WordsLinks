@@ -3,15 +3,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:WordsLinks.UWP.Style"
     xmlns:util="using:WordsLinks.UWP.Util">
-    <Style x:Key="PanelToggleButtonStyle" TargetType="ToggleButton">
-        <Setter Property="FontSize" Value="20" />
-        <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
-        <Setter Property="Height" Value="48" />
-        <Setter Property="Width" Value="48" />
-        <Setter Property="HorizontalAlignment" Value="Left"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Background" Value="Transparent" />
-    </Style>
     <Style x:Key="NavMenuItemContainerStyle" TargetType="ListViewItem">
         <Setter Property="MinWidth" Value="{StaticResource SplitViewCompactPaneThemeLength}"/>
         <Setter Property="Height" Value="48"/>
@@ -38,4 +29,5 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <SolidColorBrush x:Key="AccentBrush" Color="#FF0078D7"/>
 </ResourceDictionary>
