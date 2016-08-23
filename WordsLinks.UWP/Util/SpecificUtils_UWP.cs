@@ -5,6 +5,12 @@ using System.Diagnostics;
 using System.IO;
 using Windows.Storage;
 using System.Threading.Tasks;
+using Windows.Graphics.Imaging;
+using Windows.Storage.Streams;
+using Windows.Storage.Pickers;
+using System.Collections.Generic;
+using Windows.Storage.Provider;
+using static WordsLinks.UWP.Util.BasicUtils;
 
 namespace WordsLinks.UWP.Util
 {
@@ -17,7 +23,7 @@ namespace WordsLinks.UWP.Util
 
         static FileUtil_UWP()
         {
-            docFolder =  ApplicationData.Current.LocalFolder;
+            docFolder = ApplicationData.Current.LocalFolder;
             documentsPath = docFolder.Path;
             cacheFolder = ApplicationData.Current.TemporaryFolder;
             cachePath = cacheFolder.Path;
@@ -61,19 +67,58 @@ namespace WordsLinks.UWP.Util
 
     class ImageUtil_UWP : ImageUtil
     {
+        public ImageUtil_UWP()
+        {
+            oPicker.FileTypeFilter.Add(".png");
+            sPicker.FileTypeChoices.Add("图片文件", new List<string>() { ".png" });
+        }
+
+        private async void Encode(byte[] data, uint w, uint h, InMemoryRandomAccessStream stream)
+        {
+            BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
+            encoder.SetPixelData(BitmapPixelFormat.Rgba8, BitmapAlphaMode.Premultiplied, w, h, 96.0, 96.0, data);
+            await encoder.FlushAsync();
+        }
         public Stream CompressBitmap(byte[] data, int w, int h)
         {
-            throw new NotImplementedException();
+            InMemoryRandomAccessStream memStream = new InMemoryRandomAccessStream();
+            Encode(data, (uint)w, (uint)h, memStream);
+            return memStream.AsStream();
         }
+
+        private FileOpenPicker oPicker = new FileOpenPicker()
+        {
+            ViewMode = PickerViewMode.Thumbnail,
+            SuggestedStartLocation = PickerLocationId.PicturesLibrary
+        };
+        private FileSavePicker sPicker = new FileSavePicker()
+        {
+            SuggestedStartLocation = PickerLocationId.PicturesLibrary
+        };
 
         public Task<byte[]> GetImage()
         {
             throw new NotImplementedException();
         }
-
         public Task<bool> SaveImage(Stream ins)
         {
-            throw new NotImplementedException();
+            var tsk = new TaskCompletionSource<bool>();
+            byte[] dat = new byte[ins.Length];
+            ins.Read(dat, 0, (int)ins.Length);
+            RunInUI(async () =>
+                {
+                    var file = await sPicker.PickSaveFileAsync();
+                    if (file != null)
+                    {
+                        CachedFileManager.DeferUpdates(file);
+                        await FileIO.WriteBytesAsync(file, dat);
+                        var status = await CachedFileManager.CompleteUpdatesAsync(file);
+                        tsk.SetResult(status == FileUpdateStatus.Complete);
+                    }
+                    else
+                        tsk.SetResult(false);
+                });
+            return tsk.Task;
         }
     }
 

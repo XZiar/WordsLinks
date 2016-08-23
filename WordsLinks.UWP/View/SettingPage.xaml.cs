@@ -1,10 +1,14 @@
-﻿using System;
+﻿using Main.Service;
+using Main.Util;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage.Pickers;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -25,6 +29,25 @@ namespace WordsLinks.UWP.View
         public SettingPage()
         {
             InitializeComponent();
+        }
+
+        private async void OnDBTapped(object sender, TappedRoutedEventArgs args)
+        {
+            if (sender == exportDB)
+            {
+                try
+                {
+                    var ret = DBService.Export();
+                    if (await ret)
+                        Debug.WriteLine("导出成功");
+                    else
+                        Debug.WriteLine("导出失败");
+                }
+                catch (Exception e)
+                {
+                    e.CopeWith("exportDB");
+                }
+            }
         }
     }
 }

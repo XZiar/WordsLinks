@@ -99,6 +99,7 @@
       <DependentUpon>PageShell.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util\BasicUtils.cs" />
     <Compile Include="Util\Converter.cs" />
     <Compile Include="Util\SpecificUtils_UWP.cs" />
     <Compile Include="ViewModel\SelectItem.cs" />

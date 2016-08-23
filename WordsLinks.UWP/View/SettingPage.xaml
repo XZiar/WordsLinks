@@ -8,6 +8,6 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     <StackPanel x:Name="panel" Orientation="Vertical">
-        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="SettingPage"/>
+        <TextBlock x:Name="exportDB" HorizontalAlignment="Center" VerticalAlignment="Center" Text="分享单词本" FontSize="18" Tapped="OnDBTapped"/>
     </StackPanel>
 </Page>
