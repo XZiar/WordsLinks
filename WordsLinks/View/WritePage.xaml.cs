@@ -20,12 +20,13 @@ namespace WordsLinks.View
             finTGroup = new SelectCellGroup(true, true);
             webTGroup.SetTo(webtrans);
             finTGroup.SetTo(fintrans);
-            webTGroup.Select += OnSelectWebTrans;
-            finTGroup.Select += OnSelectFinTrans;
+            webTGroup.Select += OnSelectTrans;
+            finTGroup.Select += OnSelectTrans;
         }
 
         public void judgeAdd() =>
-            add.IsEnabled = word.Text != null && (webTGroup.SelectedItems.Length > 0 || finTGroup.SelectedItems.Length > 0);
+            add.IsEnabled = !string.IsNullOrWhiteSpace(word.Text) 
+                && (webTGroup.SelectedItems.IsNotEmpty() || finTGroup.SelectedItems.IsNotEmpty());
 
         private void CapChecker(object sender, TextChangedEventArgs e)
         {
@@ -34,13 +35,7 @@ namespace WordsLinks.View
             judgeAdd();
         }
 
-        private void OnSelectWebTrans(object sender, SelectCellGroup.SelectEventArgs e)
-        {
-            if (e.msg == Selected)
-                judgeAdd();
-        }
-
-        private void OnSelectFinTrans(object sender, SelectCellGroup.SelectEventArgs e)
+        private void OnSelectTrans(object sender, SelectCellGroup.SelectEventArgs e)
         {
             if (e.msg == Selected)
                 judgeAdd();

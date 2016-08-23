@@ -7,7 +7,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-    <StackPanel x:Name="panel" Orientation="Vertical">
-        <TextBlock x:Name="exportDB" HorizontalAlignment="Center" VerticalAlignment="Center" Text="分享单词本" FontSize="18" Tapped="OnDBTapped"/>
+    <StackPanel x:Name="panel" Orientation="Vertical" Padding="16">
+        <Button x:Name="exportDB" Margin="24,8" Padding="48,8" Content="分享单词本"
+            FontSize="20" HorizontalAlignment="Center" Tapped="OnDBTapped" />
+        <Button x:Name="importDB" Margin="24,8" Padding="48,8" Content="导入单词本"
+            FontSize="20" HorizontalAlignment="Center" Tapped="OnDBTapped" />
+        <Button x:Name="clearDB" Margin="24,8" Padding="48,8" Content="清空单词本"
+            FontSize="20" HorizontalAlignment="Center" Tapped="OnDBTapped" />
     </StackPanel>
 </Page>

@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using WordsLinks.Widget;
 using Xamarin.Forms;
-using static WordsLinks.ViewModel.SelectCellGroup.SelectEventArgs.Message;
+using static WordsLinks.ViewModel.SelectCellGroup.SelectEventArgs;
 
 namespace WordsLinks.ViewModel
 {
@@ -63,18 +63,18 @@ namespace WordsLinks.ViewModel
         public delegate void SelectHandler(object sender, SelectEventArgs e);
         public event SelectHandler Select;
 
-        public string[] Items
+        public IEnumerable<string> Items
         {
             get
             {
-                return datas.Select(x => x.Text).ToArray();
+                return datas.Select(x => x.Text);
             }
         }
-        public string[] SelectedItems
+        public IEnumerable<string> SelectedItems
         {
             get
             {
-                return (from x in datas where (x.IsSelected == true) select x.Text).ToArray();
+                return from x in datas where (x.IsSelected == true) select x.Text;
             }
         }
 
@@ -89,7 +89,7 @@ namespace WordsLinks.ViewModel
             datas.Clear();
             foreach (var str in data)
                 datas.Add(new SelectViewModel() { Text = str });
-            Select?.Invoke(this, new SelectEventArgs() { msg = DataChanged });
+            Select?.Invoke(this, new SelectEventArgs() { msg = Message.DataChanged });
         }
 
         public void SetTo(ListView list)
@@ -129,11 +129,11 @@ namespace WordsLinks.ViewModel
         {
             switch (e.msg)
             {
-            case Selecting:
+            case Message.Selecting:
                 SelectCell obj = sect[e.idx] as SelectCell;
                 obj.IsSelected = e.isSelect;
                 break;
-            case DataChanged:
+            case Message.DataChanged:
                 buildView();
                 break;
             }
@@ -209,7 +209,7 @@ namespace WordsLinks.ViewModel
             {
                 Select?.Invoke(this, e);
                 e.obj.IsSelected = e.isSelect;
-                Select?.Invoke(this, new SelectEventArgs() { msg = Selected });
+                Select?.Invoke(this, new SelectEventArgs() { msg = Message.Selected });
             }
         }
     }

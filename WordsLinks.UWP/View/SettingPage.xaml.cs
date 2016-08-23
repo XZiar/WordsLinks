@@ -1,21 +1,10 @@
 ﻿using Main.Service;
 using Main.Util;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Storage.Pickers;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
+using static Main.Util.SpecificUtils;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -29,6 +18,11 @@ namespace WordsLinks.UWP.View
         public SettingPage()
         {
             InitializeComponent();
+        }
+
+        private void RefreshWords()
+        {
+            //wordsSect.Title = $"单词本\t（{DBService.WordsCount}个单词）";
         }
 
         private async void OnDBTapped(object sender, TappedRoutedEventArgs args)
@@ -47,6 +41,32 @@ namespace WordsLinks.UWP.View
                 {
                     e.CopeWith("exportDB");
                 }
+            }
+            else if (sender == importDB)
+            {
+                try
+                {
+                    var pic = imgUtil.GetImage();
+                    if ((await pic) != null)
+                    {
+                        var ret = DBService.Import(pic.Result);
+                        Debug.WriteLine("导入中");
+                        if (await ret)
+                            Debug.WriteLine("导入成功");
+                        else
+                            Debug.WriteLine("导入失败");
+                        RefreshWords();
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.CopeWith("importDB");
+                }
+            }
+            else if (sender == clearDB)
+            {
+                DBService.Clear();
+                RefreshWords();
             }
         }
     }

@@ -4,12 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Windows.System;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Input;
 using WordsLinks.UWP.ViewModel;
 using static WordsLinks.UWP.ViewModel.SelectItemGroup.SelectEventArgs;
-using Windows.System;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -29,14 +29,15 @@ namespace WordsLinks.UWP.View
             finTGroup = new SelectItemGroup(true, true);
             webTGroup.SetTo(webtrans);
             finTGroup.SetTo(fintrans);
-            webTGroup.Select += OnSelect;
-            finTGroup.Select += OnSelect;
+            webTGroup.Select += OnSelectTrans;
+            finTGroup.Select += OnSelectTrans;
         }
 
         public void judgeAdd() =>
-            add.IsEnabled = word.Text != null && (webTGroup.SelectedItems.Count() > 0 || finTGroup.SelectedItems.Count() > 0);
+            add.IsEnabled = !string.IsNullOrWhiteSpace(word.Text) 
+                && (webTGroup.SelectedItems.IsNotEmpty() || finTGroup.SelectedItems.IsNotEmpty());
 
-        private void OnSelect(object sender, SelectItemGroup.SelectEventArgs e)
+        private void OnSelectTrans(object sender, SelectItemGroup.SelectEventArgs e)
         {
             if (e.msg == Message.Selected)
                 judgeAdd();

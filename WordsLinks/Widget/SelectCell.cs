@@ -12,8 +12,8 @@ namespace WordsLinks.Widget
 
         public bool IsSelected
         {
-            get { return (bool)CheckImage.GetValue(Image.IsVisibleProperty); }
-            set { CheckImage.SetValue(Image.IsVisibleProperty, value); }
+            get { return (bool)CheckImage.GetValue(VisualElement.IsVisibleProperty); }
+            set { CheckImage.SetValue(VisualElement.IsVisibleProperty, value); }
         }
 
         public SelectCell()
@@ -32,7 +32,7 @@ namespace WordsLinks.Widget
                 IsVisible = false,
             };
 
-            CheckImage.SetBinding(Image.IsVisibleProperty, "IsSelected");
+            CheckImage.SetBinding(VisualElement.IsVisibleProperty, "IsSelected");
             CheckImage.Source = checkImg;
 
             var layout = new StackLayout()

@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Main.Model;
+using Main.Util;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
 using System;
@@ -7,8 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Main.Model;
-using Main.Util;
 using static System.Text.Encoding;
 using static Main.Util.BasicUtils;
 using static Main.Util.SpecificUtils;

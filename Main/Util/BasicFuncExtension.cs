@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Main.Util
 {
-    static class BasicFuncExtension
+    public static class BasicFuncExtension
     {
         /// <summary>
         /// 将IList中元素打乱顺序
@@ -24,6 +25,16 @@ namespace Main.Util
                 list[n] = value;
             }
             return list;
+        }
+
+        public static bool IsEmpty<T>(this IEnumerable<T> source)
+        {
+            return !source.Any();
+        }
+
+        public static bool IsNotEmpty<T>(this IEnumerable<T> source)
+        {
+            return source.Any();
         }
 
         public static int ToInt(this JToken token) => token.ToString().ToInt();
