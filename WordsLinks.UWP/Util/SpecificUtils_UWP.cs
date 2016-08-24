@@ -12,6 +12,10 @@ using Windows.Storage.Pickers;
 using Windows.Storage.Provider;
 using static WordsLinks.UWP.Util.BasicUtils;
 using System.Threading;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
+using Windows.UI;
+using Windows.UI.Core;
 
 namespace WordsLinks.UWP.Util
 {
@@ -85,12 +89,12 @@ namespace WordsLinks.UWP.Util
             return memStream.AsStream();
         }
 
-        private FileOpenPicker oPicker = new FileOpenPicker()
+        private static FileOpenPicker oPicker = new FileOpenPicker()
         {
             ViewMode = PickerViewMode.Thumbnail,
             SuggestedStartLocation = PickerLocationId.PicturesLibrary
         };
-        private FileSavePicker sPicker = new FileSavePicker()
+        private static FileSavePicker sPicker = new FileSavePicker()
         {
             SuggestedStartLocation = PickerLocationId.PicturesLibrary
         };
@@ -149,43 +153,63 @@ namespace WordsLinks.UWP.Util
 
     class HUDPopup_UWP : HUDPopup
     {
-        public delegate void MsgHadler(bool isShow, HUDType type, string msg);
-        public event MsgHadler OnMsg;
+        private TextBlock msgBar;
+        private Border msgBox;
+        private static Brush WhiteBrush = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255)),
+            BlackBrush = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0)),
+            RedBrush = new SolidColorBrush(Color.FromArgb(64, 255, 0, 0)),
+            GreenBrush = new SolidColorBrush(Color.FromArgb(64, 0, 255, 0)),
+            DefaultBrush = new SolidColorBrush(Color.FromArgb(255, 255, 255, 224));
+        private bool hasInit = false;
+        private DispatchedHandler DismissHadler;
+        public void Init(TextBlock bar, Border box)
+        {
+            msgBar = bar;
+            msgBox = box;
+            DismissHadler = () =>
+            {
+                msgBar.Text = "";
+                msgBox.Background = DefaultBrush;
+            };
+            hasInit = true;
+            Main.Util.BasicUtils.OnExceptionEvent += OnExceptionMsg;
+        }
+
+        private void OnExceptionMsg(Exception e, string log) =>
+            Show(HUDType.Fail, e.Message, 2000);
+
         public void Dismiss()
         {
-            OnMsg?.Invoke(false, HUDType.Loading, null);
+            if (!hasInit)
+                Debug.WriteLine("Dismiss");
+            else
+                RunInUI(DismissHadler);
         }
 
         public void Show(HUDType type = HUDType.Loading, string msg = "", int duaration = 640)
         {
-            OnMsg?.Invoke(true, type, msg);
-            if (type != HUDType.Loading)
-                new Timer((o) => Dismiss(), null, duaration, Timeout.Infinite);
-        }
-    }
-}
-/*
-class HUDPopup_iOS : HUDPopup
-{
-    public void Dismiss()
-    {
-        BTProgressHUD.Dismiss();
-    }
+            if (!hasInit)
+            {
+                Debug.WriteLine($"{type} : {msg}");
+                return;
+            }
 
-    public void Show(HUDType type, string msg, int duaration)
-    {
-        switch (type)
-        {
-        case HUDType.Loading:
-            BTProgressHUD.Show(msg, maskType: MaskType.Black);
-            break;
-        case HUDType.Success:
-            BTProgressHUD.ShowImage(UIImage.FromBundle("IconSuccess"), msg, duaration);
-            break;
-        case HUDType.Fail:
-            BTProgressHUD.ShowImage(UIImage.FromBundle("IconFail"), msg, duaration);
-            break;
+            RunInUI(() =>
+            {
+                msgBar.Text = msg;
+                if (type == HUDType.Loading)
+                {
+                    msgBox.Background = DefaultBrush;
+                    msgBar.Foreground = BlackBrush;
+                }
+                else
+                {
+                    new Timer((o) => Dismiss(), null, duaration, Timeout.Infinite);
+                    msgBox.Background = type == HUDType.Fail ? RedBrush : GreenBrush;
+                    msgBar.Foreground = WhiteBrush;
+                }
+            });
         }
     }
 }
-*/
+

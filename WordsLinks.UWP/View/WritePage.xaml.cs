@@ -24,11 +24,12 @@ namespace WordsLinks.UWP.View
     public sealed partial class WritePage : Page
     {
         private SelectItemGroup webTGroup, finTGroup;
+        private bool isInPage;
         public WritePage()
         {
             NavigationCacheMode = NavigationCacheMode.Required;
             InitializeComponent();
-            CoreApplication.MainView.CoreWindow.KeyDown += CoreWindow_KeyDown;
+            CoreApplication.MainView.CoreWindow.KeyDown += OnKeyDown;
             webTGroup = new SelectItemGroup(true, true);
             finTGroup = new SelectItemGroup(true, true);
             webTGroup.SetTo(webtrans);
@@ -37,13 +38,23 @@ namespace WordsLinks.UWP.View
             finTGroup.Select += OnSelectTrans;
         }
 
-        private void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            base.OnNavigatedTo(e);
+            isInPage = true;
+        }
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+            isInPage = false;
+        }
+
+        private void OnKeyDown(CoreWindow sender, KeyEventArgs args)
+        {
+            if (!isInPage)
+                return;
             if (args.VirtualKey == VirtualKey.Back && word.FocusState == FocusState.Unfocused)
-            {
-                word.Text = "";
-                word.Focus(FocusState.Pointer);
-            }
+                OnDelClicked(del, null);
         }
 
         public void judgeAdd() =>
@@ -56,7 +67,7 @@ namespace WordsLinks.UWP.View
                 judgeAdd();
         }
 
-        private void OnChanged(object sender, KeyRoutedEventArgs e)
+        private void OnKey(object sender, KeyRoutedEventArgs e)
         {
             if (e.Key == VirtualKey.Enter)
                 OnClickSearch(search, null);
@@ -78,6 +89,15 @@ namespace WordsLinks.UWP.View
             }
         }
 
+        private void OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(word.Text))
+                word.Text = word.Text.ToLower();
+            webTGroup.ChooseNone();
+            finTGroup.ChooseNone();
+            add.IsEnabled = false;
+        }
+
         private void OnAddClicked(object sender, TappedRoutedEventArgs args)
         {
             var chi = new HashSet<string>();
@@ -93,6 +113,12 @@ namespace WordsLinks.UWP.View
             {
                 e.CopeWith("Add Word");
             }
+        }
+
+        private void OnDelClicked(object sender, TappedRoutedEventArgs args)
+        {
+            word.Text = "";
+            word.Focus(FocusState.Pointer);
         }
     }
 }

@@ -21,11 +21,13 @@ namespace WordsLinks.UWP.View
         {
             InitializeComponent();
         }
+
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
             RefreshWords();
         }
+
         private void RefreshWords()
         {
             DBstatus.Text = $"单词本\t（{DBService.WordsCount}个单词）";

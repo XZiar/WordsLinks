@@ -53,10 +53,7 @@ namespace WordsLinks.UWP.ViewModel
 
         public IEnumerable<string> SelectedItems
         {
-            get
-            {
-                return from x in datas where (x.IsSelected == true) select x.Text;
-            }
+            get { return from x in datas where (x.IsSelected == true) select x.Text; }
         }
 
         public SelectItemGroup(bool mulSel = false, bool nullSel = false)
@@ -86,6 +83,13 @@ namespace WordsLinks.UWP.ViewModel
             if (sender != null)
                 (sender as ListView).SelectedItem = null;
             Choose(e.ClickedItem as SelectItem);
+        }
+
+        public void ChooseNone()
+        {
+            if (NullSelect)
+                foreach (var i in datas)
+                    i.IsSelected = false;
         }
 
         public void Choose(SelectItem item)

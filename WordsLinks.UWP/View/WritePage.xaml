@@ -34,7 +34,7 @@
                 <ColumnDefinition Width="8" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBox x:Name="word" Grid.Column="0" Margin="4" FontSize="18" KeyDown="OnChanged"/>
+            <TextBox x:Name="word" Grid.Column="0" Margin="4" FontSize="18" KeyDown="OnKey" TextChanged="OnTextChanged"/>
             <Image x:Name="search" Grid.Column="2" Width="24" Height="24" Margin="8" Source="ms-appx:///Assets/IconSearch.png" HorizontalAlignment="Center" VerticalAlignment="Center" Tapped="OnClickSearch"/>
         </Grid>
 
@@ -68,5 +68,8 @@
 
         <Button x:Name="add" Grid.Row="4" Margin="24,0" Padding="48,8" Content="添加"
             IsEnabled="false" FontSize="20" HorizontalAlignment="Center" Background="#FF20C000" Tapped="OnAddClicked" Foreground="White" />
+        <Button x:Name="del" Grid.Row="4" Padding="8" Content="清空"
+            FontSize="20" HorizontalAlignment="Right" Background="#FFFF3F3F" Tapped="OnDelClicked" Foreground="White" />
+
     </Grid>
 </Page>

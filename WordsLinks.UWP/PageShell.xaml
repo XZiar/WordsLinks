@@ -56,9 +56,9 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <TextBlock x:Name="msgBar" Grid.Row="0" Margin="16,4"
-                HorizontalAlignment="Center" FontWeight="Bold" />
-
+            <Border x:Name="msgBox" Grid.Row="0" Background="LightYellow">
+                <TextBlock x:Name="msgBar" Margin="16,4" HorizontalAlignment="Center" FontWeight="Bold" />
+            </Border>
             <Frame x:Name="frame" Grid.Row="1">
                 <Frame.ContentTransitions>
                     <TransitionCollection>
