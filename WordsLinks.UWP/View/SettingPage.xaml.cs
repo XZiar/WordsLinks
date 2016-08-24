@@ -7,6 +7,8 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using static Main.Util.SpecificUtils;
 using Windows.UI.Xaml.Navigation;
+using Windows.UI.Popups;
+using System.Threading.Tasks;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -33,6 +35,16 @@ namespace WordsLinks.UWP.View
             DBstatus.Text = $"单词本\t（{DBService.WordsCount}个单词）";
         }
 
+        private MessageDialog modeDlg = new MessageDialog("是否覆盖现有单词本？") { Title = "导入方式" };
+        private Task<bool> ImportChoose()
+        {
+            var tsk = new TaskCompletionSource<bool>();
+            modeDlg.Commands.Clear();
+            modeDlg.Commands.Add(new UICommand("覆盖", (c) => tsk.SetResult(true)));
+            modeDlg.Commands.Add(new UICommand("合并", (c) => tsk.SetResult(false)));
+            modeDlg.ShowAsync();
+            return tsk.Task;
+        }
         private async void OnDBTapped(object sender, TappedRoutedEventArgs args)
         {
             if (sender == exportDB)
@@ -58,7 +70,9 @@ namespace WordsLinks.UWP.View
                     var pic = imgUtil.GetImage();
                     if ((await pic) != null)
                     {
-                        var ret = DBService.Import(pic.Result);
+                        var mode = await ImportChoose();
+                        Debug.WriteLine($"choose {mode}");
+                        var ret = DBService.Import(pic.Result, mode);
                         hudPopup.Show(msg: "导入中");
                         if (await ret)
                             hudPopup.Show(HUDType.Success, "导入成功");

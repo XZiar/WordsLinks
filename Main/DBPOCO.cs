@@ -1,5 +1,5 @@
-﻿using System;
-using SQLite;
+﻿using SQLite;
+using System.Collections.Generic;
 
 namespace Main.Model
 {
@@ -7,6 +7,7 @@ namespace Main.Model
     {
         string GetStr();
         int GetId();
+        int MissCount();
     }
 
 	[Table("Words")]
@@ -16,6 +17,7 @@ namespace Main.Model
 		public int Id { get; set; }
 		[Unique, MaxLength(16)]
 		public string Letters { get; set; }
+        public int Miss { get; set; }
 
         public DBWord() { }
         public DBWord(string letter, int id)
@@ -23,6 +25,7 @@ namespace Main.Model
 
         public string GetStr() => Letters;
         public int GetId() => Id;
+        public int MissCount() => Miss;
     }
 
 	[Table("Meanings")]
@@ -32,6 +35,7 @@ namespace Main.Model
 		public int Id { get; set; }
 		[Unique, MaxLength(16)]
 		public string Meaning { get; set; }
+        public int Miss { get; set; }
 
         public DBMeaning() { }
         public DBMeaning(string meaning, int id)
@@ -39,6 +43,7 @@ namespace Main.Model
 
         public string GetStr() => Meaning;
         public int GetId() => Id;
+        public int MissCount() => Miss;
     }
 
 	[Table("Translations")]
@@ -47,4 +52,21 @@ namespace Main.Model
 		public int Wid { get; set; }
 		public int Mid { get; set; }
 	}
+
+    public class DBEleComparer : IComparer<WordElement>
+    {
+        public static DBEleComparer Instance { get; private set; }
+        static DBEleComparer()
+        {
+            Instance = new DBEleComparer();
+        }
+
+        public int Compare(WordElement x, WordElement y)
+        {
+            if (x.MissCount() == y.MissCount())
+                return x.GetStr().CompareTo(y.GetStr());
+            else
+                return x.MissCount().CompareTo(y.MissCount());
+        }
+    }
 }

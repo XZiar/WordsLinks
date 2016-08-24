@@ -2,6 +2,7 @@
 using Main.Util;
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using WordsLinks.ViewModel;
 using Xamarin.Forms;
 using static Main.Util.SpecificUtils;
@@ -38,6 +39,12 @@ namespace WordsLinks.View
             wordsSect.Title = $"单词本\t（{DBService.WordsCount}个单词）";
         }
 
+        private async Task<bool> ImportChoose()
+        {
+            var ret = await DisplayActionSheet("是否覆盖现有单词本？", "合并", null, "覆盖");
+            Debug.WriteLine(ret);
+            return ret == "覆盖";
+        }
         private async void OnDBCellTapped(object sender, EventArgs args)
         {
             if (sender == exportCell)
@@ -63,7 +70,9 @@ namespace WordsLinks.View
                     var pic = imgUtil.GetImage();
                     if ((await pic) != null)
                     {
-                        var ret = DBService.Import(pic.Result);
+                        var mode = await ImportChoose();
+                        Debug.WriteLine($"choose {mode}");
+                        var ret = DBService.Import(pic.Result, mode);
                         hudPopup.Show(msg: "导入中");
                         if (await ret)
                             hudPopup.Show(HUDType.Success, "导入成功");

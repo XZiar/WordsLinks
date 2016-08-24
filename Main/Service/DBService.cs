@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using static System.Text.Encoding;
 using static Main.Util.BasicUtils;
 using static Main.Util.SpecificUtils;
+using System.Collections.Specialized;
+using System.Text;
 
 namespace Main.Service
 {
@@ -33,9 +35,11 @@ namespace Main.Service
                 _isChanged = value;
             }
         }
-        private static Dictionary<string, int> words;
-        private static Dictionary<string, int> means;
-        private static MultiValueDictionary<int, int> e2c, c2e;
+        private static Dictionary<string, int> words = new Dictionary<string, int>();
+        private static Dictionary<string, int> means = new Dictionary<string, int>();
+        private static SortedSet<WordElement> eles = new SortedSet<WordElement>(DBEleComparer.Instance);
+        private static MultiValueDictionary<int, int> e2c = new MultiValueDictionary<int, int>();
+        private static MultiValueDictionary<int, int> c2e = new MultiValueDictionary<int, int>();
 
         public static IEnumerable<string> Words { get { return words.Keys; } }
         public static IEnumerable<string> Meanings { get { return means.Keys; } }
@@ -55,8 +59,23 @@ namespace Main.Service
             db.CreateTable<DBMeaning>();
             db.CreateTable<DBTranslation>();
 
-            words = db.Table<DBWord>().ToDictionary(w => w.Letters, w => w.Id);
-            means = db.Table<DBMeaning>().ToDictionary(w => w.Meaning, w => w.Id);
+            words.Clear(); means.Clear(); eles.Clear();
+            foreach(var w in db.Table<DBWord>())
+            {
+                words.Add(w.Letters, w.Id);
+                eles.Add(w);
+            }
+            foreach (var w in db.Table<DBMeaning>())
+            {
+                means.Add(w.Meaning, w.Id);
+                eles.Add(w);
+            }
+            /*
+            StringBuilder sb = new StringBuilder("Here Sort List:\n");
+            foreach (var e in eles)
+                sb.Append($"{e.MissCount()} : {e.GetStr()}\n");
+            Debug.WriteLine(sb);
+            */
             e2c = new MultiValueDictionary<int, int>();
             c2e = new MultiValueDictionary<int, int>();
             foreach (var t in db.Table<DBTranslation>())
@@ -148,46 +167,127 @@ namespace Main.Service
                 }
             });
 
-        public static Task<bool> Import(byte[] bmp)
-            => Task.Run(() =>
+        private static JObject Decoder(byte[] bmp)
+        {
+            if (DBver != bmp[0])
+                return null;
+            int len = bmp[4] + (bmp[5] << 8) + (bmp[6] << 16);
+            Debug.WriteLine($"decode:{bmp.Length} => {len}");
+
+            byte[] dat = new byte[len];
+            Byte4To3(len, bmp, 8, dat, 0);
+
+            var total = Unicode.GetString(dat, 0, dat.Length);
+            Debug.WriteLine(total);
+            return JsonConvert.DeserializeObject<JObject>(total);
+        }
+
+        private static bool ReplaceImport(JObject obj)
+        {
+            Clear();
+            foreach (var jp in obj["words"] as JObject)
             {
-                if (DBver != bmp[0])
-                    return false;
-                int len = bmp[4] + (bmp[5] << 8) + (bmp[6] << 16);
-                Debug.WriteLine($"decode:{bmp.Length} => {len}");
-
-                byte[] dat = new byte[len];
-                Byte4To3(len, bmp, 8, dat, 0);
-
-                var total = Unicode.GetString(dat, 0, dat.Length);
-                Debug.WriteLine(total);
-                var obj = JsonConvert.DeserializeObject<JObject>(total);
-                Clear();
-                var w = new DBWord();
-                var m = new DBMeaning();
-                var t = new DBTranslation();
-                foreach (var jp in obj["words"] as JObject)
+                var w = new DBWord(jp.Key.ToLower(), jp.Value.ToInt());
+                words.Add(w.Letters, w.Id);
+                eles.Add(w);
+                db.Insert(w);
+            }
+            foreach (var jp in obj["means"] as JObject)
+            {
+                var m = new DBMeaning(jp.Key, jp.Value.ToInt());
+                means.Add(m.Meaning, m.Id);
+                eles.Add(m);
+                db.Insert(m);
+            }
+            var t = new DBTranslation();
+            foreach (var jp in obj["links"] as JObject)
+            {
+                t.Wid = jp.Key.ToInt();
+                foreach (var ji in jp.Value as JArray)
                 {
-                    words.Add(w.Letters = jp.Key.ToLower(), w.Id = jp.Value.ToInt());
+                    e2c.Add(t.Wid, t.Mid = ji.ToInt());
+                    c2e.Add(t.Mid, t.Wid);
+                    db.Insert(t);
+                }
+            }
+            isChanged = true;
+            return true;
+        }
+        private static bool AddImport(JObject obj)
+        {
+            var wMap = new Dictionary<int, int>();
+            var mMap = new Dictionary<int, int>();
+            int tmp;
+            foreach (var jp in obj["words"] as JObject)
+            {
+                var w = new DBWord(jp.Key.ToLower(), jp.Value.ToInt());
+                //string txt = $"Find Word {w.Letters} = {w.Id} : ";
+                if (words.TryGetValue(w.Letters, out tmp))
+                {
+                    wMap.Add(w.Id, tmp);
+                    //txt += $"Exist {w.Id}->{tmp}";
+                }
+                else
+                {
+                    tmp = w.Id;
                     db.Insert(w);
+                    wMap.Add(tmp, w.Id);
+                    //txt += $"Absent {tmp}->{w.Id}";
+                    words.Add(w.Letters, w.Id);
+                    eles.Add(w);
                 }
-                foreach (var jp in obj["means"] as JObject)
+                //Debug.WriteLine(txt);
+            }
+            foreach (var jp in obj["means"] as JObject)
+            {
+                var m = new DBMeaning(jp.Key, jp.Value.ToInt());
+                //string txt = $"Find Mean {m.Meaning} = {m.Id} : ";
+                if (means.TryGetValue(m.Meaning, out tmp))
                 {
-                    means.Add(m.Meaning = jp.Key, m.Id = jp.Value.ToInt());
+                    mMap.Add(m.Id, tmp);
+                    //txt += $"Exist {m.Id}->{tmp}";
+                }
+                else
+                {
+                    tmp = m.Id;
                     db.Insert(m);
+                    mMap.Add(tmp, m.Id);
+                    //txt += $"Absent {tmp}->{m.Id}";
+                    means.Add(m.Meaning, m.Id);
+                    eles.Add(m);
                 }
-                foreach (var jp in obj["links"] as JObject)
+                //Debug.WriteLine(txt);
+            }
+            var t = new DBTranslation();
+            foreach (var jp in obj["links"] as JObject)
+            {
+                t.Wid = wMap[jp.Key.ToInt()];
+                foreach (var ji in jp.Value as JArray)
                 {
-                    t.Wid = jp.Key.ToInt();
-                    foreach (var ji in jp.Value as JArray)
+                    //string txt = $"Link {jp.Key.ToInt()}-{ji.ToInt()} : ";
+                    if (!e2c.Contains(t.Wid, t.Mid = mMap[ji.ToInt()]))
                     {
-                        e2c.Add(t.Wid, t.Mid = ji.ToInt());
+                        e2c.Add(t.Wid, t.Mid);
                         c2e.Add(t.Mid, t.Wid);
+                        //txt += $"Absent {t.Wid}-{t.Mid}";
                         db.Insert(t);
                     }
+                    //else
+                        //txt += "Exist";
+                    //Debug.WriteLine(txt);
                 }
-                isChanged = true;
-                return true;
+            }
+            isChanged = true;
+            return true;
+        }
+
+        public static Task<bool> Import(byte[] bmp, bool isReplace)
+            => Task.Run(() =>
+            {
+                var obj = Decoder(bmp);
+                if (obj == null)
+                    return false;
+                return isReplace ? ReplaceImport(obj) : AddImport(obj);
             });
 
         public static DBMeaning[] GetMeansByWord(string eng)
