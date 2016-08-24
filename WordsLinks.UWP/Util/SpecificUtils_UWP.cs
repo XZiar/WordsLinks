@@ -11,6 +11,7 @@ using Windows.Storage.Streams;
 using Windows.Storage.Pickers;
 using Windows.Storage.Provider;
 using static WordsLinks.UWP.Util.BasicUtils;
+using System.Threading;
 
 namespace WordsLinks.UWP.Util
 {
@@ -18,8 +19,8 @@ namespace WordsLinks.UWP.Util
     {
         private static string documentsPath;
         private static string cachePath;
-        private static StorageFolder docFolder;
-        private static StorageFolder cacheFolder;
+        internal static StorageFolder docFolder { get; private set; }
+        internal static StorageFolder cacheFolder { get; private set; }
 
         static FileUtil_UWP()
         {
@@ -30,18 +31,18 @@ namespace WordsLinks.UWP.Util
         }
         public string GetCacheFilePath(string fileName)
         {
-            CreateFile(fileName);
-            Debug.WriteLine($"{cachePath}");
+            CreateFile(cacheFolder, fileName);
             return Path.Combine(cachePath, fileName);
         }
 
-        private async void CreateFile(string fileName)
+        private async void CreateFile(StorageFolder folder, string fileName)
         {
-            await docFolder.CreateFileAsync(fileName);
+            await folder.CreateFileAsync(fileName, CreationCollisionOption.OpenIfExists);
         }
 
         public string GetFilePath(string fileName, bool isPrivate = false)
         {
+            CreateFile(docFolder, fileName);
             return Path.Combine(documentsPath, fileName);
         }
     }
@@ -50,7 +51,7 @@ namespace WordsLinks.UWP.Util
     {
         public SQLiteConnection GetSQLConn(string dbName)
         {
-            string dbPath = new FileUtil_UWP().GetFilePath(dbName, true);
+            string dbPath = SpecificUtils.fileUtil.GetFilePath(dbName, true);
             return new SQLiteConnection(dbPath);
         }
     }
@@ -148,14 +149,18 @@ namespace WordsLinks.UWP.Util
 
     class HUDPopup_UWP : HUDPopup
     {
+        public delegate void MsgHadler(bool isShow, HUDType type, string msg);
+        public event MsgHadler OnMsg;
         public void Dismiss()
         {
-            throw new NotImplementedException();
+            OnMsg?.Invoke(false, HUDType.Loading, null);
         }
 
         public void Show(HUDType type = HUDType.Loading, string msg = "", int duaration = 640)
         {
-            throw new NotImplementedException();
+            OnMsg?.Invoke(true, type, msg);
+            if (type != HUDType.Loading)
+                new Timer((o) => Dismiss(), null, duaration, Timeout.Infinite);
         }
     }
 }

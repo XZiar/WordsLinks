@@ -22,10 +22,10 @@ namespace WordsLinks.UWP
         /// </summary>
         public App()
         {
-            this.InitializeComponent();
+            InitializeComponent();
             ApplicationView.PreferredLaunchViewSize = new Size(360, 640);
             ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
-            this.Suspending += OnSuspending;
+            Suspending += OnSuspending;
         }
 
         /// <summary>
@@ -57,6 +57,8 @@ namespace WordsLinks.UWP
                         new ThreadUtil_UWP(),
                         new SQLiteUtil_UWP()
                         );
+                    Util.BasicUtils.Init();
+                    Main.Util.BasicUtils.OnExceptionEvent += Util.BasicUtils.WriteLog;
                     DBService.Init();
                     NetService.Init();
                 }
@@ -65,10 +67,8 @@ namespace WordsLinks.UWP
                     e.CopeWith("init app");
                 }
 
-
                 // Create a Frame to act as the navigation context and navigate to the first page
                 shell = new PageShell();
-                shell.PageFrame.NavigationFailed += OnNavigationFailed;
 
                 if (args.PreviousExecutionState == ApplicationExecutionState.Terminated)
                 {
@@ -80,16 +80,6 @@ namespace WordsLinks.UWP
 
             // Ensure the current window is active
             Window.Current.Activate();
-        }
-
-        /// <summary>
-        /// Invoked when Navigation to a certain page fails
-        /// </summary>
-        /// <param name="sender">The Frame which failed navigation</param>
-        /// <param name="e">Details about the navigation failure</param>
-        void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
-        {
-            throw new Exception("Failed to load Page " + e.SourcePageType.FullName);
         }
 
         /// <summary>

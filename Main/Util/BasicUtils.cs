@@ -8,9 +8,13 @@ namespace Main.Util
 {
     public static class BasicUtils
     {
+        public delegate void ExceptionHandler(Exception e, string log);
+        public static ExceptionHandler OnExceptionEvent;
         public static void OnException(Exception e, string where = "", bool isShow = false)
         {
-            Debug.WriteLine($"Exception when {where} :{e.GetType()}\n{e.Message}\n##at \t{e.Source}\n{e.StackTrace}\n");
+            var log = $"Exception when {where} :{e.GetType()}\r\n{e.Message}\r\n##at \t{e.Source}\r\n{e.StackTrace}";
+            Debug.WriteLine(log);
+            OnExceptionEvent?.Invoke(e, log);
         }
         public static void CopeWith(this Exception e, string where = "", bool isShow = false)
             => OnException(e, where, isShow);

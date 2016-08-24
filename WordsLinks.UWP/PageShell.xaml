@@ -52,7 +52,14 @@
         </SplitView.Pane>
 
         <Grid>
-            <Frame x:Name="frame" Margin="0,4,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock x:Name="msgBar" Grid.Row="0" Margin="16,4"
+                HorizontalAlignment="Center" FontWeight="Bold" />
+
+            <Frame x:Name="frame" Grid.Row="1">
                 <Frame.ContentTransitions>
                     <TransitionCollection>
                         <NavigationThemeTransition>

@@ -4,7 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Windows.ApplicationModel.Core;
 using Windows.System;
+using Windows.UI.Core;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Input;
@@ -25,12 +28,22 @@ namespace WordsLinks.UWP.View
         {
             NavigationCacheMode = NavigationCacheMode.Required;
             InitializeComponent();
+            CoreApplication.MainView.CoreWindow.KeyDown += CoreWindow_KeyDown;
             webTGroup = new SelectItemGroup(true, true);
             finTGroup = new SelectItemGroup(true, true);
             webTGroup.SetTo(webtrans);
             finTGroup.SetTo(fintrans);
             webTGroup.Select += OnSelectTrans;
             finTGroup.Select += OnSelectTrans;
+        }
+
+        private void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
+        {
+            if (args.VirtualKey == VirtualKey.Back && word.FocusState == FocusState.Unfocused)
+            {
+                word.Text = "";
+                word.Focus(FocusState.Pointer);
+            }
         }
 
         public void judgeAdd() =>
@@ -65,14 +78,21 @@ namespace WordsLinks.UWP.View
             }
         }
 
-        private void OnAddClicked(object sender, TappedRoutedEventArgs e)
+        private void OnAddClicked(object sender, TappedRoutedEventArgs args)
         {
             var chi = new HashSet<string>();
             foreach (var s in webTGroup.SelectedItems)
                 chi.Add(s);
             foreach (var s in finTGroup.SelectedItems)
                 chi.Add(s);
-            DBService.AddWord(word.Text.ToLower(), chi);
+            try
+            {
+                DBService.AddWord(word.Text.ToLower(), chi);
+            }
+            catch(Exception e)
+            {
+                e.CopeWith("Add Word");
+            }
         }
     }
 }

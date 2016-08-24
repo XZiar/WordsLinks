@@ -2,9 +2,11 @@
 using Main.Util;
 using System;
 using System.Diagnostics;
+using Windows.System;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using static Main.Util.SpecificUtils;
+using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -19,10 +21,14 @@ namespace WordsLinks.UWP.View
         {
             InitializeComponent();
         }
-
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            RefreshWords();
+        }
         private void RefreshWords()
         {
-            //wordsSect.Title = $"单词本\t（{DBService.WordsCount}个单词）";
+            DBstatus.Text = $"单词本\t（{DBService.WordsCount}个单词）";
         }
 
         private async void OnDBTapped(object sender, TappedRoutedEventArgs args)
@@ -32,10 +38,11 @@ namespace WordsLinks.UWP.View
                 try
                 {
                     var ret = DBService.Export();
+                    hudPopup.Show(msg: "导出中");
                     if (await ret)
-                        Debug.WriteLine("导出成功");
+                        hudPopup.Show(HUDType.Success, "导出成功");
                     else
-                        Debug.WriteLine("导出失败");
+                        hudPopup.Show(HUDType.Fail, "导出失败");
                 }
                 catch (Exception e)
                 {
@@ -50,11 +57,11 @@ namespace WordsLinks.UWP.View
                     if ((await pic) != null)
                     {
                         var ret = DBService.Import(pic.Result);
-                        Debug.WriteLine("导入中");
+                        hudPopup.Show(msg: "导入中");
                         if (await ret)
-                            Debug.WriteLine("导入成功");
+                            hudPopup.Show(HUDType.Success, "导入成功");
                         else
-                            Debug.WriteLine("导入失败");
+                            hudPopup.Show(HUDType.Fail, "导入失败");
                         RefreshWords();
                     }
                 }
@@ -68,6 +75,14 @@ namespace WordsLinks.UWP.View
                 DBService.Clear();
                 RefreshWords();
             }
+        }
+
+        private static LauncherOptions opt = new LauncherOptions()
+        { DisplayApplicationPicker = true };
+        private async void OnLogTapped(object sender, TappedRoutedEventArgs args)
+        {
+            if(sender == showLog)
+                await Launcher.LaunchFileAsync(Util.BasicUtils.logFile, opt);
         }
     }
 }
