@@ -88,8 +88,11 @@ namespace WordsLinks.UWP.ViewModel
         public void ChooseNone()
         {
             if (NullSelect)
+            {
                 foreach (var i in datas)
                     i.IsSelected = false;
+                Select?.Invoke(this, new SelectEventArgs() { msg = Message.Selected });
+            }
         }
 
         public void Choose(SelectItem item)

@@ -66,16 +66,12 @@ namespace WordsLinks.ViewModel
         public IEnumerable<string> Items
         {
             get
-            {
-                return datas.Select(x => x.Text);
-            }
+            { return datas.Select(x => x.Text); }
         }
         public IEnumerable<string> SelectedItems
         {
             get
-            {
-                return from x in datas where (x.IsSelected == true) select x.Text;
-            }
+            { return from x in datas where (x.IsSelected == true) select x.Text; }
         }
 
         public SelectCellGroup(bool mulSel = false, bool nullSel = false)
@@ -144,6 +140,16 @@ namespace WordsLinks.ViewModel
             if(sender != null)
                 (sender as ListView).SelectedItem = null;
             Choose(e.Item as SelectViewModel);
+        }
+
+        public void ChooseNone()
+        {
+            if (NullSelect)
+            {
+                foreach (var i in datas)
+                    i.IsSelected = false;
+                Select?.Invoke(this, new SelectEventArgs() { msg = Message.Selected });
+            }
         }
 
         public void Choose(SelectViewModel item)

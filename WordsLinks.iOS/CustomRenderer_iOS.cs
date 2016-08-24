@@ -19,6 +19,7 @@ namespace WordsLinks.iOS.Renderer
             base.OnElementChanged(e);
             if (Control != null)
             {
+                Control.ClearButtonMode = UITextFieldViewMode.Always;
                 var obj = Element as EntryEx;
                 switch (obj.Border)
                 {

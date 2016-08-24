@@ -30,9 +30,11 @@ namespace WordsLinks.View
 
         private void CapChecker(object sender, TextChangedEventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(e.NewTextValue))
-                word.Text = e.NewTextValue.ToLower();
-            judgeAdd();
+            if (!string.IsNullOrWhiteSpace(word.Text))
+                word.Text = word.Text.ToLower();
+            webTGroup.ChooseNone();
+            finTGroup.ChooseNone();
+            add.IsEnabled = false;
         }
 
         private void OnSelectTrans(object sender, SelectCellGroup.SelectEventArgs e)
