@@ -1,14 +1,15 @@
 ﻿using Main.Service;
 using Main.Util;
 using System;
-using System.Diagnostics;
+using System.Threading.Tasks;
 using Windows.System;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
-using static Main.Util.SpecificUtils;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Popups;
-using System.Threading.Tasks;
+using WordsLinks.UWP.Util;
+using static Main.Util.BasicUtils;
+using static Main.Util.SpecificUtils;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -53,7 +54,9 @@ namespace WordsLinks.UWP.View
                 {
                     var ret = DBService.Export();
                     hudPopup.Show(msg: "导出中");
-                    if (await ret)
+                    byte[] data = await ret;
+                    //Logger($"before save {data.Length} bytes data");
+                    if (await imgUtil.SaveImage(data))
                         hudPopup.Show(HUDType.Success, "导出成功");
                     else
                         hudPopup.Show(HUDType.Fail, "导出失败");
@@ -70,9 +73,7 @@ namespace WordsLinks.UWP.View
                     var pic = imgUtil.GetImage();
                     if ((await pic) != null)
                     {
-                        var mode = await ImportChoose();
-                        Debug.WriteLine($"choose {mode}");
-                        var ret = DBService.Import(pic.Result, mode);
+                        var ret = DBService.Import(pic.Result, await ImportChoose());
                         hudPopup.Show(msg: "导入中");
                         if (await ret)
                             hudPopup.Show(HUDType.Success, "导入成功");
@@ -97,8 +98,8 @@ namespace WordsLinks.UWP.View
         { DisplayApplicationPicker = true };
         private async void OnLogTapped(object sender, TappedRoutedEventArgs args)
         {
-            if(sender == showLog)
-                await Launcher.LaunchFileAsync(Util.BasicUtils.logFile, opt);
+            if (sender == showLog)
+                await Launcher.LaunchFileAsync(LogUtil_UWP.logFile, opt);
         }
     }
 }

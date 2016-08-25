@@ -13,11 +13,21 @@ namespace Main.Util
         public static void OnException(Exception e, string where = "", bool isShow = false)
         {
             var log = $"Exception when {where} :{e.GetType()}\r\n{e.Message}\r\n##at \t{e.Source}\r\n{e.StackTrace}";
-            Debug.WriteLine(log);
+            Logger(log, LogLevel.Exception);
             OnExceptionEvent?.Invoke(e, log);
         }
         public static void CopeWith(this Exception e, string where = "", bool isShow = false)
             => OnException(e, where, isShow);
+
+        public static void Logger(string txt, LogLevel level = LogLevel.Verbose)
+        {
+#if DEBUG
+            Debug.WriteLine(txt);
+#endif
+#if TRACE
+            SpecificUtils.logUtil?.Log(txt, level);
+#endif
+        }
 
         public static Assembly assembly { get; } = typeof(BasicUtils).GetTypeInfo().Assembly;
         public static Stream AssembleResource(string filename)

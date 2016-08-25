@@ -60,7 +60,8 @@ namespace Main.Service
                 e.CopeWith("open network.json");
                 return;
 			}
-			#endregion
+            #endregion
+            string logtxt = "";
 			foreach (JObject choice in choices)
 			{
 				var handler = new HttpClientHandler();
@@ -77,9 +78,10 @@ namespace Main.Service
 				}
 				var server = new Tuple<string, Uri, HttpClient>(choice["name"].ToString(), ub.Uri,
 					new HttpClient(handler) { Timeout = new TimeSpan(0, 0, 0, 3) });
-				Debug.WriteLine("Server: " + server.Item1);
+                logtxt += "Server: " + server.Item1;
 				servers.Add(server);
 			}
+            Logger(logtxt);
 		}
 
 		public static void Init()

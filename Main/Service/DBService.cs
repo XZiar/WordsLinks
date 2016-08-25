@@ -35,7 +35,7 @@ namespace Main.Service
         static DBService()
         {
             string dbPath = fileUtil.GetFilePath("words.db", true);
-            Debug.WriteLine("open db at " + dbPath);
+            Logger("open db at " + dbPath);
             db = sqlUtil.GetSQLConn("words.db");
         }
 
@@ -106,7 +106,7 @@ namespace Main.Service
                 if (num-- <= 1)
                     return s;
             }
-            Debug.WriteLine("Run out of num");
+            Logger("Run out of num when EleAt", LogLevel.Warning);
             return eles.First();
         }
 
@@ -179,7 +179,7 @@ namespace Main.Service
                 return ret as IEnumerable<string>;
             });
 
-        public static Task<bool> Export()
+        public static Task<byte[]> Export()
             => Task.Run(() =>
             {
                 var tmp = new
@@ -189,13 +189,13 @@ namespace Main.Service
                     links = e2c,
                 };
                 string total = JsonConvert.SerializeObject(tmp);
-                Debug.WriteLine(total);
+                Logger(total);
 
                 byte[] txtdat = Unicode.GetBytes(total);
                 int len = txtdat.Length;
                 int wh = (int)Math.Ceiling(Math.Sqrt((len + 2) / 3 + 2));//3byte=>4byte
                 byte[] dat = new byte[wh * wh * 4];
-                Debug.WriteLine($"calc:{len} => {dat.Length}({wh}*{wh})");
+                Logger($"encode:{len} => {dat.Length}({wh}*{wh})");
                 byte[] header = new byte[8]
                 {
                     DBver, 0, 0, 0xFF,
@@ -206,7 +206,10 @@ namespace Main.Service
 
                 using (Stream stream = imgUtil.CompressBitmap(dat, wh, wh))
                 {
-                    return imgUtil.SaveImage(stream);
+                    byte[] data = new byte[stream.Length];
+                    //Logger($"compress to {stream.Length} byte");
+                    stream.Read(data, 0, (int)stream.Length);
+                    return data;
                 }
             });
 
@@ -215,13 +218,13 @@ namespace Main.Service
             if (DBver != bmp[0])
                 return null;
             int len = bmp[4] + (bmp[5] << 8) + (bmp[6] << 16);
-            Debug.WriteLine($"decode:{bmp.Length} => {len}");
+            Logger($"decode:{bmp.Length} => {len}");
 
             byte[] dat = new byte[len];
             Byte4To3(len, bmp, 8, dat, 0);
 
             var total = Unicode.GetString(dat, 0, dat.Length);
-            Debug.WriteLine(total);
+            Logger(total);
             return JsonConvert.DeserializeObject<JObject>(total);
         }
         private static bool ReplaceImport(JObject obj)

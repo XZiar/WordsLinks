@@ -2,23 +2,31 @@
 using SQLite;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.Storage.Pickers;
 using Windows.Storage.Provider;
-using static WordsLinks.UWP.Util.BasicUtils;
-using System.Threading;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
 using Windows.UI;
 using Windows.UI.Core;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
+using static Main.Util.BasicUtils;
+using static WordsLinks.UWP.Util.BasicUtils;
 
 namespace WordsLinks.UWP.Util
 {
+    class ThreadUtil_UWP : ThreadUtil
+    {
+        public void Sleep(int ms)
+        {
+            Task.Delay(ms).Wait();
+        }
+    }
+
     public class FileUtil_UWP : FileUtil
     {
         private static string documentsPath;
@@ -51,20 +59,40 @@ namespace WordsLinks.UWP.Util
         }
     }
 
+    public class LogUtil_UWP : LogUtil
+    {
+        internal static StorageFile logFile { get; private set; }
+        private static StreamWriter logWriter;
+        public static async void Init()
+        {
+            logFile = await StorageFile.GetFileFromPathAsync(SpecificUtils.fileUtil.GetCacheFilePath("AppLog.log"));
+            var log = await logFile.OpenStreamForWriteAsync();
+            log.Position = log.Length;
+            logWriter = new StreamWriter(log);
+            TryLog("Init Logger");
+        }
+
+        private static void TryLog(string txt, LogLevel level = LogLevel.Verbose)
+        {
+            if (logWriter == null)
+                return;
+            lock (logWriter)
+            {
+                logWriter.Write($"{level} \t {DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss.fff")}\r\n");
+                logWriter.Write(txt + "\r\n\r\n");
+                logWriter.Flush();
+            }
+        }
+
+        public void Log(string txt, LogLevel level = LogLevel.Verbose) => TryLog(txt, level);
+    }
+
     class SQLiteUtil_UWP : SQLiteUtil
     {
         public SQLiteConnection GetSQLConn(string dbName)
         {
             string dbPath = SpecificUtils.fileUtil.GetFilePath(dbName, true);
             return new SQLiteConnection(dbPath);
-        }
-    }
-
-    class ThreadUtil_UWP : ThreadUtil
-    {
-        public void Sleep(int ms)
-        {
-            Task.Delay(ms).Wait();
         }
     }
 
@@ -86,7 +114,9 @@ namespace WordsLinks.UWP.Util
         {
             var memStream = new InMemoryRandomAccessStream();
             Encode(data, (uint)w, (uint)h, memStream);
-            return memStream.AsStream();
+            var stream = memStream.AsStreamForRead();
+            Logger($"Log Encode stream for bugfix:{memStream.Size} => {stream.Length} bytes");
+            return stream;
         }
 
         private static FileOpenPicker oPicker = new FileOpenPicker()
@@ -129,20 +159,19 @@ namespace WordsLinks.UWP.Util
                 });
             return tsk.Task;
         }
-        public Task<bool> SaveImage(Stream ins)
+        public Task<bool> SaveImage(byte[] data)
         {
             var tsk = new TaskCompletionSource<bool>();
-            byte[] dat = new byte[ins.Length];
-            ins.Read(dat, 0, (int)ins.Length);
             RunInUI(async () =>
                 {
                     var file = await sPicker.PickSaveFileAsync();
                     if (file != null)
                     {
                         CachedFileManager.DeferUpdates(file);
-                        await FileIO.WriteBytesAsync(file, dat);
+                        await FileIO.WriteBytesAsync(file, data);
                         var status = await CachedFileManager.CompleteUpdatesAsync(file);
                         tsk.SetResult(status == FileUpdateStatus.Complete);
+                        //tsk.SetResult(true);
                     }
                     else
                         tsk.SetResult(false);
@@ -157,8 +186,8 @@ namespace WordsLinks.UWP.Util
         private Border msgBox;
         private static Brush WhiteBrush = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255)),
             BlackBrush = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0)),
-            RedBrush = new SolidColorBrush(Color.FromArgb(64, 255, 0, 0)),
-            GreenBrush = new SolidColorBrush(Color.FromArgb(64, 0, 255, 0)),
+            RedBrush = new SolidColorBrush(Color.FromArgb(128, 255, 0, 0)),
+            GreenBrush = new SolidColorBrush(Color.FromArgb(128, 0, 255, 0)),
             DefaultBrush = new SolidColorBrush(Color.FromArgb(255, 255, 255, 224));
         private bool hasInit = false;
         private DispatchedHandler DismissHadler;
@@ -172,7 +201,7 @@ namespace WordsLinks.UWP.Util
                 msgBox.Background = DefaultBrush;
             };
             hasInit = true;
-            Main.Util.BasicUtils.OnExceptionEvent += OnExceptionMsg;
+            OnExceptionEvent += OnExceptionMsg;
         }
 
         private void OnExceptionMsg(Exception e, string log) =>
@@ -181,7 +210,7 @@ namespace WordsLinks.UWP.Util
         public void Dismiss()
         {
             if (!hasInit)
-                Debug.WriteLine("Dismiss");
+                Logger("Dismiss");
             else
                 RunInUI(DismissHadler);
         }
@@ -190,7 +219,7 @@ namespace WordsLinks.UWP.Util
         {
             if (!hasInit)
             {
-                Debug.WriteLine($"{type} : {msg}");
+                Logger($"{type} : {msg}");
                 return;
             }
 

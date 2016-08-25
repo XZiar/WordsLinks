@@ -1,13 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using Main.Util;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Main.Util;
+using static Main.Util.BasicUtils;
 using static System.StringComparison;
 
 namespace Main.Service
@@ -37,7 +37,7 @@ namespace Main.Service
                 catch (WebException e)
                 {
                     e.CopeWith("Eng2Chi");
-                    Debug.WriteLine($"web fail reason: {e.Status}\n{e.Response}");
+                    Logger($"web fail reason: {e.Status}\n{e.Response}", LogLevel.Warning);
                     return new string[] { $"{e.Status}\n{e.Response}" };
                 }
                 catch (Exception e)

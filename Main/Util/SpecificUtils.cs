@@ -4,11 +4,22 @@ using System.Threading.Tasks;
 
 namespace Main.Util
 {
-	public interface FileUtil
+    public interface ThreadUtil
+    {
+        void Sleep(int ms);
+    }
+
+    public interface FileUtil
 	{
 		string GetFilePath(string fileName, bool isPrivate = false);
 		string GetCacheFilePath(string fileName);
 	}
+
+    public enum LogLevel { Exception, Warning, Verbose};
+    public interface LogUtil
+    {
+        void Log(string txt, LogLevel level = LogLevel.Verbose);
+    }
 
 	public interface SQLiteUtil
 	{
@@ -19,7 +30,7 @@ namespace Main.Util
     {
         Stream CompressBitmap(byte[] data, int w, int h);
         Task<byte[]> GetImage();
-        Task<bool> SaveImage(Stream ins);
+        Task<bool> SaveImage(byte[] data);
     }
 
     public enum HUDType { Loading, Success, Fail};
@@ -29,10 +40,7 @@ namespace Main.Util
         void Dismiss();
     }
 
-    public interface ThreadUtil
-    {
-        void Sleep(int ms);
-    }
+    
 
     public static class SpecificUtils
     {
@@ -41,6 +49,7 @@ namespace Main.Util
         public static HUDPopup hudPopup { get; private set; }
         public static ThreadUtil threadUtil { get; private set; }
         public static SQLiteUtil sqlUtil { get; private set; }
+        public static LogUtil logUtil { get; private set; }
 
         public static void Init(params object[] utils)
         {
@@ -56,6 +65,8 @@ namespace Main.Util
                     threadUtil = u as ThreadUtil;
                 else if (u is SQLiteUtil)
                     sqlUtil = u as SQLiteUtil;
+                else if (u is LogUtil)
+                    logUtil = u as LogUtil;
             }
         }
     }

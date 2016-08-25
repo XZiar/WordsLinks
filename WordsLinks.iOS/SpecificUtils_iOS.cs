@@ -1,16 +1,16 @@
 ﻿using BigTed;
 using CoreGraphics;
 using Foundation;
+using Main.Util;
 using SQLite;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using UIKit;
 using WordsLinks.iOS;
-using Main.Util;
 using Xamarin.Forms;
 using static BigTed.ProgressHUD;
+using static Main.Util.BasicUtils;
 using static WordsLinks.iOS.BasicUtils;
 
 [assembly: Dependency(typeof(FileUtil_iOS))]
@@ -96,7 +96,7 @@ namespace WordsLinks.iOS
                     UIImage uiimg = e.Info[UIImagePickerController.OriginalImage] as UIImage;
                     int w = (int)uiimg.Size.Width, h = (int)uiimg.Size.Height, size = w * h * 4;
                     byte[] data = new byte[size];
-                    Debug.Write($"select image {size}({w}*{h})");
+                    Logger($"select image {size}({w}*{h})");
 
                     var ctx = new CGBitmapContext(data, w, h, 8, 4 * w, colorSpace, bmpFlags);
                     ctx.DrawImage(new CGRect(0, 0, w, h), uiimg.CGImage);
@@ -123,10 +123,10 @@ namespace WordsLinks.iOS
             return tsk.Task;
         }
 
-        public Task<bool> SaveImage(Stream ins)
+        public Task<bool> SaveImage(byte[] data)
         {
             var tsk = new TaskCompletionSource<bool>();
-            var img = UIImage.LoadFromData(NSData.FromStream(ins));
+            var img = UIImage.LoadFromData(NSData.FromArray(data));
             RunInUI(() =>
                 img.SaveToPhotosAlbum((image, err) =>
                 {

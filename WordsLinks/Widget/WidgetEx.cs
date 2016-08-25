@@ -15,13 +15,5 @@ namespace WordsLinks.Widget
         public float ShadowWidth { get; set; } = 2.0f;
         public BorderType Border { get; set; } = BorderType.Round;
         public ShadowPosition ShadowPos { get; set; } = ShadowPosition.LowerRight;
-        public new bool HasShadow
-        {
-            get
-            {
-                Debug.WriteLine("read HasShadow");
-                return true;
-            }
-        }
     }
 }

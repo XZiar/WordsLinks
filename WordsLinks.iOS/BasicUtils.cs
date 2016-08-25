@@ -1,8 +1,8 @@
 using Foundation;
-using System;
-using System.Diagnostics;
 using Main.Util;
+using System;
 using Xamarin.Forms;
+using static Main.Util.BasicUtils;
 
 namespace WordsLinks.iOS
 {
@@ -20,7 +20,7 @@ namespace WordsLinks.iOS
         {
             try
             {
-                Debug.WriteLine($"Exception when {where} :{e.Description}\n{e.LocalizedDescription}\n");
+                Logger($"Exception when {where} :{e.Description}\n{e.LocalizedDescription}\n", LogLevel.Exception);
             }
             catch (Exception ex)
             {

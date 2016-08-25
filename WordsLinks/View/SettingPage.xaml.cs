@@ -42,7 +42,6 @@ namespace WordsLinks.View
         private async Task<bool> ImportChoose()
         {
             var ret = await DisplayActionSheet("是否覆盖现有单词本？", "合并", null, "覆盖");
-            Debug.WriteLine(ret);
             return ret == "覆盖";
         }
         private async void OnDBCellTapped(object sender, EventArgs args)
@@ -53,7 +52,8 @@ namespace WordsLinks.View
                 {
                     var ret = DBService.Export();
                     hudPopup.Show(msg: "导出中");
-                    if (await ret)
+                    byte[] data = await ret;
+                    if (await imgUtil.SaveImage(data))
                         hudPopup.Show(HUDType.Success, "导出成功");
                     else
                         hudPopup.Show(HUDType.Fail, "导出失败");
@@ -70,9 +70,7 @@ namespace WordsLinks.View
                     var pic = imgUtil.GetImage();
                     if ((await pic) != null)
                     {
-                        var mode = await ImportChoose();
-                        Debug.WriteLine($"choose {mode}");
-                        var ret = DBService.Import(pic.Result, mode);
+                        var ret = DBService.Import(pic.Result, await ImportChoose());
                         hudPopup.Show(msg: "导入中");
                         if (await ret)
                             hudPopup.Show(HUDType.Success, "导入成功");

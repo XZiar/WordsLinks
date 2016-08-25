@@ -56,8 +56,8 @@ namespace WordsLinks.UWP
                         new ThreadUtil_UWP(),
                         new SQLiteUtil_UWP()
                         );
-                    Util.BasicUtils.Init();
-                    Main.Util.BasicUtils.OnExceptionEvent += Util.BasicUtils.WriteLog;
+                    LogUtil_UWP.Init();
+                    SpecificUtils.Init(new LogUtil_UWP());
                     DBService.Init();
                     NetService.Init();
                 }

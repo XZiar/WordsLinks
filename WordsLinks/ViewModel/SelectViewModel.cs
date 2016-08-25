@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using WordsLinks.Widget;
 using Xamarin.Forms;
+using static Main.Util.BasicUtils;
 using static WordsLinks.ViewModel.SelectCellGroup.SelectEventArgs;
 
 namespace WordsLinks.ViewModel
@@ -104,7 +104,7 @@ namespace WordsLinks.ViewModel
 
         private void buildView()
         {
-            Debug.WriteLine($"build view : {datas.Count} ele");
+            Logger($"build view : {datas.Count} ele");
             foreach (var c in sect)
                 c.Tapped -= OnCellTapped;
             sect.Clear();
