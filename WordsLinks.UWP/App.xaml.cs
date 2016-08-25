@@ -6,7 +6,6 @@ using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Navigation;
 using WordsLinks.UWP.Util;
 
 namespace WordsLinks.UWP

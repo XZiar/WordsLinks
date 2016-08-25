@@ -1,4 +1,5 @@
 ﻿using SQLite;
+using System;
 using System.Collections.Generic;
 
 namespace Main.Model
@@ -7,7 +8,7 @@ namespace Main.Model
     {
         string GetStr();
         int GetId();
-        int MissCount();
+        WordStat ToStat();
     }
 
 	[Table("Words")]
@@ -17,15 +18,19 @@ namespace Main.Model
 		public int Id { get; set; }
 		[Unique, MaxLength(16)]
 		public string Letters { get; set; }
-        public int Miss { get; set; }
+        public short wrong { get; set; }
+        public short right { get; set; }
 
         public DBWord() { }
         public DBWord(string letter, int id)
         { Letters = letter; Id = id; }
+        public DBWord(WordStat s, int id)
+        { Letters = s.str; wrong = s.wrong; Id = id; }
 
         public string GetStr() => Letters;
         public int GetId() => Id;
-        public int MissCount() => Miss;
+        public WordStat ToStat() =>
+            new WordStat() { str = Letters, wrong = wrong, right = right };
     }
 
 	[Table("Meanings")]
@@ -35,15 +40,19 @@ namespace Main.Model
 		public int Id { get; set; }
 		[Unique, MaxLength(16)]
 		public string Meaning { get; set; }
-        public int Miss { get; set; }
+        public short wrong { get; set; }
+        public short right { get; set; }
 
         public DBMeaning() { }
         public DBMeaning(string meaning, int id)
         { Meaning = meaning; Id = id; }
+        public DBMeaning(WordStat s, int id)
+        { Meaning = s.str; wrong = s.wrong; Id = id; }
 
         public string GetStr() => Meaning;
         public int GetId() => Id;
-        public int MissCount() => Miss;
+        public WordStat ToStat() =>
+            new WordStat() { str = Meaning, wrong = wrong, right = right };
     }
 
 	[Table("Translations")]
@@ -53,20 +62,31 @@ namespace Main.Model
 		public int Mid { get; set; }
 	}
 
-    public class DBEleComparer : IComparer<WordElement>
+    public class WordStat : IComparable<WordStat>
     {
-        public static DBEleComparer Instance { get; private set; }
-        static DBEleComparer()
+        public string str;
+        public short wrong, right;
+
+        public static implicit operator string(WordStat obj) => obj.str;
+        public static implicit operator WordStat(string txt) => 
+            new WordStat() { str = txt };
+
+        public int CompareTo(WordStat other)
         {
-            Instance = new DBEleComparer();
+            if (wrong != other.wrong)
+                return other.wrong.CompareTo(wrong);
+            if (right != other.right)
+                return right.CompareTo(other.right);
+            return str.CompareTo(other.str);
         }
 
-        public int Compare(WordElement x, WordElement y)
+        public override int GetHashCode() => str.GetHashCode();
+        public override bool Equals(object obj)
         {
-            if (x.MissCount() == y.MissCount())
-                return x.GetStr().CompareTo(y.GetStr());
+            if (obj is WordStat)
+                return str == (obj as WordStat).str;
             else
-                return x.MissCount().CompareTo(y.MissCount());
+                return GetHashCode() == obj.GetHashCode();
         }
     }
 }

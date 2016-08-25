@@ -58,6 +58,7 @@ namespace WordsLinks.View
         {
             try
             {
+                curQuiz?.EndTest();
                 curQuiz = QuizService.GetQuiz(mode);
                 curQuiz?.init();
             }

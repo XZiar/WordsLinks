@@ -9,11 +9,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using static System.Text.Encoding;
 using static Main.Util.BasicUtils;
 using static Main.Util.SpecificUtils;
-using System.Collections.Specialized;
-using System.Text;
+using static System.Text.Encoding;
 
 namespace Main.Service
 {
@@ -21,30 +19,18 @@ namespace Main.Service
     {
         private static byte DBver = 0x1;
         private static SQLiteConnection db;
-        private static bool _isChanged;
-        public static bool isChanged
-        {
-            get
-            {
-                bool tmp = _isChanged;
-                _isChanged = false;
-                return tmp;
-            }
-            private set
-            {
-                _isChanged = value;
-            }
-        }
-        private static Dictionary<string, int> words = new Dictionary<string, int>();
-        private static Dictionary<string, int> means = new Dictionary<string, int>();
-        private static SortedSet<WordElement> eles = new SortedSet<WordElement>(DBEleComparer.Instance);
+
+        private static Dictionary<WordStat, int> words = new Dictionary<WordStat, int>();
+        private static Dictionary<WordStat, int> means = new Dictionary<WordStat, int>();
+        public static SortedSet<WordStat> eles = new SortedSet<WordStat>();
         private static MultiValueDictionary<int, int> e2c = new MultiValueDictionary<int, int>();
         private static MultiValueDictionary<int, int> c2e = new MultiValueDictionary<int, int>();
 
-        public static IEnumerable<string> Words { get { return words.Keys; } }
-        public static IEnumerable<string> Meanings { get { return means.Keys; } }
+        public static IEnumerable<string> Words { get { return words.Keys.Cast<string>(); } }
+        public static IEnumerable<string> Meanings { get { return means.Keys.Cast<string>(); } }
         public static int WordsCount { get { return words.Count; } }
         public static int MeansCount { get { return means.Count; } }
+        internal static int WrongCount { get; set; }
 
         static DBService()
         {
@@ -60,15 +46,24 @@ namespace Main.Service
             db.CreateTable<DBTranslation>();
 
             words.Clear(); means.Clear(); eles.Clear();
+            WrongCount = 0;
             foreach(var w in db.Table<DBWord>())
             {
-                words.Add(w.Letters, w.Id);
-                eles.Add(w);
+                var s = w.ToStat();
+                words.Add(s, w.Id);
+                eles.Add(s);
+                if (s.wrong > 0)
+                    WrongCount += s.wrong;
+                WrongCount++;
             }
-            foreach (var w in db.Table<DBMeaning>())
+            foreach (var m in db.Table<DBMeaning>())
             {
-                means.Add(w.Meaning, w.Id);
-                eles.Add(w);
+                var s = m.ToStat();
+                means.Add(s, m.Id);
+                eles.Add(s);
+                if (s.wrong > 0)
+                    WrongCount += s.wrong;
+                WrongCount++;
             }
             /*
             StringBuilder sb = new StringBuilder("Here Sort List:\n");
@@ -83,8 +78,6 @@ namespace Main.Service
                 e2c.Add(t.Wid, t.Mid);
                 c2e.Add(t.Mid, t.Wid);
             }
-
-            isChanged = true;
         }
 
         public static void Clear()
@@ -105,13 +98,63 @@ namespace Main.Service
             var dat = means.ElementAt(idx);
             return new DBMeaning() { Meaning = dat.Key, Id = dat.Value };
         }
+        public static WordStat EleAt(int num)
+        {
+            foreach(var s in eles)
+            {
+                num -= s.wrong;
+                if (num-- <= 1)
+                    return s;
+            }
+            Debug.WriteLine("Run out of num");
+            return eles.First();
+        }
+
+        public static DBMeaning[] GetMeansByWord(string eng)
+        {
+            int wid;
+            if (!words.TryGetValue(eng, out wid))
+                return null;
+            return GetMeansByWId(wid);
+        }
+        public static DBMeaning[] GetMeansByWId(int wid)
+        {
+            IReadOnlyCollection<int> ids;
+            if (!e2c.TryGetValue(wid, out ids))
+                return null;
+            if (ids.Count == 0)
+                return new DBMeaning[0];
+            return (from m in means
+                    where ids.Contains(m.Value)
+                    select new DBMeaning() { Id = m.Value, Meaning = m.Key })
+                   .ToArray();
+        }
+        public static DBWord[] GetWordsByMean(string chi)
+        {
+            int mid;
+            if (!means.TryGetValue(chi, out mid))
+                return null;
+            return GetWordsByMId(mid);
+        }
+        public static DBWord[] GetWordsByMId(int mid)
+        {
+            IReadOnlyCollection<int> ids;
+            if (!c2e.TryGetValue(mid, out ids))
+                return null;
+            if (ids.Count == 0)
+                return new DBWord[0];
+            return (from m in words
+                    where ids.Contains(m.Value)
+                    select new DBWord() { Id = m.Value, Letters = m.Key })
+                   .ToArray();
+        }
 
         public static Task<IEnumerable<string>> MatchMeanings(IEnumerable<string> checker)
             => Task.Run(() =>
             {
                 List<string> ret = new List<string>();
                 Tuple<int, int> pos;
-                foreach (var mean in means.Keys)
+                foreach (string mean in means.Keys)
                     foreach (var m in checker)
                     {
                         try
@@ -141,8 +184,8 @@ namespace Main.Service
             {
                 var tmp = new
                 {
-                    words = words,
-                    means = means,
+                    words = words.ToDictionary(x => x.Key.str, x => x.Value),
+                    means = means.ToDictionary(x => x.Key.str, x => x.Value),
                     links = e2c,
                 };
                 string total = JsonConvert.SerializeObject(tmp);
@@ -181,82 +224,28 @@ namespace Main.Service
             Debug.WriteLine(total);
             return JsonConvert.DeserializeObject<JObject>(total);
         }
-
         private static bool ReplaceImport(JObject obj)
         {
             Clear();
-            foreach (var jp in obj["words"] as JObject)
-            {
-                var w = new DBWord(jp.Key.ToLower(), jp.Value.ToInt());
-                words.Add(w.Letters, w.Id);
-                eles.Add(w);
-                db.Insert(w);
-            }
-            foreach (var jp in obj["means"] as JObject)
-            {
-                var m = new DBMeaning(jp.Key, jp.Value.ToInt());
-                means.Add(m.Meaning, m.Id);
-                eles.Add(m);
-                db.Insert(m);
-            }
-            var t = new DBTranslation();
-            foreach (var jp in obj["links"] as JObject)
-            {
-                t.Wid = jp.Key.ToInt();
-                foreach (var ji in jp.Value as JArray)
-                {
-                    e2c.Add(t.Wid, t.Mid = ji.ToInt());
-                    c2e.Add(t.Mid, t.Wid);
-                    db.Insert(t);
-                }
-            }
-            isChanged = true;
-            return true;
-        }
-        private static bool AddImport(JObject obj)
-        {
             var wMap = new Dictionary<int, int>();
             var mMap = new Dictionary<int, int>();
-            int tmp;
+            var w = new DBWord();
             foreach (var jp in obj["words"] as JObject)
             {
-                var w = new DBWord(jp.Key.ToLower(), jp.Value.ToInt());
-                //string txt = $"Find Word {w.Letters} = {w.Id} : ";
-                if (words.TryGetValue(w.Letters, out tmp))
-                {
-                    wMap.Add(w.Id, tmp);
-                    //txt += $"Exist {w.Id}->{tmp}";
-                }
-                else
-                {
-                    tmp = w.Id;
-                    db.Insert(w);
-                    wMap.Add(tmp, w.Id);
-                    //txt += $"Absent {tmp}->{w.Id}";
-                    words.Add(w.Letters, w.Id);
-                    eles.Add(w);
-                }
-                //Debug.WriteLine(txt);
+                w.Letters = jp.Key.ToLower();
+                db.Insert(w);
+                wMap.Add(jp.Value.ToInt(), w.Id);
+                words.Add(w.Letters, w.Id);
+                eles.Add(w.ToStat());
             }
+            var m = new DBMeaning();
             foreach (var jp in obj["means"] as JObject)
             {
-                var m = new DBMeaning(jp.Key, jp.Value.ToInt());
-                //string txt = $"Find Mean {m.Meaning} = {m.Id} : ";
-                if (means.TryGetValue(m.Meaning, out tmp))
-                {
-                    mMap.Add(m.Id, tmp);
-                    //txt += $"Exist {m.Id}->{tmp}";
-                }
-                else
-                {
-                    tmp = m.Id;
-                    db.Insert(m);
-                    mMap.Add(tmp, m.Id);
-                    //txt += $"Absent {tmp}->{m.Id}";
-                    means.Add(m.Meaning, m.Id);
-                    eles.Add(m);
-                }
-                //Debug.WriteLine(txt);
+                m.Meaning = jp.Key;
+                db.Insert(m);
+                mMap.Add(jp.Value.ToInt(), m.Id);
+                means.Add(m.Meaning, m.Id);
+                eles.Add(m.ToStat());
             }
             var t = new DBTranslation();
             foreach (var jp in obj["links"] as JObject)
@@ -264,20 +253,63 @@ namespace Main.Service
                 t.Wid = wMap[jp.Key.ToInt()];
                 foreach (var ji in jp.Value as JArray)
                 {
-                    //string txt = $"Link {jp.Key.ToInt()}-{ji.ToInt()} : ";
-                    if (!e2c.Contains(t.Wid, t.Mid = mMap[ji.ToInt()]))
+                    t.Mid = mMap[ji.ToInt()];
+                    e2c.Add(t.Wid, t.Mid);
+                    c2e.Add(t.Mid, t.Wid);
+                    db.Insert(t);
+                }
+            }
+            WrongCount = WordsCount + MeansCount;
+            return true;
+        }
+        private static bool AddImport(JObject obj)
+        {
+            var wMap = new Dictionary<int, int>();
+            var mMap = new Dictionary<int, int>();
+            int tmp;
+            var w = new DBWord();
+            foreach (var jp in obj["words"] as JObject)
+            {
+                if (words.TryGetValue(w.Letters = jp.Key.ToLower(), out tmp))
+                    wMap.Add(w.Id = jp.Value.ToInt(), tmp);
+                else
+                {
+                    db.Insert(w);
+                    wMap.Add(jp.Value.ToInt(), w.Id);
+                    words.Add(w.Letters, w.Id);
+                    eles.Add(w.ToStat());
+                    WrongCount++;
+                }
+            }
+            var m = new DBMeaning();
+            foreach (var jp in obj["means"] as JObject)
+            {
+                if (means.TryGetValue(m.Meaning = jp.Key, out tmp))
+                    mMap.Add(m.Id = jp.Value.ToInt(), tmp);
+                else
+                {
+                    db.Insert(m);
+                    mMap.Add(jp.Value.ToInt(), m.Id);
+                    means.Add(m.Meaning, m.Id);
+                    eles.Add(m.ToStat());
+                    WrongCount++;
+                }
+            }
+            var t = new DBTranslation();
+            foreach (var jp in obj["links"] as JObject)
+            {
+                t.Wid = wMap[jp.Key.ToInt()];
+                foreach (var ji in jp.Value as JArray)
+                {
+                    t.Mid = mMap[ji.ToInt()];
+                    if (!e2c.Contains(t.Wid, t.Mid))
                     {
                         e2c.Add(t.Wid, t.Mid);
                         c2e.Add(t.Mid, t.Wid);
-                        //txt += $"Absent {t.Wid}-{t.Mid}";
                         db.Insert(t);
                     }
-                    //else
-                        //txt += "Exist";
-                    //Debug.WriteLine(txt);
                 }
             }
-            isChanged = true;
             return true;
         }
 
@@ -290,48 +322,6 @@ namespace Main.Service
                 return isReplace ? ReplaceImport(obj) : AddImport(obj);
             });
 
-        public static DBMeaning[] GetMeansByWord(string eng)
-        {
-            int wid;
-            if (!words.TryGetValue(eng, out wid))
-                return null;
-            return GetMeansByWId(wid);
-        }
-
-        public static DBMeaning[] GetMeansByWId(int wid)
-        {
-            IReadOnlyCollection<int> ids;
-            if (!e2c.TryGetValue(wid, out ids))
-                return null;
-            if (ids.Count == 0)
-                return new DBMeaning[0];
-            return (from m in means
-                    where ids.Contains(m.Value)
-                    select new DBMeaning() { Id = m.Value, Meaning = m.Key })
-                   .ToArray();
-        }
-
-        public static DBWord[] GetWordsByMean(string chi)
-        {
-            int mid;
-            if (!means.TryGetValue(chi, out mid))
-                return null;
-            return GetWordsByMId(mid);
-        }
-
-        public static DBWord[] GetWordsByMId(int mid)
-        {
-            IReadOnlyCollection<int> ids;
-            if (!c2e.TryGetValue(mid, out ids))
-                return null;
-            if (ids.Count == 0)
-                return new DBWord[0];
-            return (from m in words
-                    where ids.Contains(m.Value)
-                    select new DBWord() { Id = m.Value, Letters = m.Key })
-                   .ToArray();
-        }
-
         public static void AddWord(string eng, ICollection<string> chi)
         {
             int wid, mid;
@@ -340,6 +330,8 @@ namespace Main.Service
                 var word = new DBWord() { Letters = eng };
                 db.Insert(word);
                 words[eng] = wid = word.Id;
+                eles.Add(word.ToStat());
+                WrongCount++;
             }
             foreach (var str in chi)
             {
@@ -348,19 +340,52 @@ namespace Main.Service
                     var mean = new DBMeaning() { Meaning = str };
                     db.Insert(mean);
                     means[str] = mid = mean.Id;
+                    eles.Add(mean.ToStat());
+                    WrongCount++;
                 }
                 if (!e2c.Contains(wid, mid))
                 {
-                    try
-                    {
-                        db.Insert(new DBTranslation() { Wid = wid, Mid = mid });
-                        e2c.Add(wid, mid);
-                        c2e.Add(mid, wid);
-                    }
-                    catch (ArgumentException e) { e.CopeWith("insert db"); }
+                    db.Insert(new DBTranslation() { Wid = wid, Mid = mid });
+                    e2c.Add(wid, mid);
+                    c2e.Add(mid, wid);
                 }
             }
-            isChanged = true;
+        }
+
+        public static void Report(string str, short minus)
+        {
+            var obj = eles.First(x => x.str == str);
+            if (obj == null)
+                return;
+            //Debug.WriteLine($"Report {str}({obj.wrong}) for {minus}");
+            eles.Remove(obj);
+            bool wFitst = obj.wrong > 0;
+            obj.wrong += minus;
+            if (wFitst)
+            {
+                if (obj.wrong < 0)
+                    minus += obj.wrong;
+                else if (obj.wrong > 120)
+                {
+                    short tmp = (short)(obj.wrong / 2);
+                    minus += tmp;
+                    obj.wrong -= tmp;
+                }
+                WrongCount -= minus;
+            }
+            else
+            {
+                if (obj.wrong > 0)
+                    WrongCount += obj.wrong;
+                else if (obj.wrong < -120)
+                    obj.wrong /= 2;
+            }
+            int id;
+            if (words.TryGetValue(obj, out id))
+                db.Update(new DBWord(obj, id));
+            else if (means.TryGetValue(obj, out id))
+                db.Update(new DBMeaning(obj, id));
+            eles.Add(obj);
         }
     }
 }
