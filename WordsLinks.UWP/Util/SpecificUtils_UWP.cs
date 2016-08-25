@@ -29,34 +29,28 @@ namespace WordsLinks.UWP.Util
 
     public class FileUtil_UWP : FileUtil
     {
-        private static string documentsPath;
-        private static string cachePath;
         internal static StorageFolder docFolder { get; private set; }
         internal static StorageFolder cacheFolder { get; private set; }
 
         static FileUtil_UWP()
         {
             docFolder = ApplicationData.Current.LocalFolder;
-            documentsPath = docFolder.Path;
             cacheFolder = ApplicationData.Current.TemporaryFolder;
-            cachePath = cacheFolder.Path;
-        }
-        public string GetCacheFilePath(string fileName)
-        {
-            CreateFile(cacheFolder, fileName);
-            return Path.Combine(cachePath, fileName);
         }
 
-        private async void CreateFile(StorageFolder folder, string fileName)
+        private static async void CreateFile(StorageFolder folder, string fileName)
         {
             await folder.CreateFileAsync(fileName, CreationCollisionOption.OpenIfExists);
         }
-
-        public string GetFilePath(string fileName, bool isPrivate = false)
+        internal static string GetPath(StorageFolder dir, string fname)
         {
-            CreateFile(docFolder, fileName);
-            return Path.Combine(documentsPath, fileName);
+            CreateFile(dir, fname);
+            return Path.Combine(dir.Path, fname);
         }
+
+        public string GetCacheFilePath(string fileName) => GetPath(cacheFolder, fileName);
+
+        public string GetFilePath(string fileName, bool isPrivate = false) => GetPath(docFolder, fileName);
     }
 
     public class LogUtil_UWP : LogUtil
@@ -65,7 +59,8 @@ namespace WordsLinks.UWP.Util
         private static StreamWriter logWriter;
         public static async void Init()
         {
-            logFile = await StorageFile.GetFileFromPathAsync(SpecificUtils.fileUtil.GetCacheFilePath("AppLog.log"));
+            logFile = await StorageFile.GetFileFromPathAsync(
+                FileUtil_UWP.GetPath(FileUtil_UWP.cacheFolder, "AppLog.log"));
             var log = await logFile.OpenStreamForWriteAsync();
             log.Position = log.Length;
             logWriter = new StreamWriter(log);
@@ -91,7 +86,7 @@ namespace WordsLinks.UWP.Util
     {
         public SQLiteConnection GetSQLConn(string dbName)
         {
-            string dbPath = SpecificUtils.fileUtil.GetFilePath(dbName, true);
+            string dbPath = FileUtil_UWP.GetPath(FileUtil_UWP.docFolder, dbName);
             return new SQLiteConnection(dbPath);
         }
     }

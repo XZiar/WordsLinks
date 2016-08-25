@@ -19,10 +19,11 @@ namespace WordsLinks
                     DependencyService.Get<ImageUtil>(),
                     DependencyService.Get<HUDPopup>(),
                     DependencyService.Get<ThreadUtil>(),
-                    DependencyService.Get<SQLiteUtil>()
+                    DependencyService.Get<SQLiteUtil>(),
+                    DependencyService.Get<LogUtil>()
                     );
                 DBService.Init();
-                NetService.Init();
+                NetService.Choose(0);
                 MainPage = new MainPage();
             }
             catch (Exception e)

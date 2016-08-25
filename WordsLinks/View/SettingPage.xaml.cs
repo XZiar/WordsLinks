@@ -86,8 +86,19 @@ namespace WordsLinks.View
             }
             else if (sender == clearCell)
             {
-                DBService.Clear();
-                RefreshWords();
+                try
+                {
+                    var ret = await DisplayAlert("清空单词本", "此操作无法恢复", "确认", "不了");
+                    if (ret)
+                    {
+                        DBService.Clear();
+                        RefreshWords();
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.CopeWith("clearDB");
+                }
             }
         }
     }

@@ -33,6 +33,11 @@ namespace Main.Util
         Task<bool> SaveImage(byte[] data);
     }
 
+    public interface OpenFileUtil
+    {
+        void OpenFile(string path);
+    }
+
     public enum HUDType { Loading, Success, Fail};
     public interface HUDPopup
     {
@@ -50,6 +55,7 @@ namespace Main.Util
         public static ThreadUtil threadUtil { get; private set; }
         public static SQLiteUtil sqlUtil { get; private set; }
         public static LogUtil logUtil { get; private set; }
+        public static OpenFileUtil openfileUtil { get; private set; }
 
         public static void Init(params object[] utils)
         {
@@ -67,6 +73,8 @@ namespace Main.Util
                     sqlUtil = u as SQLiteUtil;
                 else if (u is LogUtil)
                     logUtil = u as LogUtil;
+                else if (u is OpenFileUtil)
+                    openfileUtil = u as OpenFileUtil;
             }
         }
     }

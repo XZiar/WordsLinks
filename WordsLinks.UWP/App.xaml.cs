@@ -49,17 +49,17 @@ namespace WordsLinks.UWP
                 //init
                 try
                 {
+                    LogUtil_UWP.Init();
                     SpecificUtils.Init(
                         new FileUtil_UWP(),
                         new ImageUtil_UWP(),
                         new HUDPopup_UWP(),
                         new ThreadUtil_UWP(),
-                        new SQLiteUtil_UWP()
+                        new SQLiteUtil_UWP(),
+                        new LogUtil_UWP()
                         );
-                    LogUtil_UWP.Init();
-                    SpecificUtils.Init(new LogUtil_UWP());
                     DBService.Init();
-                    NetService.Init();
+                    NetService.Choose(0);
                 }
                 catch (Exception e)
                 {

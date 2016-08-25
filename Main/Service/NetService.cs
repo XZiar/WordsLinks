@@ -78,16 +78,11 @@ namespace Main.Service
 				}
 				var server = new Tuple<string, Uri, HttpClient>(choice["name"].ToString(), ub.Uri,
 					new HttpClient(handler) { Timeout = new TimeSpan(0, 0, 0, 3) });
-                logtxt += "Server: " + server.Item1;
+                logtxt += $"Server: {server.Item1}\r\n";
 				servers.Add(server);
 			}
             Logger(logtxt);
 		}
-
-		public static void Init()
-        {
-            Choose(0);
-        }
 
         public static Tuple<int, IEnumerable<string>> GetChoices() 
             => new Tuple<int, IEnumerable<string>>(curChoiceIdx, servers.Select(s => s.Item1));

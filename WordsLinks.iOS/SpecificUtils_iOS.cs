@@ -18,14 +18,23 @@ using static WordsLinks.iOS.BasicUtils;
 [assembly: Dependency(typeof(ImageUtil_iOS))]
 [assembly: Dependency(typeof(HUDPopup_iOS))]
 [assembly: Dependency(typeof(ThreadUtil_iOS))]
+[assembly: Dependency(typeof(LogUtil_iOS))]
 
 namespace WordsLinks.iOS
 {
-    public class FileUtil_iOS : FileUtil
+    class ThreadUtil_iOS : ThreadUtil
     {
-        private static string documentsPath;
-        private static string libraryPath;
-        private static string cachePath;
+        public void Sleep(int ms)
+        {
+            System.Threading.Thread.Sleep(ms);
+        }
+    }
+
+    class FileUtil_iOS : FileUtil
+    {
+        internal static string documentsPath;
+        internal static string libraryPath;
+        internal static string cachePath;
         static FileUtil_iOS()
         {
             documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -33,31 +42,51 @@ namespace WordsLinks.iOS
             cachePath = Path.Combine(libraryPath, "Caches");
         }
 
-        public string GetCacheFilePath(string fileName)
+        internal static string GetPath(string dir, string fname)
         {
-            return Path.Combine(cachePath, fileName);
+            return Path.Combine(dir, fname);
         }
 
-        public string GetFilePath(string fileName, bool isPrivate)
+        public string GetCacheFilePath(string fileName) => GetPath(cachePath, fileName);
+
+        public string GetFilePath(string fileName, bool isPrivate) =>
+            GetPath(isPrivate ? documentsPath : libraryPath, fileName);
+    }
+
+    class LogUtil_iOS : LogUtil
+    {
+        internal static FileStream logFile { get; private set; }
+        private static StreamWriter logWriter;
+        static LogUtil_iOS()
         {
-            return Path.Combine(isPrivate ? documentsPath : libraryPath, fileName);
+            logFile = new FileStream(FileUtil_iOS.GetPath(FileUtil_iOS.cachePath, "AppLog.log"),
+                FileMode.OpenOrCreate);
+            logFile.Position = logFile.Length;
+            logWriter = new StreamWriter(logFile);
+            TryLog("Init Logger");
         }
+
+        private static void TryLog(string txt, LogLevel level = LogLevel.Verbose)
+        {
+            if (logWriter == null)
+                return;
+            lock (logWriter)
+            {
+                logWriter.Write($"{level} \t {DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss.fff")}\r\n");
+                logWriter.Write(txt + "\r\n\r\n");
+                logWriter.Flush();
+            }
+        }
+
+        public void Log(string txt, LogLevel level = LogLevel.Verbose) => TryLog(txt, level);
     }
 
     class SQLiteUtil_iOS : SQLiteUtil
     {
         public SQLiteConnection GetSQLConn(string dbName)
         {
-            string dbPath = new FileUtil_iOS().GetFilePath(dbName, true);
+            string dbPath = FileUtil_iOS.GetPath(FileUtil_iOS.documentsPath, dbName);
             return new SQLiteConnection(dbPath);
-        }
-    }
-
-    class ThreadUtil_iOS : ThreadUtil
-    {
-        public void Sleep(int ms)
-        {
-            System.Threading.Thread.Sleep(ms);
         }
     }
 
