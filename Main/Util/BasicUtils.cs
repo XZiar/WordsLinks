@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace Main.Util
 {
@@ -30,9 +31,24 @@ namespace Main.Util
         }
 
         public static Assembly assembly { get; } = typeof(BasicUtils).GetTypeInfo().Assembly;
-        public static Stream AssembleResource(string filename)
+        private static Dictionary<Type, Tuple<Assembly, string>> asmMap = new Dictionary<Type, Tuple<Assembly, string>>();
+        private static Tuple<Assembly, string> GetAssembleInfo(Type type)
         {
-            return assembly.GetManifestResourceStream($"Main.{filename}");
+            Tuple<Assembly, string> ret;
+            if (!asmMap.TryGetValue(type, out ret))
+            {
+                var asm = type.GetTypeInfo().Assembly;
+                ret = new Tuple<Assembly, string>(asm, asm.GetName().Name + ".");
+                asmMap.Add(type, ret);
+            }
+            return ret;
+        }
+        public static Stream AssembleResource(string filename, object caller = null)
+        {
+            if (caller == null)
+                return assembly.GetManifestResourceStream("Main." + filename);
+            var asmInfo = GetAssembleInfo(caller is Type ? caller as Type : caller.GetType());
+            return asmInfo.Item1.GetManifestResourceStream(asmInfo.Item2 + filename);
         }
 
         unsafe public static void Byte3To4(int len3, byte[] dat3, int offsetF, byte[] dat4, int offsetT, byte fill = 0xff)

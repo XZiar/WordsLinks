@@ -7,10 +7,13 @@
     <TableRoot>
       <TableSection x:Name="netSect" Title="网络设置">
       </TableSection>
+      <TableSection x:Name="quizSect" Title="记忆设置">
+      </TableSection>
       <TableSection x:Name="wordsSect" Title="单词本">
         <TextCell x:Name="exportCell" Text="分享单词本" Tapped="OnDBCellTapped"/>
         <TextCell x:Name="importCell" Text="导入单词本" Tapped="OnDBCellTapped"/>
         <TextCell x:Name="clearCell" Text="清空单词本" Tapped="OnDBCellTapped"/>
+        <TextCell x:Name="debugCell" Text="显示单词本词频" Tapped="OnDBCellTapped"/>
       </TableSection>
     </TableRoot>
   </TableView>

@@ -38,7 +38,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
-    <Compile Include="Util\BasicUtils.cs" />
     <Compile Include="Util\ImageResourceExtension.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
     <Compile Include="ViewModel\SelectViewModel.cs" />

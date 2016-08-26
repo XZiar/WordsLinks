@@ -1,16 +1,21 @@
-﻿using System;
+﻿using Main.Model;
+using Main.Util;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Main.Model;
-using Main.Util;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Main.Service
 {
     public class Quiz
     {
+        public struct QuizElement
+        {
+            public string str;
+            public bool ans;
+            public bool choice;
+            public bool isRight;
+        }
         public string quest { get; internal set; }
         public Tuple<string, bool>[] choices { get; internal set; }
         private bool[] ans = new bool[5];
@@ -65,10 +70,13 @@ namespace Main.Service
             }
         }
     }
+
     public static class QuizService
     {
         private static Random rand = new Random();
         private static int lastRand = 65536;
+
+        public static bool isAdapt = false;
         
         private static bool NormalQuiz(Quiz q, out WordElement[] waitList)
         {
@@ -111,11 +119,11 @@ namespace Main.Service
             }
             return isWord;
         }
-        public static Quiz GetQuiz(bool type)
+        public static Quiz GetQuiz()
         {
             Quiz q = new Quiz();
             WordElement[] waitList;
-            bool isWord = type ? NormalQuiz(q, out waitList) : AdaptQuiz(q, out waitList);
+            bool isWord = isAdapt ? AdaptQuiz(q, out waitList) : NormalQuiz(q, out waitList);
             
             //insert answers
             var anss = new List<Tuple<string, bool>>();
@@ -126,8 +134,9 @@ namespace Main.Service
                 WordElement ele;
                 do
                 {
-                    r = rand.Next(isWord ? DBService.MeansCount : DBService.WordsCount);
+                    r = rand.Next((int)((isWord ? DBService.MeansCount : DBService.WordsCount) * 1.3));
                     ele = (isWord ? DBService.MeanAt(r) as WordElement : DBService.WordAt(r) as WordElement);
+                    ele = ele ?? waitList.ElementAt(r % waitList.Count());
                 }
                 while (anss.Exists(x => ele.GetStr() == x.Item1));
                 bool isRight = waitList.Any(x => x.GetId() == ele.GetId());

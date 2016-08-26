@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -59,6 +60,7 @@ namespace WordsLinks.ViewModel
         }
         private ObservableCollection<SelectViewModel> datas = new ObservableCollection<SelectViewModel>();
         private TableSection sect;
+        public List<SelectCell> sectdatas { get; private set; }
         private bool MultiSelect, NullSelect;
         public delegate void SelectHandler(object sender, SelectEventArgs e);
         public event SelectHandler Select;
@@ -98,35 +100,38 @@ namespace WordsLinks.ViewModel
         public void SetTo(TableSection ts)
         {
             sect = ts;
+            sectdatas = new List<SelectCell>();
             buildView();
-            Select += OnSelect;
+            Select += OnTSSelect;
         }
 
         private void buildView()
         {
             Logger($"build view : {datas.Count} ele");
-            foreach (var c in sect)
+            foreach (var c in sectdatas)
                 c.Tapped -= OnCellTapped;
-            sect.Clear();
+            sectdatas.Clear();
+            sect?.Clear();
             foreach (var d in datas)
             {
                 var cell = new SelectCell(d.Text, d.IsSelected);
                 cell.Tapped += OnCellTapped;
-                sect.Add(cell);
+                sect?.Add(cell);
+                sectdatas.Add(cell);
             }
         }
 
         private void OnCellTapped(object sender, EventArgs e)
         {
-            OnItemTapped(null, new ItemTappedEventArgs(null, datas[sect.IndexOf(sender as Cell)]));
+            OnItemTapped(null, new ItemTappedEventArgs(null, datas[sectdatas.IndexOf(sender as SelectCell)]));
         }
 
-        private void OnSelect(object sender, SelectEventArgs e)
+        private void OnTSSelect(object sender, SelectEventArgs e)
         {
             switch (e.msg)
             {
             case Message.Selecting:
-                SelectCell obj = sect[e.idx] as SelectCell;
+                SelectCell obj = sectdatas[e.idx] as SelectCell;
                 obj.IsSelected = e.isSelect;
                 break;
             case Message.DataChanged:

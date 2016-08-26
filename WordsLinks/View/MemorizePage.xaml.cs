@@ -92,7 +92,7 @@ namespace WordsLinks.View
             try
             {
                 curQuiz?.EndTest();
-                curQuiz = QuizService.GetQuiz(mode);
+                curQuiz = QuizService.GetQuiz();
                 curQuiz?.init();
             }
             catch (Exception e)
@@ -127,7 +127,7 @@ namespace WordsLinks.View
             if (mode)//tranMode
             {
                 modeRect.BackgroundColor = Color.FromHex("20C000");
-                chgMode.Text = "随机模式";
+                chgMode.Text = "普通模式";
             }
             else
             {

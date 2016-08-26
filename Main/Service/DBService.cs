@@ -22,7 +22,7 @@ namespace Main.Service
 
         private static Dictionary<WordStat, int> words = new Dictionary<WordStat, int>();
         private static Dictionary<WordStat, int> means = new Dictionary<WordStat, int>();
-        public static SortedSet<WordStat> eles = new SortedSet<WordStat>();
+        private static SortedSet<WordStat> eles = new SortedSet<WordStat>();
         private static MultiValueDictionary<int, int> e2c = new MultiValueDictionary<int, int>();
         private static MultiValueDictionary<int, int> c2e = new MultiValueDictionary<int, int>();
 
@@ -65,14 +65,7 @@ namespace Main.Service
                     WrongCount += s.wrong;
                 WrongCount++;
             }
-            /*
-            StringBuilder sb = new StringBuilder("Here Sort List:\n");
-            foreach (var e in eles)
-                sb.Append($"{e.MissCount()} : {e.GetStr()}\n");
-            Debug.WriteLine(sb);
-            */
-            e2c = new MultiValueDictionary<int, int>();
-            c2e = new MultiValueDictionary<int, int>();
+            e2c.Clear(); c2e.Clear();
             foreach (var t in db.Table<DBTranslation>())
             {
                 e2c.Add(t.Wid, t.Mid);
@@ -90,11 +83,15 @@ namespace Main.Service
 
         public static DBWord WordAt(int idx)
         {
+            if (idx < 0 || idx >= WordsCount)
+                return null;
             var dat = words.ElementAt(idx);
             return new DBWord() { Letters = dat.Key, Id = dat.Value };
         }
         public static DBMeaning MeanAt(int idx)
         {
+            if (idx < 0 || idx >= MeansCount)
+                return null;
             var dat = means.ElementAt(idx);
             return new DBMeaning() { Meaning = dat.Key, Id = dat.Value };
         }
@@ -389,6 +386,15 @@ namespace Main.Service
             else if (means.TryGetValue(obj, out id))
                 db.Update(new DBMeaning(obj, id));
             eles.Add(obj);
+        }
+
+        public static void debugInfo()
+        {
+            Debug.WriteLine($"Total wrong: {WrongCount} for {WordsCount} words and {MeansCount} means");
+            foreach (var e in eles)
+            {
+                Debug.WriteLine($"{e.wrong} \t {e.str}");
+            }
         }
     }
 }

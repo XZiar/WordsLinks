@@ -11,7 +11,7 @@ namespace WordsLinks.View
 {
 	public partial class SettingPage : ContentPage
     {
-        SelectCellGroup netChoiceGroup;
+        SelectCellGroup netChoiceGroup, quizAdaptGroup;
         public SettingPage()
 		{
 			InitializeComponent();
@@ -24,6 +24,16 @@ namespace WordsLinks.View
                 if (e.isSelect)
                     NetService.Choose(e.idx);
             };
+
+            quizAdaptGroup = new SelectCellGroup(false, false);
+            quizAdaptGroup.Set(new string[] { "随机出题", "适应词频" });
+            quizAdaptGroup.Select += (o, e) => 
+            {
+                if (e.isSelect)
+                    QuizService.isAdapt = (e.idx == 1);
+            };
+            quizAdaptGroup.SetTo(null as TableSection);
+            quizSect.Add(quizAdaptGroup.sectdatas);
         }
 
         protected override void OnAppearing()
@@ -31,6 +41,9 @@ namespace WordsLinks.View
             base.OnAppearing();
             var dat = NetService.GetChoices();
             netChoiceGroup.Choose(dat.Item1);
+
+            quizAdaptGroup.Choose(QuizService.isAdapt ? 1 : 0);
+
             RefreshWords();
         }
 
@@ -99,6 +112,10 @@ namespace WordsLinks.View
                 {
                     e.CopeWith("clearDB");
                 }
+            }
+            else if (sender == debugCell)
+            {
+                DBService.debugInfo();
             }
         }
     }

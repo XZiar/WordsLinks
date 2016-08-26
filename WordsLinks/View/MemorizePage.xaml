@@ -6,10 +6,10 @@
   <StackLayout Padding="8,4" Orientation="Vertical" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" >
     <wid:FrameEx x:Name="modeRect" ShadowWidth="1" Padding="8,4" Border="Rect" ShadowPos="Around"
                  Margin="2" HorizontalOptions="Center" VerticalOptions="Center">
-      <Label x:Name="chgMode" FontSize="Large" Text="翻译模式" TextColor="White">
-        <Label.GestureRecognizers>
+      <Label x:Name="chgMode" FontSize="Large" Text="记忆模式" TextColor="White">
+        <!--<Label.GestureRecognizers>
           <TapGestureRecognizer Tapped="OnClickMode" NumberOfTapsRequired="1" />
-        </Label.GestureRecognizers>
+        </Label.GestureRecognizers>-->
       </Label>
     </wid:FrameEx>
     <Grid x:Name="quizLayout" Padding="0,4" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
