@@ -11,7 +11,7 @@ namespace WordsLinks.View
 {
 	public partial class SettingPage : ContentPage
     {
-        SelectCellGroup netChoiceGroup, quizAdaptGroup;
+        SelectCellGroup netChoiceGroup;//, quizAdaptGroup;
         public SettingPage()
 		{
 			InitializeComponent();
@@ -25,15 +25,11 @@ namespace WordsLinks.View
                     NetService.Choose(e.idx);
             };
 
-            quizAdaptGroup = new SelectCellGroup(false, false);
-            quizAdaptGroup.Set(new string[] { "随机出题", "适应词频" });
-            quizAdaptGroup.Select += (o, e) => 
+            isAdapt.On = QuizService.isAdapt;
+            isAdapt.OnChanged += (o, args) =>
             {
-                if (e.isSelect)
-                    QuizService.isAdapt = (e.idx == 1);
+                QuizService.isAdapt = args.Value;
             };
-            quizAdaptGroup.SetTo(null as TableSection);
-            quizSect.Add(quizAdaptGroup.sectdatas);
         }
 
         protected override void OnAppearing()
@@ -42,14 +38,12 @@ namespace WordsLinks.View
             var dat = NetService.GetChoices();
             netChoiceGroup.Choose(dat.Item1);
 
-            quizAdaptGroup.Choose(QuizService.isAdapt ? 1 : 0);
-
             RefreshWords();
         }
 
         private void RefreshWords()
         {
-            wordsSect.Title = $"单词本\t（{DBService.WordsCount}个单词）";
+            wordsSect.Title = $"单词本\t（{DictService.WordsCount}个单词）";
         }
 
         private async Task<bool> ImportChoose()
@@ -63,7 +57,7 @@ namespace WordsLinks.View
             {
                 try
                 {
-                    var ret = DBService.Export();
+                    var ret = DictService.Export();
                     hudPopup.Show(msg: "导出中");
                     byte[] data = await ret;
                     if (await imgUtil.SaveImage(data))
@@ -83,7 +77,7 @@ namespace WordsLinks.View
                     var pic = imgUtil.GetImage();
                     if ((await pic) != null)
                     {
-                        var ret = DBService.Import(pic.Result, await ImportChoose());
+                        var ret = DictService.Import(pic.Result, await ImportChoose());
                         hudPopup.Show(msg: "导入中");
                         if (await ret)
                             hudPopup.Show(HUDType.Success, "导入成功");
@@ -104,7 +98,7 @@ namespace WordsLinks.View
                     var ret = await DisplayAlert("清空单词本", "此操作无法恢复", "确认", "不了");
                     if (ret)
                     {
-                        DBService.Clear();
+                        DictService.Clear();
                         RefreshWords();
                     }
                 }
@@ -115,7 +109,7 @@ namespace WordsLinks.View
             }
             else if (sender == debugCell)
             {
-                DBService.debugInfo();
+                DictService.debugInfo();
             }
         }
     }

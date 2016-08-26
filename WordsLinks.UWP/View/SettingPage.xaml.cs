@@ -33,7 +33,7 @@ namespace WordsLinks.UWP.View
 
         private void RefreshWords()
         {
-            DBstatus.Text = $"单词本\t（{DBService.WordsCount}个单词）";
+            DBstatus.Text = $"单词本\t（{DictService.WordsCount}个单词）";
         }
 
         private MessageDialog modeDlg = new MessageDialog("是否覆盖现有单词本？") { Title = "导入方式" };
@@ -52,7 +52,7 @@ namespace WordsLinks.UWP.View
             {
                 try
                 {
-                    var ret = DBService.Export();
+                    var ret = DictService.Export();
                     hudPopup.Show(msg: "导出中");
                     byte[] data = await ret;
                     //Logger($"before save {data.Length} bytes data");
@@ -73,7 +73,7 @@ namespace WordsLinks.UWP.View
                     var pic = imgUtil.GetImage();
                     if ((await pic) != null)
                     {
-                        var ret = DBService.Import(pic.Result, await ImportChoose());
+                        var ret = DictService.Import(pic.Result, await ImportChoose());
                         hudPopup.Show(msg: "导入中");
                         if (await ret)
                             hudPopup.Show(HUDType.Success, "导入成功");
@@ -89,7 +89,7 @@ namespace WordsLinks.UWP.View
             }
             else if (sender == clearDB)
             {
-                DBService.Clear();
+                DictService.Clear();
                 RefreshWords();
             }
         }

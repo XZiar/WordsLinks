@@ -81,7 +81,7 @@ namespace WordsLinks.UWP.View
             {
                 var trans = await TranslateService.Eng2Chi(word.Text.ToLower());
                 webTGroup.Set(trans);
-                finTGroup.Set(await DBService.MatchMeanings(trans));
+                finTGroup.Set(await DictService.MatchMeanings(trans));
             }
             catch (Exception e)
             {
@@ -107,7 +107,7 @@ namespace WordsLinks.UWP.View
                 chi.Add(s);
             try
             {
-                DBService.AddWord(word.Text.ToLower(), chi);
+                DictService.AddWord(word.Text.ToLower(), chi);
             }
             catch(Exception e)
             {

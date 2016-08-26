@@ -51,7 +51,7 @@ namespace WordsLinks.View
             {
                 var trans = await TranslateService.Eng2Chi(word.Text.ToLower());
                 webTGroup.Set(trans);
-                finTGroup.Set(await DBService.MatchMeanings(trans));
+                finTGroup.Set(await DictService.MatchMeanings(trans));
             }
             catch(Exception e)
             {
@@ -66,7 +66,7 @@ namespace WordsLinks.View
                 chi.Add(s);
             foreach (var s in finTGroup.SelectedItems)
                 chi.Add(s);
-            DBService.AddWord(word.Text.ToLower(), chi);
+            DictService.AddWord(word.Text.ToLower(), chi);
         }
 	}
 }

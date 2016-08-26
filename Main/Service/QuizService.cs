@@ -44,9 +44,9 @@ namespace Main.Service
 
         public IEnumerable<string> GetDescription(int idx)
         {
-            IEnumerable<WordElement> trans = DBService.GetMeansByWord(choices[idx].Item1);
+            IEnumerable<WordElement> trans = DictService.GetMeansByWord(choices[idx].Item1);
             if (trans == null)
-                trans = DBService.GetWordsByMean(choices[idx].Item1);
+                trans = DictService.GetWordsByMean(choices[idx].Item1);
             return trans.Select(x => x.GetStr());
         }
 
@@ -56,16 +56,16 @@ namespace Main.Service
                 return;
             if(isAllRight)
             {
-                DBService.Report(quest, -3);
+                DictService.Report(quest, -3);
             }
             else
             {
-                DBService.Report(quest, 3);
+                DictService.Report(quest, 3);
                 int a = 0;
                 foreach(var it in choices)
                 {
                     if (it.Item2 != ans[a++])
-                        DBService.Report(it.Item1, 1);
+                        DictService.Report(it.Item1, 1);
                 }
             }
         }
@@ -80,8 +80,8 @@ namespace Main.Service
         
         private static bool NormalQuiz(Quiz q, out WordElement[] waitList)
         {
-            int r = lastRand, max = 2 * Math.Max(DBService.WordsCount, DBService.MeansCount);
-            float ratio = DBService.WordsCount * 1.0f / DBService.MeansCount;
+            int r = lastRand, max = 2 * Math.Max(DictService.WordsCount, DictService.MeansCount);
+            float ratio = DictService.WordsCount * 1.0f / DictService.MeansCount;
             while (r == lastRand)
                 r = rand.Next(max);
             lastRand = r;
@@ -90,15 +90,15 @@ namespace Main.Service
             //get basic data
             if (isWord)
             {
-                var word = DBService.WordAt(ratio < 1.0f ? (int)(r * ratio) : r);
+                var word = DictService.WordAt(ratio < 1.0f ? (int)(r * ratio) : r);
                 q.quest = word.Letters;
-                waitList = DBService.GetMeansByWId(word.Id);
+                waitList = DictService.GetMeansByWId(word.Id);
             }
             else
             {
-                var mean = DBService.MeanAt(ratio > 1.0f ? (int)(r / ratio) : r);
+                var mean = DictService.MeanAt(ratio > 1.0f ? (int)(r / ratio) : r);
                 q.quest = mean.Meaning;
-                waitList = DBService.GetWordsByMId(mean.Id);
+                waitList = DictService.GetWordsByMId(mean.Id);
             }
             return isWord;
         }
@@ -106,16 +106,16 @@ namespace Main.Service
         {
             int r = lastRand;
             while (r == lastRand)
-                r = rand.Next(DBService.WrongCount);
-            var stat = DBService.EleAt(lastRand = r);
+                r = rand.Next(DictService.WrongCount);
+            var stat = DictService.EleAt(lastRand = r);
             q.quest = stat.str;
 
             bool isWord = true;
-            waitList = DBService.GetMeansByWord(stat);
+            waitList = DictService.GetMeansByWord(stat);
             if (waitList == null)
             {
                 isWord = false;
-                waitList = DBService.GetWordsByMean(stat);
+                waitList = DictService.GetWordsByMean(stat);
             }
             return isWord;
         }
@@ -134,8 +134,8 @@ namespace Main.Service
                 WordElement ele;
                 do
                 {
-                    r = rand.Next((int)((isWord ? DBService.MeansCount : DBService.WordsCount) * 1.3));
-                    ele = (isWord ? DBService.MeanAt(r) as WordElement : DBService.WordAt(r) as WordElement);
+                    r = rand.Next((int)((isWord ? DictService.MeansCount : DictService.WordsCount) * 1.3));
+                    ele = (isWord ? DictService.MeanAt(r) as WordElement : DictService.WordAt(r) as WordElement);
                     ele = ele ?? waitList.ElementAt(r % waitList.Count());
                 }
                 while (anss.Exists(x => ele.GetStr() == x.Item1));

@@ -8,6 +8,7 @@
       <TableSection x:Name="netSect" Title="网络设置">
       </TableSection>
       <TableSection x:Name="quizSect" Title="记忆设置">
+        <SwitchCell x:Name="isAdapt" Text="适应词频"/>
       </TableSection>
       <TableSection x:Name="wordsSect" Title="单词本">
         <TextCell x:Name="exportCell" Text="分享单词本" Tapped="OnDBCellTapped"/>

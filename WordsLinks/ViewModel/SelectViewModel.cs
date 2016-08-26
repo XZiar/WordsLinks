@@ -109,9 +109,11 @@ namespace WordsLinks.ViewModel
         {
             Logger($"build view : {datas.Count} ele");
             foreach (var c in sectdatas)
+            {
                 c.Tapped -= OnCellTapped;
+                sect?.Remove(c);
+            }
             sectdatas.Clear();
-            sect?.Clear();
             foreach (var d in datas)
             {
                 var cell = new SelectCell(d.Text, d.IsSelected);

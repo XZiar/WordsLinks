@@ -22,7 +22,7 @@ namespace WordsLinks
                     DependencyService.Get<SQLiteUtil>(),
                     DependencyService.Get<LogUtil>()
                     );
-                DBService.Init();
+                DictService.Init();
                 NetService.Choose(0);
                 MainPage = new MainPage();
             }

@@ -15,7 +15,7 @@ using static System.Text.Encoding;
 
 namespace Main.Service
 {
-    public static class DBService
+    public static class DictService
     {
         private static byte DBver = 0x1;
         private static SQLiteConnection db;
@@ -32,7 +32,7 @@ namespace Main.Service
         public static int MeansCount { get { return means.Count; } }
         internal static int WrongCount { get; set; }
 
-        static DBService()
+        static DictService()
         {
             string dbPath = fileUtil.GetFilePath("words.db", true);
             Logger("open db at " + dbPath);
@@ -229,35 +229,58 @@ namespace Main.Service
             Clear();
             var wMap = new Dictionary<int, int>();
             var mMap = new Dictionary<int, int>();
-            var w = new DBWord();
-            foreach (var jp in obj["words"] as JObject)
             {
-                w.Letters = jp.Key.ToLower();
-                db.Insert(w);
-                wMap.Add(jp.Value.ToInt(), w.Id);
-                words.Add(w.Letters, w.Id);
-                eles.Add(w.ToStat());
-            }
-            var m = new DBMeaning();
-            foreach (var jp in obj["means"] as JObject)
-            {
-                m.Meaning = jp.Key;
-                db.Insert(m);
-                mMap.Add(jp.Value.ToInt(), m.Id);
-                means.Add(m.Meaning, m.Id);
-                eles.Add(m.ToStat());
-            }
-            var t = new DBTranslation();
-            foreach (var jp in obj["links"] as JObject)
-            {
-                t.Wid = wMap[jp.Key.ToInt()];
-                foreach (var ji in jp.Value as JArray)
+                var wo = obj["words"] as JObject;
+                var ws = new DBWord[wo.Count];
+                var ids = new int[wo.Count];
+                int a = 0;
+                foreach (var jp in wo)
                 {
-                    t.Mid = mMap[ji.ToInt()];
-                    e2c.Add(t.Wid, t.Mid);
-                    c2e.Add(t.Mid, t.Wid);
-                    db.Insert(t);
+                    ws[a] = new DBWord() { Letters = jp.Key.ToLower() };
+                    ids[a++] = jp.Value.ToInt();
                 }
+                db.InsertAll(ws);
+                a = 0;
+                foreach (var w in ws)
+                {
+                    wMap.Add(ids[a++], w.Id);
+                    words.Add(w.Letters, w.Id);
+                    eles.Add(w.ToStat());
+                }
+            }
+            {
+                var wo = obj["means"] as JObject;
+                var ws = new DBMeaning[wo.Count];
+                var ids = new int[wo.Count];
+                int a = 0;
+                foreach (var jp in wo)
+                {
+                    ws[a] = new DBMeaning() { Meaning = jp.Key.ToLower() };
+                    ids[a++] = jp.Value.ToInt();
+                }
+                db.InsertAll(ws);
+                a = 0;
+                foreach (var m in ws)
+                {
+                    mMap.Add(ids[a++], m.Id);
+                    means.Add(m.Meaning, m.Id);
+                    eles.Add(m.ToStat());
+                }
+            }
+            {
+                var ts = new List<DBTranslation>();
+                foreach (var jp in obj["links"] as JObject)
+                {
+                    int wid = wMap[jp.Key.ToInt()];
+                    foreach (var ji in jp.Value as JArray)
+                    {
+                        var t = new DBTranslation() { Wid = wid, Mid = mMap[ji.ToInt()] };
+                        e2c.Add(t.Wid, t.Mid);
+                        c2e.Add(t.Mid, t.Wid);
+                        ts.Add(t);
+                    }
+                }
+                db.InsertAll(ts);
             }
             WrongCount = WordsCount + MeansCount;
             return true;

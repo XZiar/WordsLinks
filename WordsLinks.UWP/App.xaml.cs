@@ -58,7 +58,7 @@ namespace WordsLinks.UWP
                         new SQLiteUtil_UWP(),
                         new LogUtil_UWP()
                         );
-                    DBService.Init();
+                    DictService.Init();
                     NetService.Choose(0);
                 }
                 catch (Exception e)
