@@ -3,48 +3,77 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:wid="clr-namespace:WordsLinks.Widget;assembly=WordsLinks"
              x:Class="WordsLinks.View.MemorizePage">
-  <StackLayout Padding="8" Orientation="Vertical" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" >
+  <StackLayout Padding="8,4" Orientation="Vertical" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" >
     <wid:FrameEx x:Name="modeRect" ShadowWidth="1" Padding="8,4" Border="Rect" ShadowPos="Around"
-                 Margin="4" HorizontalOptions="Center" VerticalOptions="Center">
+                 Margin="2" HorizontalOptions="Center" VerticalOptions="Center">
       <Label x:Name="chgMode" FontSize="Large" Text="翻译模式" TextColor="White">
         <Label.GestureRecognizers>
           <TapGestureRecognizer Tapped="OnClickMode" NumberOfTapsRequired="1" />
         </Label.GestureRecognizers>
       </Label>
     </wid:FrameEx>
-
-    <StackLayout x:Name="quizLayout" Orientation="Vertical" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" >
-      <wid:FrameEx ShadowWidth="3" Padding="16" Border="Round" ShadowPos="Around"
-                   Margin="64,16" HorizontalOptions="FillAndExpand">
+    <Grid x:Name="quizLayout" Padding="0,4" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="4*" />
+        <RowDefinition Height="3*" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="3*" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="3*" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="3*" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="3*" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+      
+      <wid:FrameEx ShadowWidth="3" Padding="12" Border="Round" ShadowPos="Around"
+                   Grid.Row="0" Margin="64,4" HorizontalOptions="FillAndExpand" VerticalOptions="Center">
         <Label FontSize="Large" Text="请出题" FontAttributes="Bold"
                HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
       </wid:FrameEx>
 
       <wid:FrameEx ShadowWidth="1" Padding="12" Border="Round" ShadowPos="Around"
-                   Margin="32,8" HorizontalOptions="FillAndExpand">
+                   Grid.Row="1" Margin="32,3,32,0" HorizontalOptions="FillAndExpand" VerticalOptions="Center">
         <Label FontSize="Medium" Text="A"
                HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
       </wid:FrameEx>
+      <Label FontSize="Small" Text="A" Grid.Row="2"
+             HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
+      
       <wid:FrameEx ShadowWidth="1" Padding="12" Border="Round" ShadowPos="Around"
-                   Margin="32,8" HorizontalOptions="FillAndExpand">
+                   Grid.Row="3" Margin="32,3,32,0" HorizontalOptions="FillAndExpand" VerticalOptions="Center">
         <Label FontSize="Medium" Text="B"
                HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
       </wid:FrameEx>
+      <Label FontSize="Small" Text="B" Grid.Row="4"
+             HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
+      
       <wid:FrameEx ShadowWidth="1" Padding="12" Border="Round" ShadowPos="Around"
-                   Margin="32,8" HorizontalOptions="FillAndExpand">
+                   Grid.Row="5" Margin="32,3,32,0" HorizontalOptions="FillAndExpand" VerticalOptions="Center">
         <Label FontSize="Medium" Text="C"
                HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
       </wid:FrameEx>
+      <Label FontSize="Small" Text="C" Grid.Row="6"
+             HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
+      
       <wid:FrameEx ShadowWidth="1" Padding="12" Border="Round" ShadowPos="Around"
-                   Margin="32,8" HorizontalOptions="FillAndExpand">
+                   Grid.Row="7" Margin="32,3,32,0" HorizontalOptions="FillAndExpand" VerticalOptions="Center">
         <Label FontSize="Medium" Text="D"
                HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
       </wid:FrameEx>
+      <Label FontSize="Small" Text="D" Grid.Row="8"
+             HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
+      
       <wid:FrameEx ShadowWidth="1" Padding="12" Border="Round" ShadowPos="Around"
-                   Margin="32,8" HorizontalOptions="FillAndExpand">
+                   Grid.Row="9" Margin="32,3,32,0" HorizontalOptions="FillAndExpand" VerticalOptions="Center">
         <Label FontSize="Medium" Text="E"
                HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
       </wid:FrameEx>
-    </StackLayout>
+      <Label FontSize="Small" Text="E" Grid.Row="10"
+             HorizontalOptions="CenterAndExpand" VerticalOptions="Center"/>
+      
+    </Grid>
+    
   </StackLayout>
 </ContentPage>

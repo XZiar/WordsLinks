@@ -37,6 +37,14 @@ namespace Main.Service
             return isRight;
         }
 
+        public IEnumerable<string> GetDescription(int idx)
+        {
+            IEnumerable<WordElement> trans = DBService.GetMeansByWord(choices[idx].Item1);
+            if (trans == null)
+                trans = DBService.GetWordsByMean(choices[idx].Item1);
+            return trans.Select(x => x.GetStr());
+        }
+
         public void EndTest()
         {
             if (leftCount > 0)
@@ -69,7 +77,7 @@ namespace Main.Service
             while (r == lastRand)
                 r = rand.Next(max);
             lastRand = r;
-            bool isWord = (r % 2 == 0);
+            bool isWord = (r % 2 == 1);
             r /= 2;
             //get basic data
             if (isWord)
