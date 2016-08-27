@@ -9,6 +9,7 @@ namespace Main.Service
 {
     public class Quiz
     {
+        public enum QuizState { NoAns, Ansing, Finish};
         public struct QuizElement
         {
             public string str;
@@ -19,27 +20,32 @@ namespace Main.Service
         public string quest { get; internal set; }
         public Tuple<string, bool>[] choices { get; internal set; }
         private bool[] ans = new bool[5];
-        public int leftCount { get; private set; }
-        public bool isAllRight { get; private set; }
+        private int leftCount;
+        public bool isAllRight;
+        public QuizState state { get; private set; }
 
         public void init()
         {
             leftCount = choices.Count(c => c.Item2);
             Array.Clear(ans, 0, 5);
             isAllRight = true;
+            state = QuizState.NoAns;
         }
 
         public bool? Test(int idx)
         {
-            if (leftCount == 0 || ans[idx])
+            if (state == QuizState.Finish || ans[idx])
                 return null;
+            state = QuizState.Ansing;
             ans[idx] = true;
-            var isRight = choices[idx].Item2;
-            if (isRight)
-                leftCount--;
+            if (choices[idx].Item2)
+            {
+                if (--leftCount == 0)
+                    state = QuizState.Finish;
+                return true;
+            }
             else
-                isAllRight = false;
-            return isRight;
+                return isAllRight = false;
         }
 
         public IEnumerable<string> GetDescription(int idx)
@@ -52,16 +58,21 @@ namespace Main.Service
 
         public void EndTest()
         {
-            if (leftCount > 0)
+            if (state != QuizState.Finish)
                 return;
-            if(isAllRight)
+            int a = 0;
+            if (isAllRight)
             {
-                DictService.Report(quest, -3);
+                DictService.Report(quest, -2);
+                foreach (var it in choices)
+                {
+                    if (it.Item2 == ans[a++])
+                        DictService.Report(it.Item1, -1);
+                }
             }
             else
             {
                 DictService.Report(quest, 3);
-                int a = 0;
                 foreach(var it in choices)
                 {
                     if (it.Item2 != ans[a++])

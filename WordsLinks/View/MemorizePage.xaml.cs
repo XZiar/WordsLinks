@@ -1,5 +1,6 @@
 ﻿using Main.Service;
 using Main.Util;
+using Plugin.Vibrate;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -39,24 +40,34 @@ namespace WordsLinks.View
 
         private DateTime lastDragTime = DateTime.Now;
         private double dragX, dragY;
+        private bool isNoticed = false;
         private void OnGrapPage(object sender, PanUpdatedEventArgs e)
         {
-            if(e.StatusType == GestureStatus.Running)
+            if (e.StatusType == GestureStatus.Running)
             {
                 dragX = e.TotalX; dragY = e.TotalY;
             }
-            else if(e.StatusType == GestureStatus.Completed)
+            else if (e.StatusType == GestureStatus.Completed)
             {
-                if (Math.Abs(dragX) < 80)
+                if (Math.Abs(dragX) < 72)
                     return;
                 var time = (DateTime.Now - lastDragTime);
-                if (time.TotalMilliseconds < 500)
+                if (time.TotalMilliseconds > 500)// too slow
+                {
+                    lastDragTime = DateTime.Now;
+                    return;
+                }
+                if (isNoticed || curQuiz == null || curQuiz.state != Quiz.QuizState.Ansing)
                 {
                     lastDragTime.AddMilliseconds(-1000);
-                    OnClickAnswer(quest, null);
+                    isNoticed = false;
+                    RefreshQuiz();
                 }
                 else
-                    lastDragTime = DateTime.Now;
+                {
+                    CrossVibrate.Current.Vibration();
+                    isNoticed = true;
+                }
             }
         }
 
@@ -76,7 +87,7 @@ namespace WordsLinks.View
                 choices[idx].BackgroundColor = isRight.Value ? Color.FromHex("E0FFE0") : Color.FromHex("FFE0E0");
                 chdess[idx].Text = string.Join(",", curQuiz.GetDescription(idx));
                 chdess[idx].TextColor = isRight.Value ? Color.Green : Color.Red;
-                if (curQuiz.leftCount == 0)
+                if (curQuiz.state == Quiz.QuizState.Finish)
                     EndQuiz();
             }
         }
@@ -85,13 +96,13 @@ namespace WordsLinks.View
         {
             quest.OutlineColor = curQuiz.isAllRight ? Color.Green : Color.Red;
             quest.BackgroundColor = curQuiz.isAllRight ? Color.FromHex("E0FFE0") : Color.FromHex("FFE0E0");
+            curQuiz.EndTest();
         }
 
         private void RefreshQuiz()
         {
             try
             {
-                curQuiz?.EndTest();
                 curQuiz = QuizService.GetQuiz();
                 curQuiz?.init();
             }

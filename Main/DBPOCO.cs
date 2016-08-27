@@ -18,7 +18,7 @@ namespace Main.Model
 		public int Id { get; set; }
 		[Unique, MaxLength(16)]
 		public string Letters { get; set; }
-        public short wrong { get; set; }
+        public short wrong { get; set; } = 1;
         public short right { get; set; }
 
         public DBWord() { }
@@ -40,7 +40,7 @@ namespace Main.Model
 		public int Id { get; set; }
 		[Unique, MaxLength(16)]
 		public string Meaning { get; set; }
-        public short wrong { get; set; }
+        public short wrong { get; set; } = 1;
         public short right { get; set; }
 
         public DBMeaning() { }

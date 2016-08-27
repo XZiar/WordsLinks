@@ -97,13 +97,15 @@ namespace Main.Service
         }
         public static WordStat EleAt(int num)
         {
+            int bak = num;
             foreach(var s in eles)
             {
-                num -= s.wrong;
+                if(s.wrong >= 0)
+                    num -= s.wrong + 1;
                 if (num-- <= 1)
                     return s;
             }
-            Logger("Run out of num when EleAt", LogLevel.Warning);
+            Logger($"Run out of num when EleAt: {bak}-{WrongCount}={num}", LogLevel.Warning);
             return eles.First();
         }
 
@@ -282,7 +284,7 @@ namespace Main.Service
                 }
                 db.InsertAll(ts);
             }
-            WrongCount = WordsCount + MeansCount;
+            WrongCount = 2 * (WordsCount + MeansCount);
             return true;
         }
         private static bool AddImport(JObject obj)
@@ -301,7 +303,7 @@ namespace Main.Service
                     wMap.Add(jp.Value.ToInt(), w.Id);
                     words.Add(w.Letters, w.Id);
                     eles.Add(w.ToStat());
-                    WrongCount++;
+                    WrongCount += 2;
                 }
             }
             var m = new DBMeaning();
@@ -315,7 +317,7 @@ namespace Main.Service
                     mMap.Add(jp.Value.ToInt(), m.Id);
                     means.Add(m.Meaning, m.Id);
                     eles.Add(m.ToStat());
-                    WrongCount++;
+                    WrongCount += 2;
                 }
             }
             var t = new DBTranslation();
@@ -354,7 +356,7 @@ namespace Main.Service
                 db.Insert(word);
                 words[eng] = wid = word.Id;
                 eles.Add(word.ToStat());
-                WrongCount++;
+                WrongCount += 2;
             }
             foreach (var str in chi)
             {
@@ -364,7 +366,7 @@ namespace Main.Service
                     db.Insert(mean);
                     means[str] = mid = mean.Id;
                     eles.Add(mean.ToStat());
-                    WrongCount++;
+                    WrongCount += 2;
                 }
                 if (!e2c.Contains(wid, mid))
                 {
@@ -418,6 +420,15 @@ namespace Main.Service
             {
                 Debug.WriteLine($"{e.wrong} \t {e.str}");
             }
+        }
+
+        public static void updateDB()
+        {
+            int ret = db.Execute("update Words set wrong=wrong+1");
+            Debug.WriteLine($"affect {ret} records");
+            ret = db.Execute("update Meanings set wrong=wrong+1");
+            Debug.WriteLine($"affect {ret} records");
+            Init();
         }
     }
 }

@@ -111,6 +111,8 @@ namespace WordsLinks.View
             {
                 DictService.debugInfo();
             }
+            else if (sender == updCell)
+                DictService.updateDB();
         }
     }
 }
