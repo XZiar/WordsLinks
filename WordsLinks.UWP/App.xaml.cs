@@ -56,7 +56,8 @@ namespace WordsLinks.UWP
                         new HUDPopup_UWP(),
                         new ThreadUtil_UWP(),
                         new SQLiteUtil_UWP(),
-                        new LogUtil_UWP()
+                        new LogUtil_UWP(),
+                        new OpenFileUtil_UWP()
                         );
                     DictService.Init();
                     NetService.Choose(0);

@@ -1,4 +1,5 @@
 ﻿using SQLite;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -19,6 +20,7 @@ namespace Main.Util
     public interface LogUtil
     {
         void Log(string txt, LogLevel level = LogLevel.Verbose);
+        string GetLogFile();
     }
 
 	public interface SQLiteUtil

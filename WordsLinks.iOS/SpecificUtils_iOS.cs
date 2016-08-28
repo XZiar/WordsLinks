@@ -19,6 +19,7 @@ using static WordsLinks.iOS.BasicUtils;
 [assembly: Dependency(typeof(HUDPopup_iOS))]
 [assembly: Dependency(typeof(ThreadUtil_iOS))]
 [assembly: Dependency(typeof(LogUtil_iOS))]
+[assembly: Dependency(typeof(OpenFileUtil_iOS))]
 
 namespace WordsLinks.iOS
 {
@@ -79,6 +80,8 @@ namespace WordsLinks.iOS
         }
 
         public void Log(string txt, LogLevel level = LogLevel.Verbose) => TryLog(txt, level);
+
+        public string GetLogFile() => FileUtil_iOS.GetPath(FileUtil_iOS.cachePath, "AppLog.log");
     }
 
     class SQLiteUtil_iOS : SQLiteUtil
@@ -191,6 +194,19 @@ namespace WordsLinks.iOS
                 BTProgressHUD.ShowImage(UIImage.FromBundle("IconFail"), msg, duaration);
                 break;
             }
+        }
+    }
+
+    class OpenFileUtil_iOS : OpenFileUtil
+    {
+        public void OpenFile(string path)
+        {
+            NSUrl url = NSUrl.FromFilename(path);
+            RunInUI(() => 
+            {
+                var ctrl = new UIActivityViewController(new NSObject[] { new NSString("PDF Document"), url }, null);
+                UIApplication.SharedApplication.KeyWindow.RootViewController.PresentModalViewController(ctrl, true);
+            });
         }
     }
 }

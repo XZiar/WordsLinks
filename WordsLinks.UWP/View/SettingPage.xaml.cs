@@ -2,12 +2,10 @@
 using Main.Util;
 using System;
 using System.Threading.Tasks;
-using Windows.System;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Popups;
-using WordsLinks.UWP.Util;
 using static Main.Util.BasicUtils;
 using static Main.Util.SpecificUtils;
 
@@ -94,12 +92,10 @@ namespace WordsLinks.UWP.View
             }
         }
 
-        private static LauncherOptions opt = new LauncherOptions()
-        { DisplayApplicationPicker = true };
-        private async void OnLogTapped(object sender, TappedRoutedEventArgs args)
+        private void OnLogTapped(object sender, TappedRoutedEventArgs args)
         {
             if (sender == showLog)
-                await Launcher.LaunchFileAsync(LogUtil_UWP.logFile, opt);
+                openfileUtil.OpenFile(logUtil.GetLogFile());
         }
     }
 }

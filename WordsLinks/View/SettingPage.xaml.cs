@@ -111,8 +111,18 @@ namespace WordsLinks.View
             {
                 DictService.debugInfo();
             }
-            else if (sender == updCell)
-                DictService.updateDB();
+        }
+
+        private void OnLogTapped(object sender, EventArgs args)
+        {
+            try
+            {
+                openfileUtil.OpenFile(logUtil.GetLogFile());
+            }
+            catch(Exception e)
+            {
+                e.CopeWith();
+            }
         }
     }
 }

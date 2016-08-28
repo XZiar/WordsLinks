@@ -15,7 +15,9 @@
         <TextCell x:Name="importCell" Text="导入单词本" Tapped="OnDBCellTapped"/>
         <TextCell x:Name="clearCell" Text="清空单词本" Tapped="OnDBCellTapped"/>
         <TextCell x:Name="debugCell" Text="显示单词本词频" Tapped="OnDBCellTapped"/>
-        <TextCell x:Name="updCell" Text="临时更新" Tapped="OnDBCellTapped"/>
+      </TableSection>
+      <TableSection Title="调试">
+        <TextCell x:Name="logCell" Text="打开日志" Tapped="OnLogTapped"/>
       </TableSection>
     </TableRoot>
   </TableView>

@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using static Main.Util.BasicUtils;
 using static WordsLinks.UWP.Util.BasicUtils;
+using Windows.System;
 
 namespace WordsLinks.UWP.Util
 {
@@ -80,6 +81,8 @@ namespace WordsLinks.UWP.Util
         }
 
         public void Log(string txt, LogLevel level = LogLevel.Verbose) => TryLog(txt, level);
+
+        public string GetLogFile() => logFile.Path;
     }
 
     class SQLiteUtil_UWP : SQLiteUtil
@@ -234,6 +237,17 @@ namespace WordsLinks.UWP.Util
                 }
             });
         }
+    }
+
+    class OpenFileUtil_UWP : OpenFileUtil
+    {
+        private static LauncherOptions opt = new LauncherOptions()
+        { DisplayApplicationPicker = true };
+        private static async void Open(string path)
+        {
+            await Launcher.LaunchFileAsync(await StorageFile.GetFileFromPathAsync(path), opt);
+        }
+        public void OpenFile(string path) => Open(path);
     }
 }
 
