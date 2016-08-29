@@ -63,20 +63,20 @@ namespace Main.Service
             int a = 0;
             if (isAllRight)
             {
-                DictService.Report(quest, -2);
+                DictService.Report(quest, -3);
                 foreach (var it in choices)
                 {
                     if (it.Item2 == ans[a++])
-                        DictService.Report(it.Item1, -1);
+                        DictService.Report(it.Item1, -2);
                 }
             }
             else
             {
-                DictService.Report(quest, 3);
+                DictService.Report(quest, 4);
                 foreach(var it in choices)
                 {
                     if (it.Item2 != ans[a++])
-                        DictService.Report(it.Item1, 1);
+                        DictService.Report(it.Item1, 2);
                 }
             }
         }
@@ -145,7 +145,7 @@ namespace Main.Service
                 WordElement ele;
                 do
                 {
-                    r = rand.Next((int)((isWord ? DictService.MeansCount : DictService.WordsCount) * 1.3));
+                    r = rand.Next((int)((isWord ? DictService.MeansCount : DictService.WordsCount) * 1.4));
                     ele = (isWord ? DictService.MeanAt(r) as WordElement : DictService.WordAt(r) as WordElement);
                     ele = ele ?? waitList.ElementAt(r % waitList.Count());
                 }

@@ -24,7 +24,7 @@ namespace Main.Service
             APIurl = string.Format(baseAPI, "WordsLinks", "57959088");
         }
         
-        public static Task<string[]> Eng2Chi(string eng)
+        public static Task<IEnumerable<string>> Eng2Chi(string eng)
             => Task.Run(async () =>
             {
                 JObject result;
@@ -87,7 +87,7 @@ namespace Main.Service
                 {
                     e.CopeWith("parse web translation");
                 }
-                return trans.ToArray();
+                return trans.Where(x => x.Length < 16);
             });
 
 		public static void Chi2Eng(string chi)

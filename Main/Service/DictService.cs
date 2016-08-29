@@ -151,28 +151,40 @@ namespace Main.Service
             {
                 List<string> ret = new List<string>();
                 Tuple<int, int> pos;
+                int fullMatchCount = 0, len = 0, objlen = 0;
                 foreach (string mean in means.Keys)
+                {
+                    var last = mean[mean.Length - 1];
+                    string tm = (last == '的' || last == '地') ? mean.Substring(0, mean.Length - 1) : mean;
                     foreach (var m in checker)
                     {
                         try
                         {
-                            int len = LCS(mean, m, out pos);
-                            int objlen = Math.Min(mean.Length, m.Length);
-                            //Debug.WriteLine($"compare {mean} & {m} : {len} at {pos.Item1},{pos.Item2} of {objlen}");
-                            if (len * 2 >= objlen)
-                            {
-                                if (pos.Item1 * pos.Item2 == 0)
-                                    ret.Insert(0, mean);
-                                else
-                                    ret.Add(mean);
-                                break;
-                            }
+                            len = LCS(tm, m, out pos);
                         }
-                        catch(Exception e)
+                        catch (Exception e)
                         {
                             e.CopeWith("LCS matching");
+                            continue;
+                        }
+                        objlen = Math.Min(tm.Length, m.Length);
+                        //Debug.WriteLine($"compare {mean} & {m} : {len} at {pos.Item1},{pos.Item2} of {objlen}");
+                        if (len == objlen)
+                        {
+                            ret.Insert(0, mean);
+                            fullMatchCount++;
+                            break;
+                        }
+                        if (len * 2 >= objlen)
+                        {
+                            if (pos.Item1 * pos.Item2 == 0)
+                                ret.Insert(fullMatchCount, mean);
+                            else
+                                ret.Add(mean);
+                            break;
                         }
                     }
+                }
                 return ret as IEnumerable<string>;
             });
 
@@ -204,7 +216,6 @@ namespace Main.Service
                 using (Stream stream = imgUtil.CompressBitmap(dat, wh, wh))
                 {
                     byte[] data = new byte[stream.Length];
-                    //Logger($"compress to {stream.Length} byte");
                     stream.Read(data, 0, (int)stream.Length);
                     return data;
                 }

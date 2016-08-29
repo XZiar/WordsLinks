@@ -8,6 +8,8 @@ using Windows.UI.Xaml.Navigation;
 using Windows.UI.Popups;
 using static Main.Util.BasicUtils;
 using static Main.Util.SpecificUtils;
+using Windows.Foundation;
+using System.Windows.Input;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -35,13 +37,35 @@ namespace WordsLinks.UWP.View
         }
 
         private MessageDialog modeDlg = new MessageDialog("是否覆盖现有单词本？") { Title = "导入方式" };
-        private Task<bool> ImportChoose()
+        private Task<bool?> ImportChoose()
+        {
+            var tsk = new TaskCompletionSource<bool?>();
+            modeDlg.Commands.Clear();
+            modeDlg.Commands.Add(new UICommand("合并", (c) => tsk.SetResult(false), 0));
+            modeDlg.Commands.Add(new UICommand("覆盖", (c) => tsk.SetResult(true), 1));
+            modeDlg.Commands.Add(new UICommand("取消", (c) => tsk.SetResult(null), 2));
+            modeDlg.ShowAsync();
+            return tsk.Task;
+        }
+        private ContentDialog cfmDlg = new ContentDialog()
+        {
+            Title = "清空单词本",
+            Content = "此操作无法恢复",
+            PrimaryButtonText = "确认",
+            SecondaryButtonText = "不了",
+            FullSizeDesired = false,
+        };
+        private Task<bool> clearConfirm()
         {
             var tsk = new TaskCompletionSource<bool>();
-            modeDlg.Commands.Clear();
-            modeDlg.Commands.Add(new UICommand("覆盖", (c) => tsk.SetResult(true)));
-            modeDlg.Commands.Add(new UICommand("合并", (c) => tsk.SetResult(false)));
-            modeDlg.ShowAsync();
+            TypedEventHandler<ContentDialog, ContentDialogButtonClickEventArgs> yes = null, no = null;
+            yes = (o, a) =>
+            { tsk.SetResult(true); cfmDlg.PrimaryButtonClick -= yes; cfmDlg.SecondaryButtonClick -= no; };
+            no = (o, a) => 
+            { tsk.SetResult(false); cfmDlg.PrimaryButtonClick -= yes; cfmDlg.SecondaryButtonClick -= no; };
+            cfmDlg.PrimaryButtonClick += yes;
+            cfmDlg.SecondaryButtonClick += no;
+            cfmDlg.ShowAsync();
             return tsk.Task;
         }
         private async void OnDBTapped(object sender, TappedRoutedEventArgs args)
@@ -71,13 +95,17 @@ namespace WordsLinks.UWP.View
                     var pic = imgUtil.GetImage();
                     if ((await pic) != null)
                     {
-                        var ret = DictService.Import(pic.Result, await ImportChoose());
-                        hudPopup.Show(msg: "导入中");
-                        if (await ret)
-                            hudPopup.Show(HUDType.Success, "导入成功");
-                        else
-                            hudPopup.Show(HUDType.Fail, "导入失败");
-                        RefreshWords();
+                        bool? confirm = await ImportChoose();
+                        if (confirm.HasValue)
+                        {
+                            var ret = DictService.Import(pic.Result, confirm.Value);
+                            hudPopup.Show(msg: "导入中");
+                            if (await ret)
+                                hudPopup.Show(HUDType.Success, "导入成功");
+                            else
+                                hudPopup.Show(HUDType.Fail, "导入失败");
+                            RefreshWords();
+                        }
                     }
                 }
                 catch (Exception e)
@@ -87,8 +115,11 @@ namespace WordsLinks.UWP.View
             }
             else if (sender == clearDB)
             {
-                DictService.Clear();
-                RefreshWords();
+                if (await clearConfirm())
+                {
+                    DictService.Clear();
+                    RefreshWords();
+                }
             }
         }
 

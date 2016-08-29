@@ -46,10 +46,10 @@ namespace WordsLinks.View
             wordsSect.Title = $"单词本\t（{DictService.WordsCount}个单词）";
         }
 
-        private async Task<bool> ImportChoose()
+        private async Task<bool?> ImportChoose()
         {
-            var ret = await DisplayActionSheet("是否覆盖现有单词本？", "合并", null, "覆盖");
-            return ret == "覆盖";
+            var ret = await DisplayActionSheet("是否覆盖现有单词本？", "取消", "覆盖", "合并");
+            return ret == "取消" ? null : (bool?)(ret == "覆盖");
         }
         private async void OnDBCellTapped(object sender, EventArgs args)
         {
@@ -77,13 +77,17 @@ namespace WordsLinks.View
                     var pic = imgUtil.GetImage();
                     if ((await pic) != null)
                     {
-                        var ret = DictService.Import(pic.Result, await ImportChoose());
-                        hudPopup.Show(msg: "导入中");
-                        if (await ret)
-                            hudPopup.Show(HUDType.Success, "导入成功");
-                        else
-                            hudPopup.Show(HUDType.Fail, "导入失败");
-                        RefreshWords();
+                        bool? confirm = await ImportChoose();
+                        if (confirm.HasValue)
+                        {
+                            var ret = DictService.Import(pic.Result, confirm.Value);
+                            hudPopup.Show(msg: "导入中");
+                            if (await ret)
+                                hudPopup.Show(HUDType.Success, "导入成功");
+                            else
+                                hudPopup.Show(HUDType.Fail, "导入失败");
+                            RefreshWords();
+                        }
                     }
                 }
                 catch (Exception e)
@@ -93,18 +97,11 @@ namespace WordsLinks.View
             }
             else if (sender == clearCell)
             {
-                try
+                var ret = await DisplayAlert("清空单词本", "此操作无法恢复", "确认", "不了");
+                if (ret)
                 {
-                    var ret = await DisplayAlert("清空单词本", "此操作无法恢复", "确认", "不了");
-                    if (ret)
-                    {
-                        DictService.Clear();
-                        RefreshWords();
-                    }
-                }
-                catch (Exception e)
-                {
-                    e.CopeWith("clearDB");
+                    DictService.Clear();
+                    RefreshWords();
                 }
             }
             else if (sender == debugCell)
