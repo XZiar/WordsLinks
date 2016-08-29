@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading;
-using System.Collections.Generic;
 
 namespace Main.Util
 {
@@ -124,6 +124,18 @@ namespace Main.Util
             }
             pos = new Tuple<int, int>(posa, posb);
             return max;
+        }
+
+        public static void MinMax<T>(T a, T b, out T min, out T max) where T : IComparable<T>
+        {
+            if(a.CompareTo(b) < 0)
+            {
+                min = a; max = b;
+            }
+            else
+            {
+                min = b; max = a;
+            }
         }
     }
 }

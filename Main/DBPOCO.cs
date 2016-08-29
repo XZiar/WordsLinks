@@ -60,6 +60,10 @@ namespace Main.Model
 	{
 		public int Wid { get; set; }
 		public int Mid { get; set; }
+
+        public DBTranslation() { }
+        public DBTranslation(int wid, int mid)
+        { Wid = wid; Mid = mid; }
 	}
 
     public class WordStat : IComparable<WordStat>

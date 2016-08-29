@@ -11,6 +11,7 @@
         <SwitchCell x:Name="isAdapt" Text="适应词频"/>
       </TableSection>
       <TableSection x:Name="wordsSect" Title="单词本">
+        <SwitchCell x:Name="isExWCnt" Text="导出测验数据"/>
         <TextCell x:Name="exportCell" Text="分享单词本" Tapped="OnDBCellTapped"/>
         <TextCell x:Name="importCell" Text="导入单词本" Tapped="OnDBCellTapped"/>
         <TextCell x:Name="clearCell" Text="清空单词本" Tapped="OnDBCellTapped"/>

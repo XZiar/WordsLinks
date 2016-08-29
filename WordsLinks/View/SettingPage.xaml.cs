@@ -26,10 +26,8 @@ namespace WordsLinks.View
             };
 
             isAdapt.On = QuizService.isAdapt;
-            isAdapt.OnChanged += (o, args) =>
-            {
-                QuizService.isAdapt = args.Value;
-            };
+            isAdapt.OnChanged += (o, args) => QuizService.isAdapt = args.Value;
+            isExWCnt.OnChanged += (o, args) => DictService.isOutWrongCnt = args.Value;
         }
 
         protected override void OnAppearing()
@@ -80,7 +78,10 @@ namespace WordsLinks.View
                         bool? confirm = await ImportChoose();
                         if (confirm.HasValue)
                         {
-                            var ret = DictService.Import(pic.Result, confirm.Value);
+                            bool isImWCnt = false;
+                            if(confirm.Value)
+                                isImWCnt = await DisplayAlert("导入单词本", "是否一并导入测验数据？", "好的", "不了");
+                            var ret = DictService.Import(pic.Result, confirm.Value, isImWCnt);
                             hudPopup.Show(msg: "导入中");
                             if (await ret)
                                 hudPopup.Show(HUDType.Success, "导入成功");

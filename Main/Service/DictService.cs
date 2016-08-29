@@ -13,6 +13,8 @@ using static Main.Util.BasicUtils;
 using static Main.Util.SpecificUtils;
 using static System.Text.Encoding;
 
+using JKV = System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, Newtonsoft.Json.Linq.JToken>>;
+
 namespace Main.Service
 {
     public static class DictService
@@ -31,6 +33,7 @@ namespace Main.Service
         public static int WordsCount { get { return words.Count; } }
         public static int MeansCount { get { return means.Count; } }
         internal static int WrongCount { get; set; }
+        public static bool isOutWrongCnt = false;
 
         static DictService()
         {
@@ -71,12 +74,19 @@ namespace Main.Service
             }
         }
 
-        public static void Clear()
+        public static void Clear(bool isRefresh = true)
         {
             db.DropTable<DBWord>();
             db.DropTable<DBMeaning>();
             db.DropTable<DBTranslation>();
-            Init();
+            if(isRefresh)
+                Init();
+            else
+            {
+                db.CreateTable<DBWord>();
+                db.CreateTable<DBMeaning>();
+                db.CreateTable<DBTranslation>();
+            }
         }
 
         public static DBWord WordAt(int idx)
@@ -146,57 +156,61 @@ namespace Main.Service
                    .ToArray();
         }
 
-        public static Task<IEnumerable<string>> MatchMeanings(IEnumerable<string> checker)
+        public static Task<IEnumerable<string>> MatchMeanings(IEnumerable<string> strs)
             => Task.Run(() =>
             {
-                List<string> ret = new List<string>();
+                var ret = new List<string>();
+                var chk = new List<string>();
                 Tuple<int, int> pos;
-                int fullMatchCount = 0, len = 0, objlen = 0;
+                int fullMatchCount = 0, len = 0, minlen = 0, maxlen = 0;
+                char last;
+                foreach (var m in strs)
+                {
+                    if (m.Length >= 16)
+                        continue;
+                    last = m[m.Length - 1];
+                    chk.Add((last == '的' || last == '地') ? m.Substring(0, m.Length - 1) : m);
+                }
                 foreach (string mean in means.Keys)
                 {
-                    var last = mean[mean.Length - 1];
+                    last = mean[mean.Length - 1];
                     string tm = (last == '的' || last == '地') ? mean.Substring(0, mean.Length - 1) : mean;
-                    foreach (var m in checker)
+                    foreach (var m in chk)
                     {
-                        try
-                        {
-                            len = LCS(tm, m, out pos);
-                        }
-                        catch (Exception e)
-                        {
-                            e.CopeWith("LCS matching");
-                            continue;
-                        }
-                        objlen = Math.Min(tm.Length, m.Length);
-                        //Debug.WriteLine($"compare {mean} & {m} : {len} at {pos.Item1},{pos.Item2} of {objlen}");
-                        if (len == objlen)
+                        len = LCS(tm, m, out pos);
+                        MinMax(tm.Length, m.Length, out minlen, out maxlen);
+
+                        if (len == minlen)
                         {
                             ret.Insert(0, mean);
                             fullMatchCount++;
-                            break;
                         }
-                        if (len * 2 >= objlen)
+                        if (len * 2 >= minlen && len * 4 >= maxlen)
                         {
-                            if (pos.Item1 * pos.Item2 == 0)
+                            if (pos.Item1 * pos.Item2 == 0 && len > 1)
                                 ret.Insert(fullMatchCount, mean);
                             else
                                 ret.Add(mean);
-                            break;
                         }
                     }
                 }
-                return ret as IEnumerable<string>;
+                return ret.Distinct() as IEnumerable<string>;
             });
 
         public static Task<byte[]> Export()
             => Task.Run(() =>
             {
-                var tmp = new
+                var tmp = new Dictionary<string,object>
                 {
-                    words = words.ToDictionary(x => x.Key.str, x => x.Value),
-                    means = means.ToDictionary(x => x.Key.str, x => x.Value),
-                    links = e2c,
+                    ["words"] = words.ToDictionary(x => x.Key.str, x => x.Value),
+                    ["means"] = means.ToDictionary(x => x.Key.str, x => x.Value),
+                    ["links"] = e2c
                 };
+                if (isOutWrongCnt)
+                {
+                    tmp.Add("wwcnt", db.Table<DBWord>().ToDictionary(x => x.Id, x => x.wrong));
+                    tmp.Add("mwcnt", db.Table<DBMeaning>().ToDictionary(x => x.Id, x => x.wrong));
+                }
                 string total = JsonConvert.SerializeObject(tmp);
                 Logger(total);
 
@@ -221,62 +235,46 @@ namespace Main.Service
                 }
             });
 
-        private static JObject Decoder(byte[] bmp)
+        private static bool ReplaceImport(JObject obj, Dictionary<int, short> wwcnt, Dictionary<int, short> mwcnt)
         {
-            if (DBver != bmp[0])
-                return null;
-            int len = bmp[4] + (bmp[5] << 8) + (bmp[6] << 16);
-            Logger($"decode:{bmp.Length} => {len}");
-
-            byte[] dat = new byte[len];
-            Byte4To3(len, bmp, 8, dat, 0);
-
-            var total = Unicode.GetString(dat, 0, dat.Length);
-            Logger(total);
-            return JsonConvert.DeserializeObject<JObject>(total);
-        }
-        private static bool ReplaceImport(JObject obj)
-        {
-            Clear();
+            Clear(false);
             var wMap = new Dictionary<int, int>();
             var mMap = new Dictionary<int, int>();
             {
                 var wo = obj["words"] as JObject;
                 var ws = new DBWord[wo.Count];
                 var ids = new int[wo.Count];
-                int a = 0;
+                int a = 0, tid;
+                short wcnt;
                 foreach (var jp in wo)
                 {
                     ws[a] = new DBWord() { Letters = jp.Key.ToLower() };
-                    ids[a++] = jp.Value.ToInt();
+                    if (wwcnt.TryGetValue(tid = jp.Value.ToInt(), out wcnt))
+                        ws[a].wrong = wcnt;
+                    ids[a++] = tid;
                 }
                 db.InsertAll(ws);
                 a = 0;
                 foreach (var w in ws)
-                {
                     wMap.Add(ids[a++], w.Id);
-                    words.Add(w.Letters, w.Id);
-                    eles.Add(w.ToStat());
-                }
             }
             {
-                var wo = obj["means"] as JObject;
-                var ws = new DBMeaning[wo.Count];
-                var ids = new int[wo.Count];
-                int a = 0;
-                foreach (var jp in wo)
+                var mo = obj["means"] as JObject;
+                var ms = new DBMeaning[mo.Count];
+                var ids = new int[mo.Count];
+                int a = 0, tid;
+                short wcnt;
+                foreach (var jp in mo)
                 {
-                    ws[a] = new DBMeaning() { Meaning = jp.Key.ToLower() };
+                    ms[a] = new DBMeaning() { Meaning = jp.Key.ToLower() };
+                    if (mwcnt.TryGetValue(tid = jp.Value.ToInt(), out wcnt))
+                        ms[a].wrong = wcnt;
                     ids[a++] = jp.Value.ToInt();
                 }
-                db.InsertAll(ws);
+                db.InsertAll(ms);
                 a = 0;
-                foreach (var m in ws)
-                {
+                foreach (var m in ms)
                     mMap.Add(ids[a++], m.Id);
-                    means.Add(m.Meaning, m.Id);
-                    eles.Add(m.ToStat());
-                }
             }
             {
                 var ts = new List<DBTranslation>();
@@ -284,16 +282,11 @@ namespace Main.Service
                 {
                     int wid = wMap[jp.Key.ToInt()];
                     foreach (var ji in jp.Value as JArray)
-                    {
-                        var t = new DBTranslation() { Wid = wid, Mid = mMap[ji.ToInt()] };
-                        e2c.Add(t.Wid, t.Mid);
-                        c2e.Add(t.Mid, t.Wid);
-                        ts.Add(t);
-                    }
+                        ts.Add(new DBTranslation(wid, mMap[ji.ToInt()]));
                 }
                 db.InsertAll(ts);
             }
-            WrongCount = 2 * (WordsCount + MeansCount);
+            Init();
             return true;
         }
         private static bool AddImport(JObject obj)
@@ -347,13 +340,40 @@ namespace Main.Service
             return true;
         }
 
-        public static Task<bool> Import(byte[] bmp, bool isReplace)
+        private static JObject Decoder(byte[] bmp)
+        {
+            if (DBver != bmp[0])
+                return null;
+            int len = bmp[4] + (bmp[5] << 8) + (bmp[6] << 16);
+            Logger($"decode:{bmp.Length} => {len}");
+
+            byte[] dat = new byte[len];
+            Byte4To3(len, bmp, 8, dat, 0);
+
+            var total = Unicode.GetString(dat, 0, dat.Length);
+            Logger(total);
+            return JsonConvert.DeserializeObject<JObject>(total);
+        }
+        public static Task<bool> Import(byte[] bmp, bool isReplace, bool isImWCnt = false)
             => Task.Run(() =>
             {
                 var obj = Decoder(bmp);
                 if (obj == null)
                     return false;
-                return isReplace ? ReplaceImport(obj) : AddImport(obj);
+                if(isReplace)
+                {
+                    var wwcnt = isImWCnt ?
+                        (obj["wwcnt"] as JKV)?.ToDictionary(x => x.Key.ToInt(), x => (short)x.Value.ToInt())
+                        : new Dictionary<int, short>();
+                    wwcnt = wwcnt ?? new Dictionary<int, short>();
+                    var mwcnt = isImWCnt ?
+                        (obj["mwcnt"] as JKV)?.ToDictionary(x => x.Key.ToInt(), x => (short)x.Value.ToInt())
+                        : new Dictionary<int, short>();
+                    mwcnt = mwcnt ?? new Dictionary<int, short>();
+                    return ReplaceImport(obj, wwcnt, mwcnt);
+                }
+                else
+                    return AddImport(obj);
             });
 
         public static void AddWord(string eng, ICollection<string> chi)

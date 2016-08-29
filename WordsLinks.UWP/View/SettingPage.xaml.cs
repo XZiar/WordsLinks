@@ -10,6 +10,7 @@ using static Main.Util.BasicUtils;
 using static Main.Util.SpecificUtils;
 using Windows.Foundation;
 using System.Windows.Input;
+using Windows.UI.Xaml;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -127,6 +128,12 @@ namespace WordsLinks.UWP.View
         {
             if (sender == showLog)
                 logUtil.logFile.OpenWith();
+        }
+
+        private void OnSwitch(object sender, RoutedEventArgs args)
+        {
+            if (sender == ExWCnt)
+                DictService.isOutWrongCnt = ExWCnt.IsOn;
         }
     }
 }
