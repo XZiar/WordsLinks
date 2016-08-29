@@ -10,13 +10,13 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.Storage.Pickers;
 using Windows.Storage.Provider;
+using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using static Main.Util.BasicUtils;
 using static WordsLinks.UWP.Util.BasicUtils;
-using Windows.System;
 
 namespace WordsLinks.UWP.Util
 {
@@ -25,6 +25,22 @@ namespace WordsLinks.UWP.Util
         public void Sleep(int ms)
         {
             Task.Delay(ms).Wait();
+        }
+    }
+
+    class FakeFile_UWP : FakeFile
+    {
+        public FakeFile_UWP(string fname) : base(fname) { }
+
+        private static LauncherOptions opt = new LauncherOptions()
+        { DisplayApplicationPicker = true };
+        private static async void Open(string path)
+        {
+            await Launcher.LaunchFileAsync(await StorageFile.GetFileFromPathAsync(path), opt);
+        }
+        public override void OpenWith()
+        {
+            Open(path);
         }
     }
 
@@ -49,22 +65,29 @@ namespace WordsLinks.UWP.Util
             return Path.Combine(dir.Path, fname);
         }
 
-        public string GetCacheFilePath(string fileName) => GetPath(cacheFolder, fileName);
+        public FakeFile GetCacheFile(string fileName) => new FakeFile_UWP(GetPath(cacheFolder, fileName));
 
-        public string GetFilePath(string fileName, bool isPrivate = false) => GetPath(docFolder, fileName);
+        public FakeFile GetFile(string fileName, bool isPrivate = false) => 
+            new FakeFile_UWP(GetPath(docFolder, fileName));
     }
 
     public class LogUtil_UWP : LogUtil
     {
-        internal static StorageFile logFile { get; private set; }
+        internal static FakeFile LogFile;
+        internal static Stream logStream { get; private set; }
         private static StreamWriter logWriter;
+        public FakeFile logFile
+        {
+            get { return LogFile; }
+        }
+
         public static async void Init()
         {
-            logFile = await StorageFile.GetFileFromPathAsync(
-                FileUtil_UWP.GetPath(FileUtil_UWP.cacheFolder, "AppLog.log"));
-            var log = await logFile.OpenStreamForWriteAsync();
-            log.Position = log.Length;
-            logWriter = new StreamWriter(log);
+            LogFile = new FakeFile_UWP(FileUtil_UWP.GetPath(FileUtil_UWP.cacheFolder, "AppLog.log"));
+            var file = await StorageFile.GetFileFromPathAsync(LogFile.path);
+            logStream = await file.OpenStreamForWriteAsync();
+            logStream.Position = logStream.Length;
+            logWriter = new StreamWriter(logStream);
             TryLog("Init Logger");
         }
 
@@ -81,8 +104,6 @@ namespace WordsLinks.UWP.Util
         }
 
         public void Log(string txt, LogLevel level = LogLevel.Verbose) => TryLog(txt, level);
-
-        public string GetLogFile() => logFile.Path;
     }
 
     class SQLiteUtil_UWP : SQLiteUtil
@@ -90,6 +111,7 @@ namespace WordsLinks.UWP.Util
         public SQLiteConnection GetSQLConn(string dbName)
         {
             string dbPath = FileUtil_UWP.GetPath(FileUtil_UWP.docFolder, dbName);
+            Logger("open db at " + dbPath);
             return new SQLiteConnection(dbPath);
         }
     }
@@ -237,17 +259,6 @@ namespace WordsLinks.UWP.Util
                 }
             });
         }
-    }
-
-    class OpenFileUtil_UWP : OpenFileUtil
-    {
-        private static LauncherOptions opt = new LauncherOptions()
-        { DisplayApplicationPicker = true };
-        private static async void Open(string path)
-        {
-            await Launcher.LaunchFileAsync(await StorageFile.GetFileFromPathAsync(path), opt);
-        }
-        public void OpenFile(string path) => Open(path);
     }
 }
 

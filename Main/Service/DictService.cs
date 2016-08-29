@@ -34,8 +34,6 @@ namespace Main.Service
 
         static DictService()
         {
-            string dbPath = fileUtil.GetFilePath("words.db", true);
-            Logger("open db at " + dbPath);
             db = sqlUtil.GetSQLConn("words.db");
         }
 

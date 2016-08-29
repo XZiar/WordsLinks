@@ -95,7 +95,7 @@ namespace WordsLinks.UWP.View
         private void OnLogTapped(object sender, TappedRoutedEventArgs args)
         {
             if (sender == showLog)
-                openfileUtil.OpenFile(logUtil.GetLogFile());
+                logUtil.logFile.OpenWith();
         }
     }
 }

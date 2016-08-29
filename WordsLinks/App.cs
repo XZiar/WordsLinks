@@ -20,8 +20,7 @@ namespace WordsLinks
                     DependencyService.Get<HUDPopup>(),
                     DependencyService.Get<ThreadUtil>(),
                     DependencyService.Get<SQLiteUtil>(),
-                    DependencyService.Get<LogUtil>(),
-                    DependencyService.Get<OpenFileUtil>()
+                    DependencyService.Get<LogUtil>()
                     );
                 DictService.Init();
                 NetService.Choose(0);

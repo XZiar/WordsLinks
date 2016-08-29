@@ -117,7 +117,7 @@ namespace WordsLinks.View
         {
             try
             {
-                openfileUtil.OpenFile(logUtil.GetLogFile());
+                logUtil.logFile.OpenWith();
             }
             catch(Exception e)
             {

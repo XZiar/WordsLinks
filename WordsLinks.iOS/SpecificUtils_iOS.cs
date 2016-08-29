@@ -19,7 +19,6 @@ using static WordsLinks.iOS.BasicUtils;
 [assembly: Dependency(typeof(HUDPopup_iOS))]
 [assembly: Dependency(typeof(ThreadUtil_iOS))]
 [assembly: Dependency(typeof(LogUtil_iOS))]
-[assembly: Dependency(typeof(OpenFileUtil_iOS))]
 
 namespace WordsLinks.iOS
 {
@@ -28,6 +27,21 @@ namespace WordsLinks.iOS
         public void Sleep(int ms)
         {
             System.Threading.Thread.Sleep(ms);
+        }
+    }
+
+    class FakeFile_iOS : FakeFile
+    {
+        public FakeFile_iOS(string fname) : base(fname) { }
+
+        public override void OpenWith()
+        {
+            NSUrl url = NSUrl.FromFilename(path);
+            RunInUI(() =>
+            {
+                var ctrl = new UIActivityViewController(new NSObject[] { new NSString("Plain Text"), url }, null);
+                UIApplication.SharedApplication.KeyWindow.RootViewController.PresentModalViewController(ctrl, true);
+            });
         }
     }
 
@@ -48,22 +62,28 @@ namespace WordsLinks.iOS
             return Path.Combine(dir, fname);
         }
 
-        public string GetCacheFilePath(string fileName) => GetPath(cachePath, fileName);
+        public FakeFile GetCacheFile(string fileName) => new FakeFile_iOS(GetPath(cachePath, fileName));
 
-        public string GetFilePath(string fileName, bool isPrivate) =>
-            GetPath(isPrivate ? documentsPath : libraryPath, fileName);
+        public FakeFile GetFile(string fileName, bool isPrivate) =>
+            new FakeFile_iOS(GetPath(isPrivate ? documentsPath : libraryPath, fileName));
     }
 
     class LogUtil_iOS : LogUtil
     {
-        internal static FileStream logFile { get; private set; }
+        internal static FakeFile LogFile;
+        internal static FileStream logStream { get; private set; }
         private static StreamWriter logWriter;
+        public FakeFile logFile
+        {
+            get { return LogFile; }
+        }
+
         static LogUtil_iOS()
         {
-            logFile = new FileStream(FileUtil_iOS.GetPath(FileUtil_iOS.cachePath, "AppLog.log"),
-                FileMode.OpenOrCreate);
-            logFile.Position = logFile.Length;
-            logWriter = new StreamWriter(logFile);
+            LogFile = new FakeFile_iOS(FileUtil_iOS.GetPath(FileUtil_iOS.cachePath, "AppLog.log"));
+            logStream = new FileStream(LogFile.path, FileMode.OpenOrCreate);
+            logStream.Position = logStream.Length;
+            logWriter = new StreamWriter(logStream);
             TryLog("Init Logger");
         }
 
@@ -80,8 +100,6 @@ namespace WordsLinks.iOS
         }
 
         public void Log(string txt, LogLevel level = LogLevel.Verbose) => TryLog(txt, level);
-
-        public string GetLogFile() => FileUtil_iOS.GetPath(FileUtil_iOS.cachePath, "AppLog.log");
     }
 
     class SQLiteUtil_iOS : SQLiteUtil
@@ -89,6 +107,7 @@ namespace WordsLinks.iOS
         public SQLiteConnection GetSQLConn(string dbName)
         {
             string dbPath = FileUtil_iOS.GetPath(FileUtil_iOS.documentsPath, dbName);
+            Logger("open db at " + dbPath);
             return new SQLiteConnection(dbPath);
         }
     }
@@ -194,19 +213,6 @@ namespace WordsLinks.iOS
                 BTProgressHUD.ShowImage(UIImage.FromBundle("IconFail"), msg, duaration);
                 break;
             }
-        }
-    }
-
-    class OpenFileUtil_iOS : OpenFileUtil
-    {
-        public void OpenFile(string path)
-        {
-            NSUrl url = NSUrl.FromFilename(path);
-            RunInUI(() => 
-            {
-                var ctrl = new UIActivityViewController(new NSObject[] { new NSString("PDF Document"), url }, null);
-                UIApplication.SharedApplication.KeyWindow.RootViewController.PresentModalViewController(ctrl, true);
-            });
         }
     }
 }

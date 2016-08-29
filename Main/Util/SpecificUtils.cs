@@ -10,17 +10,30 @@ namespace Main.Util
         void Sleep(int ms);
     }
 
+    public abstract class FakeFile
+    {
+        public string path { get; protected set; }
+
+        public FakeFile(string fname)
+        {
+            path = fname;
+        }
+        public override string ToString() => $"{base.ToString()}\r\n{path}";
+
+        public abstract void OpenWith();
+    }
+
     public interface FileUtil
 	{
-		string GetFilePath(string fileName, bool isPrivate = false);
-		string GetCacheFilePath(string fileName);
+        FakeFile GetFile(string fileName, bool isPrivate = false);
+        FakeFile GetCacheFile(string fileName);
 	}
 
     public enum LogLevel { Exception, Warning, Verbose};
     public interface LogUtil
     {
+        FakeFile logFile { get; }
         void Log(string txt, LogLevel level = LogLevel.Verbose);
-        string GetLogFile();
     }
 
 	public interface SQLiteUtil
@@ -33,11 +46,6 @@ namespace Main.Util
         Stream CompressBitmap(byte[] data, int w, int h);
         Task<byte[]> GetImage();
         Task<bool> SaveImage(byte[] data);
-    }
-
-    public interface OpenFileUtil
-    {
-        void OpenFile(string path);
     }
 
     public enum HUDType { Loading, Success, Fail};
@@ -57,7 +65,6 @@ namespace Main.Util
         public static ThreadUtil threadUtil { get; private set; }
         public static SQLiteUtil sqlUtil { get; private set; }
         public static LogUtil logUtil { get; private set; }
-        public static OpenFileUtil openfileUtil { get; private set; }
 
         public static void Init(params object[] utils)
         {
@@ -75,8 +82,6 @@ namespace Main.Util
                     sqlUtil = u as SQLiteUtil;
                 else if (u is LogUtil)
                     logUtil = u as LogUtil;
-                else if (u is OpenFileUtil)
-                    openfileUtil = u as OpenFileUtil;
             }
         }
     }
