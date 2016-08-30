@@ -5,8 +5,13 @@
   xmlns:local="clr-namespace:WordsLinks.View;assembly=WordsLinks"
   x:Class="WordsLinks.View.MainPage">
   <TabbedPage.Children>
-    <local:WritePage Title="添加" Icon="write.png" />
     <local:MemorizePage Title="记忆" Icon="memorize.png" />
+    <local:WritePage Title="添加" Icon="write.png" />
+    <NavigationPage x:Name="libraryPage" Title="词库" Icon="library.png">
+      <x:Arguments>
+        <local:LibraryPage />
+      </x:Arguments>
+    </NavigationPage>
     <NavigationPage x:Name="settingPage" Title="设置" Icon="setting.png">
       <x:Arguments>
         <local:SettingPage />

@@ -28,10 +28,11 @@ namespace Main.Service
         private static MultiValueDictionary<int, int> e2c = new MultiValueDictionary<int, int>();
         private static MultiValueDictionary<int, int> c2e = new MultiValueDictionary<int, int>();
 
-        public static IEnumerable<string> Words { get { return words.Keys.Cast<string>(); } }
-        public static IEnumerable<string> Meanings { get { return means.Keys.Cast<string>(); } }
+        public static IEnumerable<string> Words { get { return words.Keys.Select(x=>x.str); } }
+        public static IEnumerable<string> Meanings { get { return means.Keys.Select(x => x.str); } }
         public static int WordsCount { get { return words.Count; } }
         public static int MeansCount { get { return means.Count; } }
+        public static long updTime { get; private set; }
         internal static int WrongCount { get; set; }
         public static bool isOutWrongCnt = false;
 
@@ -72,6 +73,7 @@ namespace Main.Service
                 e2c.Add(t.Wid, t.Mid);
                 c2e.Add(t.Mid, t.Wid);
             }
+            updTime = DateTime.Now.Ticks;
         }
 
         public static void Clear(bool isRefresh = true)
@@ -337,6 +339,7 @@ namespace Main.Service
                     }
                 }
             }
+            updTime = DateTime.Now.Ticks;
             return true;
         }
 
@@ -404,6 +407,7 @@ namespace Main.Service
                     c2e.Add(mid, wid);
                 }
             }
+            updTime = DateTime.Now.Ticks;
         }
 
         public static void Report(string str, short minus)
@@ -440,6 +444,7 @@ namespace Main.Service
             else if (means.TryGetValue(obj, out id))
                 db.Update(new DBMeaning(obj, id));
             eles.Add(obj);
+            updTime = DateTime.Now.Ticks;
         }
 
         public static void debugInfo()

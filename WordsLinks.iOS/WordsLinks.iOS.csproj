@@ -170,6 +170,7 @@
     <Compile Include="SpecificUtils_iOS.cs" />
     <BundleResource Include="Resources\MainIcon.png" />
     <BundleResource Include="Resources\BGColor.png" />
+    <BundleResource Include="Resources\library%402x.png" />
     <None Include="Info.plist">
       <SubType>Designer</SubType>
     </None>

@@ -41,6 +41,7 @@
     <Compile Include="Util\ImageResourceExtension.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
     <Compile Include="ViewModel\SelectViewModel.cs" />
+    <Compile Include="ViewModel\WordGroupViewModel.cs" />
     <Compile Include="View\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -48,9 +49,13 @@
       <DependentUpon>MemorizePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="View\LibraryPage.xaml.cs">
+      <DependentUpon>LibraryPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\SettingPage.xaml.cs">
       <DependentUpon>SettingPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Widget\HeaderCell.cs" />
     <Compile Include="Widget\WidgetEx.cs" />
     <Compile Include="View\WritePage.xaml.cs">
       <DependentUpon>WritePage.xaml</DependentUpon>
@@ -116,6 +121,12 @@
       <Project>{fc905d03-5a69-4990-95b6-b585cf34f376}</Project>
       <Name>Main</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="View\LibraryPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
