@@ -7,9 +7,11 @@ using WordsLinks.iOS.Renderer;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.iOS;
 using static WordsLinks.Widget.BorderType;
+using static WordsLinks.Widget.TextCellEx;
 
 [assembly: ExportRenderer(typeof(EntryEx), typeof(EntryExRenderer))]
 [assembly: ExportRenderer(typeof(FrameEx), typeof(FrameExRenderer))]
+[assembly: ExportRenderer(typeof(TextCellEx), typeof(TextCellExRenderer))]
 namespace WordsLinks.iOS.Renderer
 {
     public class EntryExRenderer : EntryRenderer
@@ -74,6 +76,34 @@ namespace WordsLinks.iOS.Renderer
                 break;
             }
         }
+    }
 
+    public class TextCellExRenderer : TextCellRenderer
+    {
+        public override UITableViewCell GetCell(Cell item, UITableViewCell reusableCell, UITableView tv)
+        {
+            var obj = base.GetCell(item, reusableCell, tv);
+            var cellEx = item as TextCellEx;
+            if (!cellEx.IsShow)
+            {
+                obj.Accessory = UITableViewCellAccessory.None;
+            }
+            else
+            {
+                switch (cellEx.ShowIndicator)
+                {
+                case RightIndicator.Entry:
+                    obj.Accessory = UITableViewCellAccessory.DisclosureIndicator;
+                    break;
+                case RightIndicator.Check:
+                    obj.Accessory = UITableViewCellAccessory.Checkmark;
+                    break;
+                case RightIndicator.None:
+                    obj.Accessory = UITableViewCellAccessory.None;
+                    break;
+                }
+            }
+            return obj;
+        }
     }
 }

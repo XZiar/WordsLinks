@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 
 namespace WordsLinks.ViewModel
 {
@@ -18,5 +20,14 @@ namespace WordsLinks.ViewModel
         {
         }
     }
+
+    public class ObservableCollectionEx<T> : ObservableCollection<T>
+    {
+        public void Refresh()
+        {
+            base.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+    }
+
 }
 

@@ -32,7 +32,8 @@ namespace Main.Service
         public static IEnumerable<string> Meanings { get { return means.Keys.Select(x => x.str); } }
         public static int WordsCount { get { return words.Count; } }
         public static int MeansCount { get { return means.Count; } }
-        public static long updTime { get; private set; }
+        public static long updTimeAll { get; private set; }
+        public static long updTimeDetail { get; private set; }
         internal static int WrongCount { get; set; }
         public static bool isOutWrongCnt = false;
 
@@ -73,7 +74,7 @@ namespace Main.Service
                 e2c.Add(t.Wid, t.Mid);
                 c2e.Add(t.Mid, t.Wid);
             }
-            updTime = DateTime.Now.Ticks;
+            updTimeAll = updTimeDetail = DateTime.Now.Ticks;
         }
 
         public static void Clear(bool isRefresh = true)
@@ -119,6 +120,13 @@ namespace Main.Service
             return eles.First();
         }
 
+        public static WordStat GetWordStat(string txt)
+        {
+            foreach (var s in eles)
+                if (s.str == txt)
+                    return s;
+            return null;
+        }
         public static DBMeaning[] GetMeansByWord(string eng)
         {
             int wid;
@@ -339,7 +347,7 @@ namespace Main.Service
                     }
                 }
             }
-            updTime = DateTime.Now.Ticks;
+            updTimeAll = updTimeDetail = DateTime.Now.Ticks;
             return true;
         }
 
@@ -407,7 +415,7 @@ namespace Main.Service
                     c2e.Add(mid, wid);
                 }
             }
-            updTime = DateTime.Now.Ticks;
+            updTimeAll = updTimeDetail = DateTime.Now.Ticks;
         }
 
         public static void Report(string str, short minus)
@@ -444,7 +452,7 @@ namespace Main.Service
             else if (means.TryGetValue(obj, out id))
                 db.Update(new DBMeaning(obj, id));
             eles.Add(obj);
-            updTime = DateTime.Now.Ticks;
+            updTimeDetail = DateTime.Now.Ticks;
         }
 
         public static void debugInfo()

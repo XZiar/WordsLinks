@@ -1,10 +1,47 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xamarin.Forms;
+using static Main.Util.BasicUtils;
 
 namespace WordsLinks.ViewModel
 {
-    public class WordGroupViewModel : List<string>
+    public class TextViewModel : BaseViewModel, IComparable<TextViewModel>
+    {
+        string text;
+        public string Text
+        {
+            get { return text; }
+            set
+            {
+                text = value;
+                OnPropertyChanged(nameof(Text));
+            }
+        }
+        bool isshow = true;
+        public bool IsShow
+        {
+            get { return isshow; }
+            set
+            {
+                isshow = value;
+                OnPropertyChanged(nameof(IsShow));
+            }
+        }
+
+        public TextViewModel() { }
+        public TextViewModel(string str)
+        {
+            text = str;
+        }
+
+        public int CompareTo(TextViewModel other)
+        {
+            return text.CompareTo(other.text);
+        }
+    }
+
+    public class WordGroupViewModel : SortedSet<TextViewModel>
     {
         public string Prefix { get; set; }
         public string Title
@@ -16,33 +53,68 @@ namespace WordsLinks.ViewModel
 
     public class WordGroupHelper
     {
-        private WordGroupViewModel[] groups = new WordGroupViewModel[26];
-        private ObservableCollection<WordGroupViewModel> datas = new ObservableCollection<WordGroupViewModel>();
-        private ListView list;
+        private string lastStr;
+        private IEnumerable<string> bak = new string[0];
+        private ObservableCollectionEx<WordGroupViewModel> datas = new ObservableCollectionEx<WordGroupViewModel>();
+
+        public static SortedSet<TextViewModel> MakeData(IEnumerable<string> strs)
+        {
+            var ret = new SortedSet<TextViewModel>();
+            foreach (var s in strs)
+                ret.Add(new TextViewModel(s));
+            return ret;
+        }
 
         public WordGroupHelper()
         {
-            int a = 0;
             for (char str = 'A'; str <= 'Z'; str++)
-                groups[a++] = new WordGroupViewModel() { Prefix = str.ToString() };
+                datas.Add(new WordGroupViewModel() { Prefix = str.ToString() });
         }
 
         public void SetTo(ListView lv)
         {
-            list = lv;
-            list.IsGroupingEnabled = true;
-            list.ItemsSource = datas;
+            lv.IsGroupingEnabled = true;
+            lv.ItemsSource = datas;
         }
 
         public void Set(IEnumerable<string> data)
         {
-            datas.Clear();
-            foreach (var g in groups)
-                g.Clear();
-            foreach (var s in data)
-                groups[s.ToLower()[0] - 'a'].Add(s);
-            foreach (var g in groups)
-                datas.Add(g);
+            bak = data;
+            Search(null);
+        }
+
+        public void Search(string str)
+        {
+            lock (datas)
+            {
+                if (str != null && str == lastStr)
+                    return;
+                if (string.IsNullOrWhiteSpace(str))//always reconstruct all
+                {
+                    foreach (var g in datas)
+                        g.Clear();
+                    foreach (var s in bak)
+                        datas[GetPrefixIndex(s)].Add(new TextViewModel(s));
+                }
+                else
+                {
+                    if (string.IsNullOrWhiteSpace(lastStr) || str.Contains(lastStr))//append str, more restrict
+                    {
+                        foreach (var s in bak.Where(x => !x.Contains(str)))
+                            datas[GetPrefixIndex(s)].Remove(new TextViewModel(s));
+                    }
+                    else
+                    {
+                        if (!lastStr.Contains(str))//no relation, reconstruct
+                            foreach (var g in datas)
+                                g.Clear();
+                        foreach (var s in bak.Where(x => x.Contains(str)))
+                            datas[GetPrefixIndex(s)].Add(new TextViewModel(s));
+                    }
+                }
+                lastStr = str;
+                datas.Refresh();
+            }
         }
     }
 }

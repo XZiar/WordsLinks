@@ -1,4 +1,8 @@
-﻿using Xamarin.Forms;
+﻿using System;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using Windows.UI.Xaml;
+using Xamarin.Forms;
 using static Main.Util.BasicUtils;
 
 namespace WordsLinks.Widget
@@ -55,5 +59,48 @@ namespace WordsLinks.Widget
         }
     }
 
-    
+    public class HeaderCell : ViewCell
+    {
+        public HeaderCell()
+        {
+            Height = 25;
+            var title = new Label
+            {
+                FontAttributes = FontAttributes.Bold,
+                VerticalOptions = LayoutOptions.Center
+            };
+            title.SetBinding(Label.TextProperty, "Prefix");
+
+            View = new StackLayout
+            {
+                HeightRequest = 25,
+                HorizontalOptions = LayoutOptions.FillAndExpand,
+                VerticalOptions = LayoutOptions.Center,
+                BackgroundColor = Color.FromRgb(240, 240, 240),
+                Padding = new Thickness(16, 0),
+                Orientation = StackOrientation.Horizontal,
+                Children = { title }
+            };
+        }
+    }
+
+    public class TextCellEx : TextCell
+    {
+        public enum RightIndicator { None, Check, Entry };
+
+        public static readonly BindableProperty IsShowProperty = 
+            BindableProperty.Create("IsShow", typeof(bool), typeof(TextCellEx), true, propertyChanged:OnIsShowChanged);
+        public bool IsShow
+        {
+            get { return (bool)GetValue(IsShowProperty); }
+            set { SetValue(IsShowProperty, value); }
+        }
+        public RightIndicator ShowIndicator { get; set; } = RightIndicator.None;
+
+        private static void OnIsShowChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            (bindable as TextCellEx).OnPropertyChanged("HasContextActions");
+        }
+    }
+
 }

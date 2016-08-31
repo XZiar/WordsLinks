@@ -137,5 +137,37 @@ namespace Main.Util
                 min = b; max = a;
             }
         }
+
+        public static string TryToLower(this string str, out bool? result)
+        {
+            if (string.IsNullOrWhiteSpace(str))
+            {
+                result = null;
+                return str;
+            }
+            bool res = false;
+            foreach (var ch in str)
+                if (ch >= 'A' && ch <= 'Z')
+                {
+                    res = true;
+                    break;
+                }
+            result = res;
+            if (res)
+                return str.ToLower();
+            else
+                return str;
+        }
+
+        public static int GetPrefixIndex(string str)
+        {
+            char ch = str[0];
+            if (ch >= 'a' && ch <= 'z')
+                return ch - 'a';
+            if (ch >= 'A' && ch <= 'Z')
+                return ch - 'A';
+            else
+                return 0;
+        }
     }
 }

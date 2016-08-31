@@ -1,12 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:wid="clr-namespace:WordsLinks.Widget;assembly=WordsLinks"
              x:Class="WordsLinks.View.LibraryPage"
              Title="词库">
   <StackLayout Padding="0,0,0,8" Orientation="Vertical" BackgroundColor="#FFFCF8">
+    <Label x:Name="theword" FontSize="Large" FontAttributes="Bold" Margin="16" HorizontalOptions="CenterAndExpand"/>
+    <Label x:Name="wcnt" FontSize="Medium" Margin="8" HorizontalOptions="CenterAndExpand"/>
+    <SearchBar x:Name="search" Placeholder="要查找的单词" TextChanged="OnSearchText"/>
     <ListView x:Name="words" BackgroundColor="#FFFCF8" ItemTapped="OnItemSelect"
               GroupDisplayBinding="{Binding Prefix}" GroupShortNameBinding="{Binding Prefix}"
-              HorizontalOptions="FillAndExpand">
+              HasUnevenRows="true" HorizontalOptions="FillAndExpand">
+      <ListView.ItemTemplate>
+        <DataTemplate>
+          <wid:TextCellEx Text="{Binding Text}" IsShow="{Binding IsShow}" ShowIndicator="Entry"/>
+        </DataTemplate>
+      </ListView.ItemTemplate>
     </ListView>
   </StackLayout>
 </ContentPage >

@@ -11,10 +11,11 @@ namespace WordsLinks.View
 {
 	public partial class SettingPage : ContentPage
     {
-        SelectCellGroup netChoiceGroup;//, quizAdaptGroup;
+        SelectCellGroup netChoiceGroup;
         public SettingPage()
 		{
 			InitializeComponent();
+            BackgroundColor = Color.FromHex("FFFCF8");
             netChoiceGroup = new SelectCellGroup(false, false);
             var dat = NetService.GetChoices();
             netChoiceGroup.Set(dat.Item2);
