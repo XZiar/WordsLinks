@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Xamarin.Forms;
 using static Main.Util.BasicUtils;
 
@@ -83,16 +84,22 @@ namespace WordsLinks.ViewModel
             Search(null);
         }
 
-        public void Search(string str)
+        public bool Search(string str, bool isForce = false)
         {
-            lock (datas)
+            bool isGetLock = false;
+            do 
+            {
+                isGetLock = Monitor.TryEnter(datas);
+            }
+            while (isForce && !isGetLock);
+            if (!isGetLock)
+                return false;
+            try //Enter Lock
             {
                 if (str != null && str == lastStr)
-                    return;
+                    return true;
                 if (string.IsNullOrWhiteSpace(str))//always reconstruct all
                 {
-                    foreach (var g in datas)
-                        g.Clear();
                     foreach (var s in bak)
                         datas[GetPrefixIndex(s)].Add(new TextViewModel(s));
                 }
@@ -114,6 +121,11 @@ namespace WordsLinks.ViewModel
                 }
                 lastStr = str;
                 datas.Refresh();
+                return true;
+            }
+            finally //Leave Lock
+            {
+                Monitor.Exit(datas);
             }
         }
     }

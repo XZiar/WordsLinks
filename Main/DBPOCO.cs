@@ -1,6 +1,5 @@
 ﻿using SQLite;
 using System;
-using System.Collections.Generic;
 
 namespace Main.Model
 {
@@ -18,7 +17,7 @@ namespace Main.Model
 		public int Id { get; set; }
 		[Unique, MaxLength(16)]
 		public string Letters { get; set; }
-        public short wrong { get; set; } = 1;
+        public short wrong { get; set; } = 15;
         public short right { get; set; }
 
         public DBWord() { }
@@ -40,7 +39,7 @@ namespace Main.Model
 		public int Id { get; set; }
 		[Unique, MaxLength(16)]
 		public string Meaning { get; set; }
-        public short wrong { get; set; } = 1;
+        public short wrong { get; set; } = 15;
         public short right { get; set; }
 
         public DBMeaning() { }

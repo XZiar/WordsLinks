@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace Main.Util
 {
-    public static class BasicUtils
+    public static partial class BasicUtils
     {
         public delegate void ExceptionHandler(Exception e, string log);
         public static ExceptionHandler OnExceptionEvent;
@@ -70,7 +70,7 @@ namespace Main.Util
                 }
                 int b = len3 - (count - 1) * 3;
                 byte* bak = t + 3;
-                while(b-- > 0)
+                while (b-- > 0)
                     *t++ = *f++;
                 *bak = fill;
             }
@@ -107,7 +107,7 @@ namespace Main.Util
             fixed (char* cha = stra, chb = strb)
             {
                 for (int a = 0; a < lena; a++)
-                for (int b = 0; b < lenb; b++)
+                    for (int b = 0; b < lenb; b++)
                     {
                         if (cha[a] != chb[b])
                         {
@@ -115,7 +115,7 @@ namespace Main.Util
                             continue;
                         }
                         map[a, b] = (a * b == 0) ? (byte)1 : (byte)(map[a - 1, b - 1] + 1);
-                        if(map[a, b] > max)
+                        if (map[a, b] > max)
                         {
                             max = map[a, b];
                             posa = a; posb = b;
@@ -128,7 +128,7 @@ namespace Main.Util
 
         public static void MinMax<T>(T a, T b, out T min, out T max) where T : IComparable<T>
         {
-            if(a.CompareTo(b) < 0)
+            if (a.CompareTo(b) < 0)
             {
                 min = a; max = b;
             }
@@ -136,27 +136,6 @@ namespace Main.Util
             {
                 min = b; max = a;
             }
-        }
-
-        public static string TryToLower(this string str, out bool? result)
-        {
-            if (string.IsNullOrWhiteSpace(str))
-            {
-                result = null;
-                return str;
-            }
-            bool res = false;
-            foreach (var ch in str)
-                if (ch >= 'A' && ch <= 'Z')
-                {
-                    res = true;
-                    break;
-                }
-            result = res;
-            if (res)
-                return str.ToLower();
-            else
-                return str;
         }
 
         public static int GetPrefixIndex(string str)

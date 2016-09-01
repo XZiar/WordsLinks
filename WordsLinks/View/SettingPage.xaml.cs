@@ -108,7 +108,12 @@ namespace WordsLinks.View
             }
             else if (sender == debugCell)
             {
-                DictService.debugInfo();
+                var str = DictService.debugInfo();
+                Navigation.PushAsync(new DebugPage("DBstat", str));
+            }
+            else if(sender == updCell)
+            {
+                DictService.updateDB();
             }
         }
 

@@ -3,7 +3,6 @@ using Main.Util;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Windows.ApplicationModel.Core;
 using Windows.System;
 using Windows.UI.Core;

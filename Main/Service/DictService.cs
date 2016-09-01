@@ -8,11 +8,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using static Main.Util.BasicUtils;
 using static Main.Util.SpecificUtils;
 using static System.Text.Encoding;
-
 using JKV = System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, Newtonsoft.Json.Linq.JToken>>;
 
 namespace Main.Service
@@ -245,18 +245,18 @@ namespace Main.Service
                 }
             });
 
-        private static bool ReplaceImport(JObject obj, Dictionary<int, short> wwcnt, Dictionary<int, short> mwcnt)
+        private static bool ReplaceImport(JObject wordJO, JObject meanJO, JObject linkJO,
+            Dictionary<int, short> wwcnt, Dictionary<int, short> mwcnt)
         {
             Clear(false);
             var wMap = new Dictionary<int, int>();
             var mMap = new Dictionary<int, int>();
             {
-                var wo = obj["words"] as JObject;
-                var ws = new DBWord[wo.Count];
-                var ids = new int[wo.Count];
+                var ws = new DBWord[wordJO.Count];
+                var ids = new int[wordJO.Count];
                 int a = 0, tid;
                 short wcnt;
-                foreach (var jp in wo)
+                foreach (var jp in wordJO)
                 {
                     ws[a] = new DBWord() { Letters = jp.Key.ToLower() };
                     if (wwcnt.TryGetValue(tid = jp.Value.ToInt(), out wcnt))
@@ -269,12 +269,11 @@ namespace Main.Service
                     wMap.Add(ids[a++], w.Id);
             }
             {
-                var mo = obj["means"] as JObject;
-                var ms = new DBMeaning[mo.Count];
-                var ids = new int[mo.Count];
+                var ms = new DBMeaning[meanJO.Count];
+                var ids = new int[meanJO.Count];
                 int a = 0, tid;
                 short wcnt;
-                foreach (var jp in mo)
+                foreach (var jp in meanJO)
                 {
                     ms[a] = new DBMeaning() { Meaning = jp.Key.ToLower() };
                     if (mwcnt.TryGetValue(tid = jp.Value.ToInt(), out wcnt))
@@ -288,7 +287,7 @@ namespace Main.Service
             }
             {
                 var ts = new List<DBTranslation>();
-                foreach (var jp in obj["links"] as JObject)
+                foreach (var jp in linkJO)
                 {
                     int wid = wMap[jp.Key.ToInt()];
                     foreach (var ji in jp.Value as JArray)
@@ -299,13 +298,13 @@ namespace Main.Service
             Init();
             return true;
         }
-        private static bool AddImport(JObject obj)
+        private static bool AddImport(JObject wordJO, JObject meanJO, JObject linkJO)
         {
             var wMap = new Dictionary<int, int>();
             var mMap = new Dictionary<int, int>();
             int tmp;
             var w = new DBWord();
-            foreach (var jp in obj["words"] as JObject)
+            foreach (var jp in wordJO)
             {
                 if (words.TryGetValue(w.Letters = jp.Key.ToLower(), out tmp))
                     wMap.Add(w.Id = jp.Value.ToInt(), tmp);
@@ -315,11 +314,11 @@ namespace Main.Service
                     wMap.Add(jp.Value.ToInt(), w.Id);
                     words.Add(w.Letters, w.Id);
                     eles.Add(w.ToStat());
-                    WrongCount += 2;
+                    WrongCount += w.wrong + 1;
                 }
             }
             var m = new DBMeaning();
-            foreach (var jp in obj["means"] as JObject)
+            foreach (var jp in meanJO)
             {
                 if (means.TryGetValue(m.Meaning = jp.Key, out tmp))
                     mMap.Add(m.Id = jp.Value.ToInt(), tmp);
@@ -329,11 +328,11 @@ namespace Main.Service
                     mMap.Add(jp.Value.ToInt(), m.Id);
                     means.Add(m.Meaning, m.Id);
                     eles.Add(m.ToStat());
-                    WrongCount += 2;
+                    WrongCount += m.wrong + 1;
                 }
             }
             var t = new DBTranslation();
-            foreach (var jp in obj["links"] as JObject)
+            foreach (var jp in linkJO)
             {
                 t.Wid = wMap[jp.Key.ToInt()];
                 foreach (var ji in jp.Value as JArray)
@@ -371,20 +370,21 @@ namespace Main.Service
                 var obj = Decoder(bmp);
                 if (obj == null)
                     return false;
-                if(isReplace)
+                JObject wordJO = obj["words"] as JObject, meanJO = obj["means"] as JObject, linkJO = obj["links"] as JObject;
+                if (isReplace)
                 {
-                    var wwcnt = isImWCnt ?
-                        (obj["wwcnt"] as JKV)?.ToDictionary(x => x.Key.ToInt(), x => (short)x.Value.ToInt())
-                        : new Dictionary<int, short>();
+                    Dictionary<int, short> wwcnt = null, mwcnt = null;
+                    if(isImWCnt)
+                    {
+                        wwcnt = (obj["wwcnt"] as JKV)?.ToDictionary(x => x.Key.ToInt(), x => (short)x.Value.ToInt());
+                        mwcnt = (obj["mwcnt"] as JKV)?.ToDictionary(x => x.Key.ToInt(), x => (short)x.Value.ToInt());
+                    }
                     wwcnt = wwcnt ?? new Dictionary<int, short>();
-                    var mwcnt = isImWCnt ?
-                        (obj["mwcnt"] as JKV)?.ToDictionary(x => x.Key.ToInt(), x => (short)x.Value.ToInt())
-                        : new Dictionary<int, short>();
                     mwcnt = mwcnt ?? new Dictionary<int, short>();
-                    return ReplaceImport(obj, wwcnt, mwcnt);
+                    return ReplaceImport(wordJO, meanJO, linkJO, wwcnt, mwcnt);
                 }
                 else
-                    return AddImport(obj);
+                    return AddImport(wordJO, meanJO, linkJO);
             });
 
         public static void AddWord(string eng, ICollection<string> chi)
@@ -396,7 +396,7 @@ namespace Main.Service
                 db.Insert(word);
                 words[eng] = wid = word.Id;
                 eles.Add(word.ToStat());
-                WrongCount += 2;
+                WrongCount += word.wrong + 1;
             }
             foreach (var str in chi)
             {
@@ -406,7 +406,7 @@ namespace Main.Service
                     db.Insert(mean);
                     means[str] = mid = mean.Id;
                     eles.Add(mean.ToStat());
-                    WrongCount += 2;
+                    WrongCount += mean.wrong + 1;
                 }
                 if (!e2c.Contains(wid, mid))
                 {
@@ -455,20 +455,20 @@ namespace Main.Service
             updTimeDetail = DateTime.Now.Ticks;
         }
 
-        public static void debugInfo()
+        public static string debugInfo()
         {
-            Debug.WriteLine($"Total wrong: {WrongCount} for {WordsCount} words and {MeansCount} means");
+            StringBuilder sb = 
+                new StringBuilder($"Total wrong: {WrongCount} for {WordsCount} words and {MeansCount} means\r\n");
             foreach (var e in eles)
-            {
-                Debug.WriteLine($"{e.wrong} \t {e.str}");
-            }
+                sb.Append($"{e.wrong} \t {e.str}\r\n");
+            return sb.ToString();
         }
 
         public static void updateDB()
         {
-            int ret = db.Execute("update Words set wrong=wrong+1");
+            int ret = db.Execute("update Words set wrong=wrong+15");
             Debug.WriteLine($"affect {ret} records");
-            ret = db.Execute("update Meanings set wrong=wrong+1");
+            ret = db.Execute("update Meanings set wrong=wrong+15");
             Debug.WriteLine($"affect {ret} records");
             Init();
         }

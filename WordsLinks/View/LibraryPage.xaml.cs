@@ -48,7 +48,7 @@ namespace WordsLinks.View
         }
 
         private long searcherTime = 0;
-        private bool shouldSearch = false;
+        private volatile bool shouldSearch = false;
         private Action<object> Searcher = (o) =>
         {
             var self = o as LibraryPage;
@@ -62,16 +62,15 @@ namespace WordsLinks.View
                         sleepTime = (int)(160 - differ / 10000);
                     else
                     {
-                        self.shouldSearch = false;
                         try
                         {
-                            self.wgroups.Search(self.search.Text);
+                            self.shouldSearch = !self.wgroups.Search(self.search.Text);
                         }
                         catch(Exception e)
                         {
                             e.CopeWith("thread do search");
                         }
-                        sleepTime = 170;
+                        sleepTime = self.shouldSearch ? 50 : 170;
                     }
                 }
                 else
@@ -120,33 +119,26 @@ namespace WordsLinks.View
             }
         }
 
-        private async void OnItemSelect(object sender, ItemTappedEventArgs args)
+        private void OnItemSelect(object sender, ItemTappedEventArgs args)
         {
             var str = (args.Item as TextViewModel).Text;
-            await Navigation.PushAsync(new LibraryPage(str));
+            Navigation.PushAsync(new LibraryPage(str));
         }
 
         private void OnSearchText(object sender, TextChangedEventArgs args)
         {
-            try
+            bool? isChged;
+            search.Text = search.Text.TryToLower(out isChged);
+            isChged = isChged ?? false;
+            if (!isChged.Value)
             {
-                bool? isChged;
-                search.Text = search.Text.TryToLower(out isChged);
-                isChged = isChged ?? false;
-                if (!isChged.Value)
-                {
-                    searcherTime = DateTime.Now.Ticks;
-                    shouldSearch = true;
-                }
-            }
-            catch(Exception e)
-            {
-                e.CopeWith("searchText");
+                searcherTime = DateTime.Now.Ticks;
+                shouldSearch = true;
             }
         }
         private void OnSearch(object sender, EventArgs e)
         {
-            wgroups.Search(search.Text);
+            wgroups.Search(search.Text, true);
         }
     }
 }
