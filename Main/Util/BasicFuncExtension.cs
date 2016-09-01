@@ -41,14 +41,18 @@ namespace Main.Util
                 return str;
             }
             result = false;
-            char[] ch = str.ToCharArray();
-            int len = ch.Length;
-            for (int a = 0; a < len; a++)
-                if (ch[a] >= 'A' && ch[a] <= 'Z')
+            char[] ch = new char[str.Length];
+            int a = 0;
+            foreach(var obj in str)
+            {
+                if (obj >= 'A' && obj <= 'Z')
                 {
-                    ch[a] += (char)('a' - 'A');
+                    ch[a++] = (char)(obj + 32); // (char)('a' - 'A')
                     result = true;
                 }
+                else
+                    ch[a++] = obj;
+            }
             return new string(ch);
         }
 

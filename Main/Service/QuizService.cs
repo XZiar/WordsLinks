@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Main.Service
 {
@@ -56,14 +57,16 @@ namespace Main.Service
             return trans.Select(x => x.GetStr());
         }
 
+        private static Regex chsRex = new Regex(@"[\u4e00-\u9fa5]");
         public void EndTest()
         {
             if (state != QuizState.Finish)
                 return;
+            bool isChs = chsRex.IsMatch(quest);
             int a = 0;
             if (isAllRight)
             {
-                DictService.Report(quest, -3);
+                DictService.Report(quest, (short)(isChs ? -4 : -5));
                 foreach (var it in choices)
                 {
                     if (it.Item2 == ans[a++])
@@ -72,11 +75,11 @@ namespace Main.Service
             }
             else
             {
-                DictService.Report(quest, 4);
+                DictService.Report(quest, (short)(isChs ? 5 : 7));
                 foreach(var it in choices)
                 {
                     if (it.Item2 != ans[a++])
-                        DictService.Report(it.Item1, 2);
+                        DictService.Report(it.Item1, (short)(isChs ? 4 : 2));
                 }
             }
         }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using Windows.UI.Xaml;
-using Xamarin.Forms;
+﻿using Xamarin.Forms;
 using static Main.Util.BasicUtils;
 
 namespace WordsLinks.Widget
@@ -21,9 +17,9 @@ namespace WordsLinks.Widget
             set { CheckImage.SetValue(VisualElement.IsVisibleProperty, value); }
         }
 
+        private static Thickness imgThick = new Thickness(10), stkThick = new Thickness(16, 4, 4, 4);
         public SelectCell()
         {
-            Height = 60;
             CellText = new Label()
             {
                 VerticalOptions = LayoutOptions.CenterAndExpand,
@@ -33,7 +29,7 @@ namespace WordsLinks.Widget
             CheckImage = new Image()
             {
                 HorizontalOptions = LayoutOptions.EndAndExpand,
-                Margin = new Thickness(10),
+                Margin = imgThick,
                 IsVisible = false,
             };
 
@@ -44,7 +40,7 @@ namespace WordsLinks.Widget
             {
                 Orientation = StackOrientation.Horizontal,
                 Spacing = 8,
-                Padding = new Thickness(16, 4, 4, 4),
+                Padding = stkThick,
             };
             layout.Children.Add(CellText);
             layout.Children.Add(CheckImage);
@@ -61,6 +57,8 @@ namespace WordsLinks.Widget
 
     public class HeaderCell : ViewCell
     {
+        private static Color bgColor = Color.FromRgb(240, 240, 240);
+        private static Thickness stkThick = new Thickness(16, 0);
         public HeaderCell()
         {
             Height = 25;
@@ -76,8 +74,8 @@ namespace WordsLinks.Widget
                 HeightRequest = 25,
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 VerticalOptions = LayoutOptions.Center,
-                BackgroundColor = Color.FromRgb(240, 240, 240),
-                Padding = new Thickness(16, 0),
+                BackgroundColor = bgColor,
+                Padding = stkThick,
                 Orientation = StackOrientation.Horizontal,
                 Children = { title }
             };

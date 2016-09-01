@@ -114,7 +114,7 @@ namespace Main.Util
                             map[a, b] = 0;
                             continue;
                         }
-                        map[a, b] = (a * b == 0) ? (byte)1 : (byte)(map[a - 1, b - 1] + 1);
+                        map[a, b] = (a & b) == 0 ? (byte)1 : (byte)(map[a - 1, b - 1] + 1);
                         if (map[a, b] > max)
                         {
                             max = map[a, b];
